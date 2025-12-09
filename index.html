@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="Content-Security-Policy" content="script-src 'self'" />
 
-    <title>Min</title>
+    <title>CipherNet Browser</title>
 
     <link rel="stylesheet" href="dist/bundle.css" />
     <link rel="stylesheet" href="ext/icons/iconfont.css" />
@@ -12,6 +12,28 @@
 
   <body>
     <div class="window-drag-area"></div>
+
+    <!-- Custom CipherNet Titlebar -->
+    <div id="ciphernet-titlebar" class="windowDragHandle">
+      <div id="status-indicators">
+        <div class="status-item">
+          <i class="i carbon:flash"></i>
+          <span>AUTO-BURN ACTIVE</span>
+        </div>
+        <div class="status-item">
+          <i class="i carbon:circle-dash"></i>
+          <span>ISOLATED SESSION</span>
+        </div>
+        <div class="status-item">
+          <i class="i carbon:locked"></i>
+          <span>ENCRYPTED</span>
+        </div>
+      </div>
+      <div id="session-timer">
+        <span>SESSION TIME:</span>
+        <span id="timer">00:00</span>
+      </div>
+    </div>
 
     <div class="windows-caption-buttons">
       <div class="element caption-minimise">
@@ -188,6 +210,17 @@
 
     <div id="searchbar" class="theme-background-color theme-text-color">
       <div class="top-answer-area"></div>
+    </div>
+
+    <div id="cipher-toolbar-buttons">
+      <button id="mixer-button" class="cipher-toolbar-btn" title="Mixer">
+        <i class="i carbon:shuffle"></i>
+        <span>Mixer</span>
+      </button>
+      <button id="privacy-button" class="cipher-toolbar-btn" title="Privacy">
+        <i class="i carbon:view-off"></i>
+        <span>Privacy</span>
+      </button>
     </div>
 
     <div id="overlay"></div>

@@ -9,9 +9,9 @@ const colorExtractorContext = colorExtractorCanvas.getContext('2d')
 const textColorNN = require('ext/textColor/textColor.js')
 
 const defaultColors = {
-  private: ['rgb(58, 44, 99)', 'white'],
+  private: ['rgb(32, 32, 32)', 'white'],
   lightMode: ['rgb(255, 255, 255)', 'black'],
-  darkMode: ['rgb(33, 37, 43)', 'white']
+  darkMode: ['rgb(32, 32, 32)', 'white']
 }
 
 function getHours () {

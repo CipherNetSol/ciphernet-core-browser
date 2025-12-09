@@ -168,6 +168,9 @@ require('bookmarkConverter.js').initialize()
 require('newTabPage.js').initialize()
 require('macHandoff.js').initialize()
 
+// CipherNet custom modules
+require('ciphernet/sessionTimer.js').initialize()
+
 // default searchbar plugins
 
 require('searchbar/placesPlugin.js').initialize()

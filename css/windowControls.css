@@ -76,7 +76,7 @@ body.windows:not(.separate-titlebar) .windows-caption-buttons {
 .windows-caption-buttons .element {
   line-height: 36px;
   width: 36px;
-  stroke: #000;
+  stroke: #ffffff;
   padding: 0 5px;
   box-sizing: content-box;
   fill: transparent;
@@ -84,7 +84,7 @@ body.windows:not(.separate-titlebar) .windows-caption-buttons {
 }
 
 body:not(.task-overlay-is-shown).dark-theme .windows-caption-buttons .element {
-  stroke: #fff;
+  stroke: #ffffff;
 }
 
 .windows-caption-buttons .element > svg {
@@ -96,22 +96,22 @@ body:not(.task-overlay-is-shown).dark-theme .windows-caption-buttons .element {
   transition: background-color 0.1s linear, color 0.1s linear;
 }
 .windows-caption-buttons .element:hover {
-  background-color: rgba(196, 196, 196, 0.4);
+  background-color: rgba(255, 255, 255, 0.1);
   transition: none;
 }
 .windows-caption-buttons .element:active {
-  background-color: rgba(168, 168, 168, 0.5);
+  background-color: rgba(255, 255, 255, 0.15);
 }
 .windows-caption-buttons .element.caption-close:hover {
-  background-color: #e81123;
+  background-color: #666666;
 }
 .windows-caption-buttons .element.caption-close:hover > svg,
 .windows-caption-buttons .element.caption-close:active > svg {
-  stroke: #fff;
+  stroke: #ffffff;
   stroke-width: 1.1px;
 }
 .windows-caption-buttons .element.caption-close:active {
-  background-color: rgba(232, 17, 35, 0.6);
+  background-color: #444444;
 }
 
 /* Linux buttons */

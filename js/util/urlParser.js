@@ -117,9 +117,11 @@ var urlParser = {
         return representedURL
       } else {
         try {
+          // Extract the page name from URLs like min://app/pages/welcome/index.html
           var pageName = url.match(/\/pages\/([a-zA-Z]+)\//)
           var urlObj = new URL(url)
           if (pageName) {
+            // Return shortened min:// URL format
             return 'min://' + pageName[1] + urlObj.search
           }
         } catch (e) {}

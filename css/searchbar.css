@@ -1,16 +1,26 @@
 #searchbar {
   z-index: 3;
   position: fixed;
-  top: calc(var(--control-space-top) + 36px);
+  top: calc(var(--control-space-top) + 72px);
   left: 0;
   width: 100%;
-  background: #fff;
-  color: #000;
+  background: #ffffff;
+  color: #000000;
   padding-left: var(--control-space-left);
   padding-right: calc(82px + var(--control-space-right));
   -webkit-user-select: none;
   max-height: calc(100% - 125px);
   overflow-y: auto;
+  display: none;
+}
+
+body.is-edit-mode #searchbar {
+  display: block;
+}
+
+.dark-mode #searchbar {
+  background: #1a1a1a;
+  color: #e0e0e0;
 }
 
 body:not(.is-ntp) #searchbar,
@@ -39,7 +49,7 @@ body.linux #searchbar {
   position: absolute;
   right: 0;
   top: 0.5em;
-  border: 1px #ccc solid;
+  border: 1px #555555 solid;
   padding: 0.33em 0.5em;
   border-radius: 3px;
   opacity: 0.66;
@@ -51,10 +61,10 @@ body.linux #searchbar {
 }
 
 .dark-theme .searchbar-floating-button {
-  border-color: white;
+  border-color: #888888;
 }
 .dark-theme .searchbar-floating-button:hover {
-  background-color: rgba(255, 255, 255, 0.075)
+  background-color: rgba(255, 255, 255, 0.1)
 }
 
 /* move the icon when there isn't room to the left of the searchbar */
@@ -107,26 +117,26 @@ body:not(.mac) #searchbar .searchbar-item.has-action-button:hover .icon-image {
   padding: 0.5em 0.66em;
   margin: 0.175em 0.4em 0.5em 0.4em;
   border-radius: 5px;
-  border: 1px rgba(0, 0, 0, 0.15) solid;
+  border: 1px #cccccc solid;
 }
 .dark-theme .searchbar-shortcut {
-  border-color: rgba(255, 255, 255, 0.4);
+  border-color: #555555;
 }
 
 .searchbar-shortcut:hover,
 .searchbar-shortcut:focus {
-  background: rgba(0, 0, 0, 0.075);
+  background: #f0f0f0;
 }
 
 .dark-theme .searchbar-shortcut:hover,
 .dark-theme .searchbar-shortcut:focus {
-  background: rgba(255, 255, 255, 0.075);
+  background: #2d2d2d;
 }
 
 .searchbar-shortcut:active {
-  background: rgba(0, 0, 0, 0.125);
+  background: #e0e0e0;
 }
 
 .dark-theme .searchbar-shortcut:active {
-  background: rgba(255, 255, 255, 0.125);
+  background: #3d3d3d;
 }

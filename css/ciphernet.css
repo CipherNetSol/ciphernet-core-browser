@@ -1,0 +1,171 @@
+/* CipherNet Custom Titlebar and Styling - Black & White Theme */
+
+#ciphernet-titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #000000;
+  padding: 8px 16px;
+  border-bottom: 1px solid #333333;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  height: 36px;
+  z-index: 1000;
+}
+
+#status-indicators {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #888888;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.status-item i {
+  font-size: 14px;
+  color: #ffffff;
+}
+
+.status-item:nth-child(1) i {
+  color: #cccccc;
+}
+
+.status-item:nth-child(2) i {
+  color: #ffffff;
+}
+
+.status-item:nth-child(3) i {
+  color: #aaaaaa;
+}
+
+#session-timer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+#session-timer #timer {
+  color: #ffffff;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+}
+
+/* Cipher Toolbar Buttons - Black & White Theme */
+#cipher-toolbar-buttons {
+  position: fixed;
+  right: 20px;
+  top: 76px;
+  display: flex;
+  gap: 10px;
+  z-index: 10;
+}
+
+.cipher-toolbar-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: #000000;
+  border: 1px solid #555555;
+  border-radius: 6px;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cipher-toolbar-btn i {
+  font-size: 14px;
+}
+
+.cipher-toolbar-btn:hover {
+  background: #222222;
+  border-color: #888888;
+  color: #ffffff;
+}
+
+.cipher-toolbar-btn:active {
+  background: #333333;
+}
+
+#mixer-button {
+  background: #000000;
+  border-color: #555555;
+  color: #ffffff;
+}
+
+#mixer-button:hover {
+  background: #222222;
+  border-color: #888888;
+  color: #ffffff;
+}
+
+#privacy-button {
+  background: #000000;
+  border-color: #555555;
+  color: #ffffff;
+}
+
+#privacy-button:hover {
+  background: #222222;
+  border-color: #888888;
+  color: #ffffff;
+}
+
+/* Searchbar does not need extra padding now */
+
+/* Black & White theme for CipherNet */
+body.dark-mode {
+  background: #000000;
+}
+
+/* Chrome-like Tab styling - Black & White Theme */
+.tab-item {
+  background: #35363a;
+  border: none;
+  border-radius: 8px 8px 0 0;
+  color: #9e9e9e;
+  position: relative;
+  transition: all 0.15s ease;
+}
+
+.tab-item.active {
+  background: #ffffff;
+  color: #202124;
+  box-shadow: none;
+}
+
+.tab-item:not(.active):hover {
+  background: #45464a;
+  color: #e8eaed;
+}
+
+.tab-item.active:hover {
+  background: #ffffff;
+}
+
+/* Navbar adjustments for Black & White theme */
+#navbar {
+  background: #202124 !important;
+  border-bottom: none;
+}
+
+/* Remove glow effects for cleaner look */
+.status-item i,
+.cipher-toolbar-btn i {
+  filter: none;
+}

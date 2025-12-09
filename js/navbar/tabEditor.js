@@ -31,6 +31,8 @@ const tabEditor = {
     if (currentURL === 'min://newtab') {
       currentURL = ''
     }
+    // Keep the full min:// URL for internal pages like welcome
+    // This ensures they display correctly in the address bar
 
     tabEditor.input.value = editingValue || currentURL
     tabEditor.input.focus()

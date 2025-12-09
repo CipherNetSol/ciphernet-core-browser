@@ -1,9 +1,9 @@
 {
-  "name": "min",
-  "productName": "Min",
-  "author": "PalmerAL",
+  "name": "ciphernet",
+  "productName": "CipherNet",
+  "author": "CipherNet Team",
   "version": "1.35.2",
-  "description": "A fast, minimal browser that protects your privacy",
+  "description": "A privacy-first Web3 browser with ephemeral wallets, auto-burn sessions, and dApp isolation",
   "electronVersion": "38.3.0",
   "main": "main.build.js",
   "standard": {

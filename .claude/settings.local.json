@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(dir:*)",
+      "Bash(mkdir:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run:*)",
+      "Bash(powershell:*)",
+      "Bash(del \"%APPDATA%\\ciphernet\\sessionRestore.json\")"
+    ]
+  }
+}

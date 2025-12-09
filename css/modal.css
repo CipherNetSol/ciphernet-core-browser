@@ -25,7 +25,7 @@ body.is-modal-mode #overlay {
   pointer-events: all;
 }
 body.dark-mode #overlay {
-  background: rgba(33, 37, 43, 0.4);
+  background: rgba(0, 0, 0, 0.5);
 }
 
 .modal {
@@ -37,9 +37,9 @@ body.dark-mode #overlay {
   z-index: 9;
   transform: translate(-50%, -50%);
   padding: 1em 1.25em;
-  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.25);
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
   border-radius: 8px;
-  background: #fff;
+  background: #ffffff;
   animation: modal-appear 0.2s;
 }
 
@@ -54,7 +54,8 @@ body.dark-mode #overlay {
 }
 
 .dark-mode .modal {
-  background-color: rgb(33, 37, 43);
+  background-color: #1a1a1a;
+  border: 1px solid #333333;
 }
 
 .modal-close-button {
@@ -69,11 +70,11 @@ body.dark-mode #overlay {
 
 .modal-close-button:hover {
   opacity: 1;
-  background: rgba(0, 0, 0, 0.075);
+  background: #f0f0f0;
 }
 
 .dark-mode .modal-close-button:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: #2d2d2d;
 }
 
 .modal-title {
