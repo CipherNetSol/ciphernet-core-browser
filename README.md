@@ -1,115 +1,182 @@
-# Min
+# CipherNet Browser
 
-Min is a fast, minimal browser that protects your privacy. It includes an interface designed to minimize distractions, and features such as:
+CipherNet is a privacy-first Web3 browser designed for users who demand complete anonymity and security. Built on the foundation of ephemeral sessions and zero-trace architecture, CipherNet ensures your digital footprint vanishes the moment you close the browser.
 
-- Full-text search for visited pages
-- Ad and tracker blocking
-- Automatic reader view
-- Tasks (tab groups)
-- Bookmark tagging
-- Password manager integration
-- Dark theme
+## Core Features
 
-Download Min from the [releases page](https://github.com/minbrowser/min/releases), or learn more on the [website](https://minbrowser.org/).
-
-[![Downloads][DownloadsBadge]][DownloadsUrl]
-[![Discord][DiscordBadge]][DiscordUrl]
-
-Min is made possible by these sponsors:
-
-| [<img src="https://avatars.githubusercontent.com/u/6592155?v=4" width="40">](https://github.com/blackgwe) | [<img src="https://avatars.githubusercontent.com/u/49724477?v=4" width="40">](https://github.com/rafel-ioli) |[<img src="https://avatars.githubusercontent.com/u/237596?v=4" width="40">](https://github.com/idoru) |     |
-| ----------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |--------------------------------------------------------------------------------------------------------------- | --- |
-| [@blackgwe](https://github.com/blackgwe)                                                                            | [@rafel-ioli](https://github.com/rafel-ioli)                                                                        |[@idoru](https://github.com/idoru)                                                                        ||
-
-[Become a sponsor](https://github.com/sponsors/PalmerAL)
+- **Ephemeral Wallets** - Disposable wallets created on-demand with no address reuse or identity buildup
+- **Auto-Burn Sessions** - Complete session wiping on exit with no traces, persistence, or trails
+- **dApp Isolation** - Each dApp runs in an encrypted sandbox with no shared storage or cross-app leaks
+- **MSG Masking** - Masked transaction instructions to hide your intent and protect origin privacy
+- **Ad and Tracker Blocking** - Built-in protection against ads, trackers, and fingerprinting
+- **Full-Text Search** - Search through all your visited pages instantly
+- **Task Management** - Organize tabs into separate tasks for better workflow management
+- **Password Manager Integration** - Secure credential management with popular password managers
+- **Dark Theme** - Easy on the eyes with native dark mode support
 
 ## Screenshots
 
-<img alt="The search bar, showing information from DuckDuckGo" src="http://minbrowser.org/tour/img/searchbar_duckduckgo_answers.png" width="650"/>
-
-<img alt="The Tasks Overlay" src="http://minbrowser.org/tour/img/tasks.png" width="650"/>
-
-<img alt="Reader View" src="https://user-images.githubusercontent.com/10314059/53312382-67ca7d80-387a-11e9-9ccc-88ac592c9b1c.png" width="650"/>
-
 ## Installing
 
-You can find prebuilt binaries for Min [here](https://github.com/minbrowser/min/releases). Alternatively, skip to the section below for instructions on how to build Min directly from source.
+### Installation on Windows
+
+- Download the latest Windows installer from the [releases page](https://github.com/CipherNetSol/ciphernet-core-browser/releases)
+- Run the installer and follow the setup wizard
+- Launch CipherNet from your Start menu or desktop shortcut
+
+### Installation on macOS
+
+- Download the `.dmg` file for your Mac (Intel or Apple Silicon)
+- Open the downloaded file and drag CipherNet to your Applications folder
+- Launch CipherNet from Applications
 
 ### Installation on Linux
 
-- To install the .deb file, use `sudo dpkg -i /path/to/download`
-- To install the RPM build, use `sudo rpm -i /path/to/download --ignoreos`
-- On Arch Linux install from [AUR](https://aur.archlinux.org/packages/min-browser-bin).
-- On Raspberry Pi, you can install Min from [Pi-Apps](https://github.com/Botspot/pi-apps).
+- **Debian/Ubuntu**: Use `sudo dpkg -i /path/to/ciphernet.deb`
+- **Red Hat/Fedora**: Use `sudo rpm -i /path/to/ciphernet.rpm`
+- **Arch Linux**: Install from AUR (coming soon)
 
 ## Getting Started
 
-* The [wiki](https://github.com/minbrowser/min/wiki) provides an overview of the the features available in Min, a list of available keyboard shortcuts, and answers to some [frequently asked questions](https://github.com/minbrowser/min/wiki/FAQ).
-* Min supports installing userscripts to extend its functionality. See the [userscript documentation](https://github.com/minbrowser/min/wiki/userscripts) for instructions on writing userscripts, as well as a collection of scripts written by the community.
-* If you have questions about using Min, need help getting started with development, or want to talk about what we're working on, join our [Discord server](https://discord.gg/bRpqjJ4).
+### First Launch
 
-## Developing
+On your first launch, CipherNet will display a welcome page introducing you to its core privacy features. From there, you can:
 
-If you want to develop Min:
+- Start browsing immediately with automatic tracker blocking
+- Create ephemeral wallets for Web3 interactions
+- Organize your browsing into separate tasks
+- Configure privacy settings to match your security requirements
 
-- Install [Node](https://nodejs.org).
-- Run `npm install` to install dependencies.
-- Start Min in development mode by running `npm run start`.
-- After you make changes, press `alt+ctrl+r` (or `opt+cmd+r` on Mac) to reload the browser UI.
+### Keyboard Shortcuts
 
-### Building binaries
+- `Ctrl/Cmd + T` - New tab
+- `Ctrl/Cmd + Shift + T` - Reopen closed tab
+- `Ctrl/Cmd + W` - Close current tab
+- `Ctrl/Cmd + K` - Focus search bar
+- `Ctrl/Cmd + Shift + E` - Switch tasks
+- `Alt/Opt + Ctrl/Cmd + R` - Reload browser UI (development mode)
 
-In order to build Min from source, follow the installation instructions above, then use one of the following commands to create binaries:
+## Development
 
-- `npm run buildWindows`
-- `npm run buildMacIntel`
-- `npm run buildMacArm`
-- `npm run buildDebian`
-- `npm run buildRaspi` (for 32-bit Raspberry Pi)
-- `npm run buildLinuxArm64` (for 64-bit Raspberry Pi or other ARM Linux)
-- `npm run buildRedhat`
+If you want to contribute to CipherNet development:
 
-Depending on the platform you are building for, you may need to install additional dependencies:
+### Setup
 
-- If you are building a macOS package, you'll need to install Xcode and the associated command-line tools. You may also need to set your default SDK to macOS 11.0 or higher, which you can do by running `export SDKROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk`. The exact command will depend on where Xcode is installed and which SDK version you're using.
-- To build on Windows, you'll need to install Visual Studio. Once it's installed, you may also need to run `npm config set msvs_version 2019` (or the appropriate version).
+1. Install [Node.js](https://nodejs.org) (v18 or higher recommended)
+2. Clone this repository:
+   ```bash
+   git clone https://github.com/CipherNetSol/ciphernet-core-browser.git
+   cd ciphernet
+   ```
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
+4. Start CipherNet in development mode:
+   ```bash
+   npm run start
+   ```
+5. Make your changes and press `Alt+Ctrl+R` (or `Opt+Cmd+R` on Mac) to reload the browser UI
 
-## Contributing to Min
+### Building from Source
 
-Thanks for taking the time to contribute to Min!
+Use one of the following commands to create platform-specific binaries:
 
-### Getting Help
+```bash
+npm run buildWindows      # Windows installer
+npm run buildMacIntel     # macOS (Intel)
+npm run buildMacArm       # macOS (Apple Silicon)
+npm run buildDebian       # Debian/Ubuntu package
+npm run buildRedhat       # Red Hat/Fedora package
+npm run buildLinuxArm64   # ARM64 Linux (Raspberry Pi, etc.)
+```
 
-If you're experiencing a bug or have a suggestion for how to improve Min, please open a [new issue](https://github.com/minbrowser/min/issues/new/choose).
+### Platform-Specific Requirements
 
-### Contributing Code
+**macOS:**
+- Install Xcode and command-line tools
+- Set SDK to macOS 11.0 or higher:
+  ```bash
+  export SDKROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk
+  ```
 
-- Start by following the development instructions listed above.
-- The wiki has an [overview of Min's architecture](https://github.com/minbrowser/min/wiki/Architecture).
-- Min uses the [Standard](https://github.com/feross/standard) code style; [most editors](https://standardjs.com/#are-there-text-editor-plugins) have plugins available to auto-format your code.
-- If you see something that's missing, or run into any problems, please open an issue!
+**Windows:**
+- Install Visual Studio (2019 or later)
+- Configure npm to use the correct version:
+  ```bash
+  npm config set msvs_version 2019
+  ```
 
-### Contributing Translations
+## Contributing to CipherNet
 
-#### Adding a new language
+We welcome contributions from the community! Here's how you can help:
 
-- Find the language code that goes with your language from [this list](https://source.chromium.org/chromium/chromium/src/+/main:ui/base/l10n/l10n_util.cc;l=68-259) (line 68 - 259).
-- In the `localization/languages` directory, create a new file, and name it "[your language code].json".
-- Open your new file, and copy the contents of the <a href="https://github.com/minbrowser/min/blob/master/localization/languages/en-US.json">localization/languages/en-US.json</a> file into your new file.
-- Change the "identifier" field in the new file to the language code from step 1.
-- Inside the file, replace each English string in the right-hand column with the equivalent translation.
-- (Optional) See your translations live by following the [development instructions](#installing) above. Min will display in the same language as your operating system, so make sure your computer is set to the same language that you're translating.
-- That's it! Make a pull request with your changes.
+### Reporting Issues
 
-#### Updating an existing language
+If you encounter a bug or have a feature suggestion:
+1. Check if the issue already exists in our [issue tracker](https://github.com/CipherNetSol/ciphernet-core-browser/issues)
+2. If not, create a [new issue](https://github.com/CipherNetSol/ciphernet-core-browser/issues/new) with:
+   - Clear description of the problem or feature
+   - Steps to reproduce (for bugs)
+   - Expected vs. actual behavior
+   - System information (OS, CipherNet version)
 
-- Find the language file for your language in the `localization/languages` directory.
-- Look through the file for any items that have a value of "null", or that have a comment saying "missing translation".
-- For each of these items, look for the item with the same name in the `en-US.json` file.
-- Translate the value from the English file, replace "null" with your translation, and remove the "missing translation" comment.
-- Make a pull request with the updated file.
+### Code Contributions
 
-[DiscordBadge]: https://img.shields.io/discord/764269005195968512.svg?label=Discord&logo=discord&logoColor=white
-[DiscordUrl]: https://discord.gg/bRpqjJ4
-[DownloadsBadge]: https://img.shields.io/github/downloads/minbrowser/min/total.svg
-[DownloadsUrl]: https://github.com/minbrowser/min/releases
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Follow the development setup instructions above
+4. CipherNet uses the [Standard](https://standardjs.com) code style - most editors have plugins for auto-formatting
+5. Test your changes thoroughly
+6. Commit your changes with clear commit messages
+7. Push to your fork and submit a pull request
+
+### Architecture
+
+CipherNet is built on Electron and uses:
+- **Frontend**: HTML, CSS, JavaScript (Browserify for bundling)
+- **Backend**: Node.js with Electron
+- **Web Engine**: Chromium (via Electron)
+- **Privacy Layer**: Custom implementations for wallet isolation, session burning, and dApp sandboxing
+
+## Contributing Translations
+
+### Adding a New Language
+
+1. Find your language code from [this Chromium list](https://source.chromium.org/chromium/chromium/src/+/main:ui/base/l10n/l10n_util.cc;l=68-259)
+2. Create a new file in `localization/languages/` named `[language-code].json`
+3. Copy the contents from `localization/languages/en-US.json`
+4. Update the "identifier" field to your language code
+5. Translate all strings in the right-hand column
+6. Test by running CipherNet in development mode
+7. Submit a pull request
+
+### Updating Existing Translations
+
+1. Find your language file in `localization/languages/`
+2. Look for items with `null` values or "missing translation" comments
+3. Find the corresponding English string in `en-US.json`
+4. Add your translation and remove the comment
+5. Submit a pull request
+
+## Security & Privacy
+
+CipherNet takes security seriously:
+- **No telemetry** - We don't collect usage data
+- **Local-only storage** - All data stays on your device until auto-burn
+- **Open source** - Full transparency of our codebase
+- **Regular audits** - Community-driven security reviews
+
+If you discover a security vulnerability, please email security@ciphernet.com (or create a private security advisory on GitHub) rather than opening a public issue.
+
+## License
+
+[Add your license information here - e.g., Apache 2.0, MIT, GPL, etc.]
+
+## Acknowledgments
+
+CipherNet is built on the foundation of [Min Browser](https://minbrowser.org/), extending it with privacy-first Web3 capabilities and ephemeral session architecture.
+
+---
+
+**Stay Anonymous. Stay Secure. CipherNet.**
