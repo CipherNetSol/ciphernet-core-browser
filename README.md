@@ -167,7 +167,7 @@ CipherNet takes security seriously:
 - **Open source** - Full transparency of our codebase
 - **Regular audits** - Community-driven security reviews
 
-If you discover a security vulnerability, please email security@ciphernet.com (or create a private security advisory on GitHub) rather than opening a public issue.
+If you discover a security vulnerability, please email info@ciphernetsol.xyz (or create a private security advisory on GitHub) rather than opening a public issue.
 
 ## License
 
