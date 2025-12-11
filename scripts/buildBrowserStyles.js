@@ -5,7 +5,6 @@ const outFile = path.resolve(__dirname, '../dist/bundle.css')
 
 const modules = [
   'css/base.css',
-  'css/ciphernet.css',
   'css/windowControls.css',
   'css/modal.css',
   'css/tabBar.css',
@@ -21,6 +20,7 @@ const modules = [
   'css/passwordManager.css',
   'css/passwordCapture.css',
   'css/passwordViewer.css',
+  'css/ciphernet.css',
   'node_modules/dragula/dist/dragula.min.css'
 ]
 
