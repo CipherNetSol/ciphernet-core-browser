@@ -68,7 +68,8 @@ body.windows:not(.separate-titlebar) {
 body.windows:not(.separate-titlebar) .windows-caption-buttons {
   display: flex;
   position: absolute;
-  top: var(--control-space-top);
+  /* top: var(--control-space-top); */
+  top: 0;
   right: 0;
   z-index: 10;
 }
@@ -76,7 +77,7 @@ body.windows:not(.separate-titlebar) .windows-caption-buttons {
 .windows-caption-buttons .element {
   line-height: 36px;
   width: 36px;
-  stroke: #ffffff;
+  stroke: #000;
   padding: 0 5px;
   box-sizing: content-box;
   fill: transparent;
@@ -84,7 +85,7 @@ body.windows:not(.separate-titlebar) .windows-caption-buttons {
 }
 
 body:not(.task-overlay-is-shown).dark-theme .windows-caption-buttons .element {
-  stroke: #ffffff;
+  stroke: #fff;
 }
 
 .windows-caption-buttons .element > svg {
@@ -96,22 +97,22 @@ body:not(.task-overlay-is-shown).dark-theme .windows-caption-buttons .element {
   transition: background-color 0.1s linear, color 0.1s linear;
 }
 .windows-caption-buttons .element:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(196, 196, 196, 0.4);
   transition: none;
 }
 .windows-caption-buttons .element:active {
-  background-color: rgba(255, 255, 255, 0.15);
+  background-color: rgba(168, 168, 168, 0.5);
 }
 .windows-caption-buttons .element.caption-close:hover {
-  background-color: #666666;
+  background-color: #e81123;
 }
 .windows-caption-buttons .element.caption-close:hover > svg,
 .windows-caption-buttons .element.caption-close:active > svg {
-  stroke: #ffffff;
+  stroke: #fff;
   stroke-width: 1.1px;
 }
 .windows-caption-buttons .element.caption-close:active {
-  background-color: #444444;
+  background-color: rgba(232, 17, 35, 0.6);
 }
 
 /* Linux buttons */

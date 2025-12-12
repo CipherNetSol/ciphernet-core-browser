@@ -26,9 +26,9 @@ body:not(.is-ntp) #ntp-content {
 }
 
 #ntp-background-controls button {
-    background: #ffffff;
-    border: 1px #555555 solid;
-    color: #000000;
+    background: white;
+    border: 1px #aaa solid;
+    color: #444;
     font-size: 1.15em;
     width: 2em;
     height: 2em;
@@ -39,22 +39,18 @@ body:not(.is-ntp) #ntp-content {
 }
 
 .dark-mode #ntp-background-controls button {
-    background: #2d2d2d;
-    border-color: #555555;
-    color: #ffffff;
+    background: rgb(33, 37, 43);
+    border-color: #aaa;
+    color: white;
 }
 
 #ntp-background-controls:hover button {
     opacity: 0.9;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 3px 6px rgb(0, 0, 0, 0.25);
 }
 
 #ntp-background-controls:hover #ntp-image-remove {
-    color: #666666 !important;
-}
-
-.dark-mode #ntp-background-controls:hover #ntp-image-remove {
-    color: #cccccc !important;
+    color: rgb(248, 73, 73) !important;
 }
 
 #ntp-background-controls:not(:hover) #ntp-image-remove {

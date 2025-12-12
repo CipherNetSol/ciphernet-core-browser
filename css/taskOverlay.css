@@ -3,13 +3,13 @@
   height: calc(36px + var(--control-space-top));
   background-color: inherit;
   z-index: 1;
-  border-bottom: 1px #dddddd solid;
+  border-bottom: 1px rgba(0, 0, 0, 0.1) solid;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 .dark-mode .simulated-navbar {
-  border-bottom-color: #333333;
+  border-bottom-color: rgba(255, 255, 255, 0.15);
 }
 
 .task-search-input-container {
@@ -25,15 +25,14 @@
 }
 .task-search-input-container input {
   width: 100%;
-  border: 1px solid #dddddd;
-  background: #ffffff;
+  border: none;
+  background: rgba(0, 0, 0, 0.075);
   padding: 0.2em 0.25em 0.2em 1.75em;
   border-radius: 4px;
 }
 
 .dark-mode .task-search-input-container input {
-  background: #2d2d2d;
-  border-color: #555555;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 @media all and (max-width: 600px) {
@@ -50,6 +49,7 @@
 }
 
 #switch-task-button {
+  display: none;
   position: absolute;
   top: var(--control-space-top);
   right: var(--control-space-right);
@@ -58,11 +58,7 @@
 }
 
 #switch-task-button.active {
-  color: #000000 !important;
-}
-
-.dark-mode #switch-task-button.active {
-  color: #ffffff !important;
+  color: royalblue !important;
 }
 
 #switch-task-button svg {
@@ -79,17 +75,13 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: #ffffff;
+  background-color: #fff;
   white-space: nowrap;
   overflow: auto;
   opacity: 1;
   transform: none;
   transition: 0.15s all;
   z-index: 3;
-}
-
-.dark-mode #task-overlay {
-  background-color: #000000;
 }
 #task-area {
   flex: 1;

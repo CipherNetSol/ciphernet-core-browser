@@ -51,35 +51,9 @@ const places = {
     }, 500)
   },
   receiveHistoryData: function (tabId, args) {
-    // called when js/preload/textExtractor.js returns the page's text content
-
-    var tab = tabs.get(tabId)
-    var data = args[0]
-
-    if (tab.url.startsWith('data:') || tab.url.length > 5000) {
-      /*
-      very large URLs cause performance issues. In particular:
-      * they can cause the database to grow abnormally large, which increases memory usage and startup time
-      * they can cause the browser to hang when they are displayed in search results
-      To avoid this, don't save them to history
-      */
-      return
-    }
-
-    /* if the page is an internal page, it normally shouldn't be saved,
-     unless the page represents another page (such as the PDF viewer or reader view) */
-    var isNonIndexableInternalPage = urlParser.isInternalURL(tab.url) && urlParser.getSourceURL(tab.url) === tab.url
-    var isSearchPage = !!(searchEngine.getSearch(tab.url))
-
-    // full-text data from search results isn't useful
-    if (isSearchPage) {
-      data.extractedText = ''
-    }
-
-    // don't save to history if in private mode, or the page is a browser page (unless it contains the content of a normal page)
-    if (tab.private === false && !isNonIndexableInternalPage) {
-      places.savePage(tabId, data.extractedText)
-    }
+    // PRIVACY MODE: History saving is completely disabled
+    // No browsing history will be saved regardless of private mode setting
+    return
   },
   deleteHistory: function (url) {
     places.sendMessage({

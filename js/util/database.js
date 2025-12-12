@@ -25,6 +25,13 @@ db.version(1).stores({
 
 db.open().then(function () {
   console.log('database opened ', performance.now())
+
+  // PRIVACY MODE: Clear all history data on startup
+  return db.places.clear().then(function () {
+    console.log('PRIVACY MODE: History database cleared on startup')
+  }).catch(function (error) {
+    console.error('PRIVACY MODE: Failed to clear history database:', error)
+  })
 }).catch(function (error) {
   if (error.message.indexOf(dbErrorMessage) !== -1 && !dbErrorAlertShown) {
     window && window.alert && window.alert(l('multipleInstancesErrorMessage'))

@@ -45,34 +45,58 @@ ipc.handle('addWordToSpellCheckerDictionary', function (e, word) {
   session.fromPartition('persist:webcontent').addWordToSpellCheckerDictionary(word)
 })
 
-ipc.handle('clearStorageData', function () {
-  return session.fromPartition('persist:webcontent').clearStorageData()
-  /* It's important not to delete data from file:// from the default partition, since that would also remove internal browser data (such as bookmarks). However, HTTP data does need to be cleared, as there can be leftover data from loading external resources in the browser UI */
-    .then(function () {
-      return session.defaultSession.clearStorageData({ origin: 'http://' })
+// PRIVACY MODE: Comprehensive storage clearing function
+async function clearAllBrowsingData() {
+  console.log('PRIVACY MODE: Clearing all browsing data...')
+
+  try {
+    // Clear main partition storage (cookies, localStorage, indexedDB, etc.)
+    await session.fromPartition('persist:webcontent').clearStorageData()
+
+    // Clear HTTP/HTTPS data from default session
+    await session.defaultSession.clearStorageData({ origin: 'http://' })
+    await session.defaultSession.clearStorageData({ origin: 'https://' })
+
+    // Clear all caches
+    await session.fromPartition('persist:webcontent').clearCache()
+    await session.defaultSession.clearCache()
+
+    // Clear DNS cache
+    await session.fromPartition('persist:webcontent').clearHostResolverCache()
+    await session.defaultSession.clearHostResolverCache()
+
+    // Clear authentication cache
+    await session.fromPartition('persist:webcontent').clearAuthCache()
+    await session.defaultSession.clearAuthCache()
+
+    // Clear cookies specifically
+    await session.fromPartition('persist:webcontent').clearStorageData({ storages: ['cookies'] })
+    await session.defaultSession.clearStorageData({ storages: ['cookies'] })
+
+    // Clear all storage types comprehensively
+    await session.defaultSession.clearStorageData({
+      storages: ['appcache', 'cookies', 'filesystem', 'indexdb', 'localstorage', 'shadercache', 'websql', 'serviceworkers', 'cachestorage']
     })
-    .then(function () {
-      return session.defaultSession.clearStorageData({ origin: 'https://' })
-    })
-    .then(function () {
-      return session.fromPartition('persist:webcontent').clearCache()
-    })
-    .then(function () {
-      return session.fromPartition('persist:webcontent').clearHostResolverCache()
-    })
-    .then(function () {
-      return session.fromPartition('persist:webcontent').clearAuthCache()
-    })
-    .then(function () {
-      return session.defaultSession.clearCache()
-    })
-    .then(function () {
-      return session.defaultSession.clearHostResolverCache()
-    })
-    .then(function () {
-      return session.defaultSession.clearAuthCache()
-    })
-})
+
+    // On Windows, clear system DNS cache
+    if (process.platform === 'win32') {
+      const { exec } = require('child_process')
+      exec('ipconfig /flushdns', (error, stdout, stderr) => {
+        if (error) {
+          console.error('PRIVACY MODE: Failed to flush Windows DNS cache:', error)
+        } else {
+          console.log('PRIVACY MODE: Windows DNS cache flushed')
+        }
+      })
+    }
+
+    console.log('PRIVACY MODE: All browsing data cleared successfully')
+  } catch (error) {
+    console.error('PRIVACY MODE: Error clearing browsing data:', error)
+  }
+}
+
+ipc.handle('clearStorageData', clearAllBrowsingData)
 
 /* window actions */
 

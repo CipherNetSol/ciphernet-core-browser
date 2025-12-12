@@ -366,6 +366,16 @@ app.on('ready', function () {
     return
   }
 
+  // PRIVACY MODE: Clear all browsing data on startup
+  // clearAllBrowsingData is defined in remoteActions.js which is concatenated into the same build file
+  if (typeof clearAllBrowsingData === 'function') {
+    clearAllBrowsingData().then(() => {
+      console.log('PRIVACY MODE: Startup data clearing completed')
+    }).catch(err => {
+      console.error('PRIVACY MODE: Startup data clearing failed:', err)
+    })
+  }
+
   registerBundleProtocol(session.defaultSession)
 
   const newWin = createWindow()
@@ -458,31 +468,31 @@ ipc.on('quit', function () {
   app.quit()
 })
 
-ipc.on('tab-state-change', function(e, events) {
-  const sourceWindowId = windows.windowFromContents(e.sender)?.id
-  if (!sourceWindowId) {
-    console.warn('warning: received tab state update from window after destruction, ignoring')
-    return
+// PRIVACY MODE: Clear all browsing data when app is about to quit
+let isQuitting = false
+app.on('before-quit', function (e) {
+  if (!isQuitting && typeof clearAllBrowsingData === 'function') {
+    e.preventDefault()
+    isQuitting = true
+
+    clearAllBrowsingData().then(() => {
+      console.log('PRIVACY MODE: Shutdown data clearing completed')
+      app.exit(0)
+    }).catch(err => {
+      console.error('PRIVACY MODE: Shutdown data clearing failed:', err)
+      app.exit(0)
+    })
   }
-  windows.getAll().forEach(function(window) {
-    if (getWindowWebContents(window).id !== e.sender.id) {
-      getWindowWebContents(window).send('tab-state-change-receive', {
-        sourceWindowId,
-        events
-      })
-    }
-  })
+})
+
+ipc.on('tab-state-change', function(e, events) {
+  // PRIVACY MODE: Disable tab state sync between windows to prevent history sharing
+  return
 })
 
 ipc.on('request-tab-state', function(e) {
-  const otherWindow = windows.getAll().find(w => getWindowWebContents(w).id !== e.sender.id)
-  if (!otherWindow) {
-    throw new Error('secondary window doesn\'t exist as source for tab state')
-  }
-  ipc.once('return-tab-state', function(e2, data) {
-    e.returnValue = data
-  })
-  getWindowWebContents(otherWindow).send('read-tab-state')
+  // PRIVACY MODE: Return empty state - no tab/task sharing between windows
+  e.returnValue = { tasks: [] }
 })
 
 /* places service */

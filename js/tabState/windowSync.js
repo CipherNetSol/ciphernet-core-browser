@@ -11,6 +11,10 @@ const windowSync = {
     windowSync.syncTimeout = null
   },
   initialize: function () {
+    // PRIVACY MODE: Window sync disabled to prevent task/tab history sharing
+    // Each window starts fresh with no shared state
+    return
+
     tasks.on('*', function (...data) {
       if (data[0] === 'state-sync-change') {
         return

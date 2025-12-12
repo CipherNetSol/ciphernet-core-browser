@@ -30,16 +30,16 @@ button {
 }
 body,
 html {
-  background-color: #ffffff;
-  color: #000000;
+  background-color: #fff;
+  color: #000;
   height: 100%;
   overflow: hidden;
   -webkit-user-select: none;
 }
 
 body.dark-mode {
-  background-color: #000000;
-  color: #e0e0e0;
+  background-color: rgb(33, 37, 43);
+  color: lightgrey;
 }
 
 h1,
@@ -78,19 +78,19 @@ h1 + h2 {
 }
 
 a {
-  color: #000000;
+  color: royalblue;
   text-decoration: none;
 }
 
 .dark-mode a {
-  color: #ffffff;
+  color: dodgerblue;
 }
 
 .dark-mode input,
 .dark-mode textarea {
-  background-color: #2d2d2d;
-  color: #ffffff;
-  border-color: #555555;
+  background-color: rgb(52, 58, 68);
+  color: white;
+  border-color: transparent;
 }
 
 /* styled scrollbars */

@@ -12,32 +12,9 @@ var searchEngine = require('util/searchEngine.js')
 var currentResponseSent = 0
 
 async function showSearchbarPlaceResults (text, input, inputFlags, pluginName = 'places') {
-  var responseSent = Date.now()
-
-  var searchFn, resultCount
-  if (pluginName === 'fullTextPlaces') {
-    searchFn = places.searchPlacesFullText
-    resultCount = 4 - searchbarPlugins.getResultCount('places')
-  } else {
-    searchFn = places.searchPlaces
-    resultCount = 4
-  }
-
-  // only autocomplete an item if the delete key wasn't pressed
-  var canAutocomplete = !inputFlags.isDeletion
-
-  let results = await searchFn(text)
-
-  // prevent responses from returning out of order
-  if (responseSent < currentResponseSent) {
-    return
-  }
-
-  currentResponseSent = responseSent
-
+  // PRIVACY MODE: No history search results - always return empty
   searchbarPlugins.reset(pluginName)
-
-  results = results.slice(0, resultCount)
+  return
 
   results.forEach(function (result, index) {
     var didAutocompleteResult = false
