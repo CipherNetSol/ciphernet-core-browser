@@ -188,17 +188,15 @@ const webviews = {
       setAudioMutedOnCreate(tabId, tabData.muted)
     }
 
-    // if the tab is private, we want to partition it. See http://electron.atom.io/docs/v0.34.0/api/web-view-tag/#partition
-    // since tab IDs are unique, we can use them as partition names
-    if (tabData.private === true) {
-      var partition = tabId.toString() // options.tabId is a number, which remote.session.fromPartition won't accept. It must be converted to a string first
-    }
+    // PRIVACY MODE: All tabs use isolated partitions (no data sharing between tabs)
+    // Each tab gets its own unique partition to prevent any data persistence or sharing
+    var partition = tabId.toString() // options.tabId is a number, which remote.session.fromPartition won't accept. It must be converted to a string first
 
     ipc.send('createView', {
       existingViewId,
       id: tabId,
       webPreferences: {
-        partition: partition || 'persist:webcontent'
+        partition: partition
       },
       boundsString: JSON.stringify(webviews.getViewBounds()),
       events: webviews.events.map(e => e.event).filter((i, idx, arr) => arr.indexOf(i) === idx)
