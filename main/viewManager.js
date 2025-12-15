@@ -216,7 +216,7 @@ function createView (existingViewId, id, webPreferences, boundsString, events) {
   view.webContents.on('did-start-navigation', function (event) {
     if (event.isMainFrame && !event.isSameDocument) {
       const hasJS = viewStateMap[id].hasJS
-      const shouldHaveJS = (!(settings.get('filtering')?.contentTypes?.includes('script'))) || event.url.startsWith('min://')
+      const shouldHaveJS = (!(settings.get('filtering')?.contentTypes?.includes('script'))) || event.url.startsWith('ciphernet://')
       if (hasJS !== shouldHaveJS) {
         setTimeout(function () {
           view.webContents.stop()

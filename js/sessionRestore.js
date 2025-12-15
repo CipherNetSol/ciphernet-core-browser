@@ -39,7 +39,7 @@ const sessionRestore = {
 
     if (!hasShownWelcome) {
       var newTab = tasks.getSelected().tabs.add({
-        url: 'min://welcome'
+        url: 'ciphernet://welcome'
       })
       browserUI.addTab(newTab, {
         enterEditMode: false

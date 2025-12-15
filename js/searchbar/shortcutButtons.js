@@ -17,23 +17,9 @@ const shortcuts = [
 ]
 
 function showShortcutButtons (text, input, inputFlags) {
-  var container = searchbarPlugins.getContainer('shortcutButtons')
-
+  // PRIVACY MODE: Shortcut buttons disabled (history, bookmarks, bang commands)
   searchbarPlugins.reset('shortcutButtons')
-
-  shortcuts.forEach(function (shortcut) {
-    var el = document.createElement('button')
-    el.className = 'searchbar-shortcut i carbon:' + shortcut.icon
-    el.title = shortcut.text
-    el.tabIndex = -1
-    el.addEventListener('click', function () {
-      input.value = shortcut.text
-      input.focus()
-      searchbar.showResults(shortcut.text)
-    })
-
-    container.appendChild(el)
-  })
+  return
 }
 
 function initialize () {

@@ -28,10 +28,10 @@ const tabEditor = {
     document.body.classList.add('is-edit-mode')
 
     var currentURL = urlParser.getSourceURL(tabs.get(tabId).url)
-    if (currentURL === 'min://newtab') {
+    if (currentURL === 'ciphernet://newtab') {
       currentURL = ''
     }
-    // Keep the full min:// URL for internal pages like welcome
+    // Keep the full ciphernet:// URL for internal pages like welcome
     // This ensures they display correctly in the address bar
 
     tabEditor.input.value = editingValue || currentURL

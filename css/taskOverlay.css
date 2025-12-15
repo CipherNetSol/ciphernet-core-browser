@@ -51,7 +51,7 @@
 #switch-task-button {
   display: none;
   position: absolute;
-  top: var(--control-space-top);
+  top: 0;
   right: var(--control-space-right);
   z-index: 4;
   padding: 0.5em;

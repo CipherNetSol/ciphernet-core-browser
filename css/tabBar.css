@@ -302,7 +302,7 @@ body.windows.dark-theme .navbar-action-button:not(:disabled):hover {
   padding-left: 0.5em;
 }
 .navbar-right-actions {
-  margin-right: 2.3em;
+  margin-right: 9.3em !important;
 }
 
 .navbar-right-actions #add-tab-button {

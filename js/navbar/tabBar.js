@@ -142,7 +142,7 @@ const tabBar = {
     // update tab title
     var tabTitle
 
-    const isNewTab = tabData.url === '' || tabData.url === urlParser.parse('min://newtab')
+    const isNewTab = tabData.url === '' || tabData.url === urlParser.parse('ciphernet://newtab')
     if (isNewTab) {
       tabTitle = l('newTabLabel')
     } else if (tabData.title) {
