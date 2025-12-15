@@ -61,7 +61,7 @@ body {
    ======================================================= */
 
 #navbar {
-  height: 37px !important;
+  /* height: 37px !important; */
   display: flex !important;
   align-items: center !important;
   background: #000 !important;

@@ -76,6 +76,7 @@ body.is-edit-mode #toolbar-navigation-buttons {
 body.windows #menu-button,
 body.linux #menu-button {
   display: inline-block;
+  /* display: none; */
 }
 
 /* tab layout */
