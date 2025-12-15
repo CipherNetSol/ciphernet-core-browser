@@ -112,6 +112,7 @@ body.linux #menu-button {
   padding-left: 0.5rem;
   padding-right: 0.5rem;
 }
+
 .tab-item.active {
   min-width: 205px !important;
 }
