@@ -1,0 +1,255 @@
+/* CipherNet Navigation Bar - Chrome-style search bar with logo and action buttons */
+
+#ciphernet-nav-bar {
+  position: absolute;
+  top: calc(36px + var(--control-space-top));
+  left: 0;
+  width: 100%;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  z-index: 1;
+  background: #f8f9fa;
+  pointer-events: auto;
+}
+
+.dark-theme #ciphernet-nav-bar {
+  background: rgb(0, 0, 0) !important;
+  border-bottom-color: #555;
+}
+
+/* Logo Section - Left */
+#ciphernet-logo-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 160px;
+}
+
+#ciphernet-logo {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+#ciphernet-brand {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: #1a73e8;
+}
+
+.dark-theme #ciphernet-brand {
+  color: #ffffff;
+}
+
+/* Search Container - Center (Chrome-style) */
+#ciphernet-search-container {
+  flex: 1;
+  /* max-width: 600px; */
+  margin: 0 32px;
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border: 1px solid #dfe1e5;
+  border-radius: 24px;
+  padding: 8px 16px;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+#ciphernet-search-container:hover {
+  box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
+  border-color: rgba(223, 225, 229, 0);
+}
+
+#ciphernet-search-container:focus-within {
+  box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
+  border-color: #1a73e8;
+}
+
+.dark-theme #ciphernet-search-container {
+  background: #303134;
+  border-color: #5f6368;
+}
+
+.dark-theme #ciphernet-search-container:hover,
+.dark-theme #ciphernet-search-container:focus-within {
+  background: #303134;
+  border-color: #353535;
+}
+
+#ciphernet-search-container .i {
+  font-size: 18px;
+  color: #5f6368;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.dark-theme #ciphernet-search-container .i {
+  color: #9aa0a6;
+}
+
+#ciphernet-search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  background: transparent;
+  color: #202124;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+#ciphernet-search-input::placeholder {
+  color: #5f6368;
+}
+
+.dark-theme #ciphernet-search-input {
+  color: #e8eaed;
+}
+
+.dark-theme #ciphernet-search-input::placeholder {
+  color: #9aa0a6;
+}
+
+/* Action Buttons - Right */
+#ciphernet-action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 200px;
+  justify-content: flex-end;
+}
+
+.ciphernet-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: 1px solid #dadce0;
+  border-radius: 18px;
+  background: #fff;
+  color: #1a73e8;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+.ciphernet-nav-btn:hover {
+  background: #f8f9fa;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-color: #d2d3d4;
+}
+
+.ciphernet-nav-btn:active {
+  background: #e8eaed;
+}
+
+.dark-theme .ciphernet-nav-btn {
+  background: #303134;
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+.dark-theme .ciphernet-nav-btn:hover {
+  background: #3c4043;
+  border-color: #8ab4f8;
+}
+
+.dark-theme .ciphernet-nav-btn:active {
+  background: #4d5156;
+}
+
+.ciphernet-nav-btn .i {
+  font-size: 16px;
+}
+
+/* Mixer button special styling */
+#mixer-button {
+  border-color: #ffffff88;
+}
+
+#mixer-button:hover {
+  background: #e8f0fe;
+}
+
+.dark-theme #mixer-button {
+  border-color: #ffffff88;
+}
+
+.dark-theme #mixer-button:hover {
+  background: #383a39;
+}
+
+/* VPN button special styling */
+#vpn-button {
+  border-color: #ffffff88;
+  color: #fff;
+}
+
+#vpn-button:hover {
+  background: #e6f4ea;
+}
+
+.dark-theme #vpn-button {
+  border-color: #ffffff88;
+  color: #fff;
+}
+
+.dark-theme #vpn-button:hover {
+  background: #383a39;
+}
+
+/* Responsive design */
+@media (max-width: 900px) {
+  #ciphernet-nav-bar {
+    padding: 0 12px;
+  }
+
+  #ciphernet-search-container {
+    margin: 0 16px;
+    max-width: 400px;
+  }
+
+  .ciphernet-nav-btn span {
+    display: none;
+  }
+
+  .ciphernet-nav-btn {
+    padding: 8px 12px;
+    border-radius: 50%;
+    min-width: 36px;
+    justify-content: center;
+  }
+
+  #ciphernet-logo-container {
+    min-width: 120px;
+  }
+
+  #ciphernet-brand {
+    font-size: 14px;
+  }
+
+  #ciphernet-action-buttons {
+    min-width: 100px;
+  }
+}
+
+@media (max-width: 600px) {
+  #ciphernet-brand {
+    display: none;
+  }
+
+  #ciphernet-logo-container {
+    min-width: auto;
+  }
+
+  #ciphernet-search-container {
+    margin: 0 8px;
+  }
+}

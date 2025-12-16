@@ -12,6 +12,7 @@ const modules = [
   'css/taskOverlay.css',
   'css/webviews.css',
   'css/newTabPage.css',
+  'css/ciphernetNavBar.css',
   'css/searchbar.css',
   'css/listItem.css',
   'css/bookmarkManager.css',

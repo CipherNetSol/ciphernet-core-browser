@@ -1,5 +1,14 @@
 const TouchBar = require('electron').TouchBar
 const nativeImage = require('electron').nativeImage
+
+// TouchBar is only available on macOS
+if (!TouchBar) {
+  module.exports = function () {
+    return null
+  }
+  return
+}
+
 const { TouchBarLabel, TouchBarButton, TouchBarSpacer } = TouchBar
 
 function buildTouchBar () {
