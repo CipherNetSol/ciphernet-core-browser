@@ -51,7 +51,12 @@ function addTab (tabId = tabs.add(), options = {}) {
       focusWebview: options.enterEditMode === false
     })
     if (options.enterEditMode !== false) {
-      tabEditor.show(tabId)
+      var ciphernetNavBar = require('ciphernetNavBar.js')
+      setTimeout(function () {
+        if (ciphernetNavBar && ciphernetNavBar.searchInput) {
+          ciphernetNavBar.searchInput.focus()
+        }
+      }, 100)
     }
   } else {
     tabBar.getTab(tabId).scrollIntoView()

@@ -71,7 +71,8 @@ body.windows:not(.separate-titlebar) .windows-caption-buttons {
   /* top: var(--control-space-top); */
   top: 0;
   right: 0;
-  z-index: 10;
+  z-index: 9999;
+  -webkit-app-region: no-drag;
 }
 
 .windows-caption-buttons .element {
@@ -130,8 +131,9 @@ body.linux:not(.separate-titlebar) #linux-control-buttons {
   position: absolute;
   top: calc(9px + var(--control-space-top));
   right: 9px;
-  z-index: 9;
+  z-index: 9999;
   width: 76px;
+  -webkit-app-region: no-drag;
 }
 
 body.task-overlay-is-shown #linux-control-buttons {

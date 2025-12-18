@@ -1,6 +1,5 @@
 const webviews = require('webviews.js')
 const browserUI = require('browserUI.js')
-const searchbar = require('searchbar/searchbar.js')
 const tabState = require('tabState.js')
 
 const ciphernetNavBar = {
@@ -18,11 +17,22 @@ const ciphernetNavBar = {
     ciphernetNavBar.searchInput = document.getElementById('ciphernet-search-input')
     ciphernetNavBar.mixerButton = document.getElementById('mixer-button')
     ciphernetNavBar.vpnButton = document.getElementById('vpn-button')
+    var logoContainer = document.getElementById('ciphernet-logo-container')
 
     // Check if elements exist
     if (!ciphernetNavBar.bar || !ciphernetNavBar.searchInput) {
       console.error('CipherNet NavBar: Required elements not found!')
       return
+    }
+
+    // Logo click handler - navigate to welcome page
+    if (logoContainer) {
+      logoContainer.addEventListener('click', function () {
+        if (!tabs) return
+        var tabId = tabs.getSelected()
+        tabs.update(tabId, { url: 'ciphernet://app/pages/welcome/index.html' })
+        webviews.update(tabId, 'ciphernet://app/pages/welcome/index.html')
+      })
     }
 
     console.log('CipherNet NavBar: Elements found, setting up event listeners...')
@@ -33,6 +43,8 @@ const ciphernetNavBar = {
         e.preventDefault()
         console.log('CipherNet NavBar: Enter key pressed, handling search...')
         ciphernetNavBar.handleSearch()
+      } else if (e.key === 'Escape') {
+        ciphernetNavBar.searchInput.blur()
       }
     })
 
@@ -63,6 +75,19 @@ const ciphernetNavBar = {
         ciphernetNavBar.searchInput.value = currentTab.url
       } else {
         ciphernetNavBar.searchInput.value = ''
+      }
+    })
+
+    // Update search input when tab URL changes
+    tasks.on('tab-updated', function (tabId, key) {
+      if (!tabs || key !== 'url') return
+      if (tabs.getSelected() === tabId) {
+        var currentTab = tabs.get(tabId)
+        if (currentTab && currentTab.url && !currentTab.url.startsWith('ciphernet://')) {
+          ciphernetNavBar.searchInput.value = currentTab.url
+        } else {
+          ciphernetNavBar.searchInput.value = ''
+        }
       }
     })
 
@@ -107,8 +132,8 @@ const ciphernetNavBar = {
         urlToNavigate = searchText
       }
     } else {
-      // Use default search engine (DuckDuckGo for privacy)
-      urlToNavigate = 'https://duckduckgo.com/?q=' + encodeURIComponent(searchText)
+      // Use default search engine (Google)
+      urlToNavigate = 'https://www.google.com/search?q=' + encodeURIComponent(searchText)
     }
 
     console.log('CipherNet NavBar: Navigating to:', urlToNavigate)
@@ -118,6 +143,7 @@ const ciphernetNavBar = {
       var tabId = tabs.getSelected()
       tabs.update(tabId, { url: urlToNavigate })
       webviews.update(tabId, urlToNavigate)
+      webviews.focus()
       console.log('CipherNet NavBar: Tab updated and webview navigated')
     } else {
       console.error('CipherNet NavBar: No current tab found!')
@@ -138,7 +164,7 @@ const ciphernetNavBar = {
     // - etc.
 
     // For now, show a notification
-    alert('Mixer Feature\n\nThis feature will randomize your digital fingerprint to enhance privacy.\n\nComing soon!')
+    alert('Mixer Feature\n\nThis feature will randomize your digital asset to enhance privacy.\n\nComing soon!')
   },
 
   handleVPNClick: function () {

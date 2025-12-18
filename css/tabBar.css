@@ -10,6 +10,7 @@
   padding-top: var(--control-space-top);
   padding-left: var(--control-space-left);
   padding-right: var(--control-space-right);
+  /* -webkit-app-region: drag; */
 }
 
 /* when the tab-group is white, we need a line to separate it from the webviews */
@@ -90,7 +91,7 @@ body.linux #menu-button {
 #tabs #tabs-inner {
   display: flex;
   flex: 1;
-  overflow-x: auto;
+  overflow-x: hidden;
   overflow-y: hidden;
 }
 
@@ -99,8 +100,10 @@ body.linux #menu-button {
 }
 
 .tab-item {
-  flex: 1;
-  min-width: 205px;
+  flex: 0 1 auto;
+  min-width: 80px;
+  max-width: 240px;
+  width: 240px;
   transition: 0.2s transform;
   line-height: 36px;
   height: 36px;
@@ -112,10 +115,11 @@ body.linux #menu-button {
   gap: 0.5rem;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
+  -webkit-app-region: no-drag;
 }
 
 .tab-item.active {
-  min-width: 205px !important;
+  min-width: 80px !important;
 }
 .tab-item.gu-mirror {
   top: var(--control-space-top) !important;
@@ -290,6 +294,7 @@ body:not(.touch)
   height: 36px;
   margin-top: -0.5px;
   font-size: 1.4em !important;
+  -webkit-app-region: no-drag;
 }
 body.windows .navbar-action-button:not(:disabled):hover {
   background-color: rgba(0, 0, 0, 0.075);

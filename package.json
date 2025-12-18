@@ -2,7 +2,7 @@
   "name": "ciphernet",
   "productName": "CipherNet",
   "author": "CipherNet Team",
-  "version": "1.35.2",
+  "version": "1.0.0",
   "description": "A privacy-first Web3 browser with ephemeral wallets, auto-burn sessions, and dApp isolation",
   "electronVersion": "38.3.0",
   "main": "main.build.js",
