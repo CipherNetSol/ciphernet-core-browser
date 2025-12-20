@@ -4,6 +4,36 @@
     box-sizing: border-box;
 }
 
+.testing-warning {
+  margin: 16px 0 10px;
+  padding: 10px 16px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  color: #ffb454;
+  background: rgba(255, 180, 84, 0.08);
+  border: 1px solid rgba(255, 180, 84, 0.25);
+  border-radius: 8px;
+  box-shadow: 0 0 8px rgba(255, 180, 84, 0.25);
+  animation: warningPulse 2.8s ease-in-out infinite;
+}
+
+/* @keyframes warningPulse {
+  0% {
+    opacity: 0.55;
+    box-shadow: 0 0 6px rgba(255, 180, 84, 0.2);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 14px rgba(255, 180, 84, 0.45);
+  }
+  100% {
+    opacity: 0.55;
+    box-shadow: 0 0 6px rgba(255, 180, 84, 0.2);
+  }
+} */
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     background-image: url("./assets/images/bg.png");

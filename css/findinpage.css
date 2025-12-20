@@ -8,7 +8,7 @@
   height: 35px;
   z-index: 99;
 }
-
+ 
 /* leave room for menu button */
 body.windows #findinpage-bar,
 body.linux #findinpage-bar {
