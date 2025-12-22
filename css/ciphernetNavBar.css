@@ -11,7 +11,7 @@
   justify-content: space-between;
   padding: 0 16px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  z-index: 1;
+  z-index: 10001;
   background: #f8f9fa;
 }
 
@@ -192,7 +192,7 @@
 
 .dark-theme .ciphernet-nav-btn:hover {
   background: #3c4043;
-  border-color: #8ab4f8;
+  border-color: #ffffff;
 }
 
 .dark-theme .ciphernet-nav-btn:active {

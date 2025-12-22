@@ -201,6 +201,103 @@
       </div>
     </div>
 
+    <!-- Mixer Panel Below Navbar -->
+    <div id="mixer-panel-inline" class="mixer-panel-inline">
+      <div class="mixer-panel-inline-header">
+        <div class="mixer-panel-inline-title">
+          <i class="i carbon:shuffle"></i>
+          <h2>Mixer</h2>
+        </div>
+        <button id="mixer-panel-inline-close" class="mixer-close-btn i carbon:close"></button>
+      </div>
+
+      <div class="mixer-panel-inline-content">
+        <!-- How Mixer Works Info -->
+        <div class="mixer-info-section">
+          <div class="mixer-info-header">
+            <i class="i carbon:information"></i>
+            <h3>How Mixer Works</h3>
+          </div>
+          <div class="mixer-info-content">
+            <p>The mixer breaks deterministic flow by routing your transaction through multiple hops with randomized timing and amounts.</p>
+            <ul>
+              <li>An obfuscated routing path</li>
+              <li>Randomized timing delays</li>
+              <li>Amount-based transaction analysis</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Exchange Pair Selection -->
+        <div class="mixer-form-section">
+          <div class="mixer-form-row">
+            <div class="mixer-form-group">
+              <label>From Currency</label>
+              <select id="mixer-from-currency-inline" class="mixer-select">
+                <option value="">Loading...</option>
+              </select>
+            </div>
+            <div class="mixer-swap-icon-inline">
+              <i class="i carbon:arrows-horizontal"></i>
+            </div>
+            <div class="mixer-form-group">
+              <label>To Currency</label>
+              <select id="mixer-to-currency-inline" class="mixer-select">
+                <option value="">Loading...</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mixer-form-row">
+            <div class="mixer-form-group">
+              <label>Amount</label>
+              <div class="mixer-amount-container">
+                <input
+                  type="number"
+                  id="mixer-amount-input-inline"
+                  class="mixer-input"
+                  placeholder="Min 0.0055002 SOL"
+                  step="0.00000001"
+                />
+                <button id="mixer-send-max-inline" class="mixer-max-btn">MAX</button>
+              </div>
+              <div id="mixer-amount-error-inline" class="mixer-error-text" style="display: none;"></div>
+            </div>
+
+            <div class="mixer-form-group">
+              <label>Receiving Wallet Address</label>
+              <input
+                type="text"
+                id="mixer-receiving-address-inline"
+                class="mixer-input"
+                placeholder="Enter Wallet Address"
+              />
+              <div id="mixer-address-error-inline" class="mixer-error-text" style="display: none;"></div>
+            </div>
+          </div>
+
+          <div class="mixer-estimate-section">
+            <div class="mixer-estimate-label">You will receive approximately:</div>
+            <div id="mixer-estimated-amount-inline" class="mixer-estimate-amount">-</div>
+          </div>
+
+          <button id="mixer-create-order-inline" class="mixer-create-btn">
+            <i class="i carbon:shuffle"></i>
+            Create Order
+          </button>
+
+          <!-- Transaction Status -->
+          <div id="mixer-status-section-inline" class="mixer-status-section" style="display: none;">
+            <div class="mixer-status-header">
+              <h3>Last Transaction Status</h3>
+              <span id="mixer-status-badge-inline" class="mixer-status-badge"></span>
+            </div>
+            <div id="mixer-status-details-inline" class="mixer-status-details"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <button
       id="switch-task-button"
       class="navbar-action-button theme-text-color windowDragHandle i"
@@ -313,6 +410,139 @@
     <div id="download-bar" hidden>
       <div id="download-container" role="list" class="has-thin-scrollbar"></div>
       <button id="download-close-button" class="i carbon:close"></button>
+    </div>
+
+    <!-- Mixer Panel -->
+    <div id="mixer-panel" class="mixer-panel">
+      <div class="mixer-panel-header">
+        <div class="mixer-panel-title">
+          <i class="i carbon:shuffle"></i>
+          <h2>Mixer</h2>
+        </div>
+        <button id="mixer-panel-close" class="mixer-close-btn i carbon:close"></button>
+      </div>
+
+      <div class="mixer-panel-content">
+        <!-- Form View -->
+        <div id="mixer-form-view" style="display: flex; flex-direction: column; gap: 16px;">
+          <!-- Error Message -->
+          <div id="mixer-error-message" style="display: none; background: #ff555520; border: 1px solid #ff5555; border-radius: 8px; padding: 12px; color: #ff5555; font-size: 13px;"></div>
+
+          <!-- How Mixer Works Info -->
+          <div class="mixer-info-section">
+            <div class="mixer-info-header">
+              <i class="i carbon:information"></i>
+              <h3>How Mixer Works</h3>
+            </div>
+            <div class="mixer-info-content">
+              <p>The mixer breaks deterministic flow by routing your transaction through multiple hops with randomized timing and amounts.</p>
+              <ul>
+                <li>An obfuscated routing path</li>
+                <li>Randomized timing delays</li>
+                <li>Amount-based transaction analysis</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Exchange Pair Selection -->
+          <div class="mixer-form-group">
+            <label>Exchange Pair</label>
+            <select id="mixer-pair-select" class="mixer-select">
+              <option value="">Loading...</option>
+            </select>
+          </div>
+
+          <!-- Amount Input -->
+          <div class="mixer-form-group">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <label style="margin: 0;">Amount</label>
+              <span id="mixer-min-amount" style="font-size: 12px; color: #888;"></span>
+            </div>
+            <input
+              type="number"
+              id="mixer-amount-input"
+              class="mixer-input"
+              placeholder="0.5"
+              step="0.00000001"
+              min="0"
+            />
+          </div>
+
+          <!-- Receiving Wallet Address -->
+          <div class="mixer-form-group">
+            <label>Enter Receiving Wallet Address</label>
+            <input
+              type="text"
+              id="mixer-receiving-address"
+              class="mixer-input"
+              placeholder="Enter Wallet Address"
+            />
+          </div>
+
+          <!-- Estimated Amount -->
+          <div style="background: #f1f3f4; border-radius: 8px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 13px; color: #5f6368;">Estimated to receive:</span>
+            <span id="mixer-estimated-amount" style="font-size: 14px; font-weight: 600; color: #000;">-</span>
+          </div>
+
+          <!-- Create Order Button -->
+          <button id="mixer-create-order" class="mixer-create-btn">
+            <i class="i carbon:shuffle"></i>
+            Create Order
+          </button>
+        </div>
+
+        <!-- Order View -->
+        <div id="mixer-order-view" style="display: none; flex-direction: column; gap: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #e0e0e0;">
+            <span style="font-size: 13px; color: #5f6368;">Order ID:</span>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span id="mixer-order-id" style="font-size: 13px; font-weight: 500;"></span>
+              <button id="mixer-copy-order-id" style="background: none; border: none; cursor: pointer; color: #ffffff; font-size: 16px;">📋</button>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0;">
+            <span style="font-size: 13px; color: #5f6368;">Please Send:</span>
+            <span id="mixer-send-amount" style="font-size: 13px; font-weight: 500;"></span>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0;">
+            <span style="font-size: 13px; color: #5f6368;">Send To:</span>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span id="mixer-send-address" style="font-size: 13px; font-weight: 500;"></span>
+              <button id="mixer-copy-send-address" style="background: none; border: none; cursor: pointer; color: #ffffff; font-size: 16px;">📋</button>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0;">
+            <span style="font-size: 13px; color: #5f6368;">You will receive:</span>
+            <span id="mixer-receive-amount" style="font-size: 13px; font-weight: 500; color: #ffffff;"></span>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0;color: black; background: #fff; border-radius: 8px; padding: 12px;">
+            <span style="font-size: 13px; font-weight: 600;">⏱️ Time Remaining:</span>
+            <span id="mixer-time-remaining" style="font-size: 16px; font-weight: 700;">30:00</span>
+          </div>
+
+          <!-- Progress Bar -->
+          <div style="width: 100%; background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden; margin: 8px 0;">
+            <div id="mixer-progress-bar" style="height: 100%; background: #000; width: 0%; transition: width 0.5s ease;"></div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #e0e0e0;">
+            <span style="font-size: 13px; color: #5f6368;">Status</span>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span id="mixer-status-text" style="font-size: 13px; font-weight: 500;">Awaiting Deposit</span>
+              <button id="mixer-refresh-status" style="background: none; border: 1px solid #ffffff; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; color: #ffffff; display: flex; align-items: center; justify-content: center;">↻</button>
+            </div>
+          </div>
+
+          <button id="mixer-cancel-order" style="width: 100%; padding: 12px; background: #ff555520; border: 1px solid #ff5555; border-radius: 8px; color: #ff5555; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.2s;">
+            Cancel Order
+          </button>
+        </div>
+      </div>
     </div>
 
     <div class="modal" id="manager-setup-dialog" hidden>

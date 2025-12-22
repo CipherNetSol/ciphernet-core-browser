@@ -1,6 +1,7 @@
 const webviews = require('webviews.js')
 const browserUI = require('browserUI.js')
 const tabState = require('tabState.js')
+const mixerPanel = require('mixerPanel.js')
 
 const ciphernetNavBar = {
   bar: null,
@@ -154,17 +155,12 @@ const ciphernetNavBar = {
   },
 
   handleMixerClick: function () {
-    console.log('Mixer button clicked - Feature to be implemented')
-    // TODO: Implement mixer functionality (randomize digital fingerprint)
-    // This could include:
-    // - Randomize user agent
-    // - Randomize screen resolution
-    // - Randomize canvas fingerprint
-    // - Change timezone
-    // - etc.
-
-    // For now, show a notification
-    alert('Mixer Feature\n\nThis feature will randomize your digital asset to enhance privacy.\n\nComing soon!')
+    console.log('Mixer button clicked - Opening mixer panel')
+    if (mixerPanel && mixerPanel.toggle) {
+      mixerPanel.toggle()
+    } else {
+      console.error('Mixer panel not available')
+    }
   },
 
   handleVPNClick: function () {

@@ -171,6 +171,7 @@ require('macHandoff.js').initialize()
 // CipherNet custom modules
 require('ciphernet/sessionTimer.js').initialize()
 require('ciphernetNavBar.js').initialize()
+require('mixerPanel.js').initialize()
 
 // default searchbar plugins
 

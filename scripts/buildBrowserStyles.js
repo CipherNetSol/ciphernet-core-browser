@@ -13,6 +13,8 @@ const modules = [
   'css/webviews.css',
   'css/newTabPage.css',
   'css/ciphernetNavBar.css',
+  'css/mixerPanel.css',
+  'css/mixerPanelInline.css',
   'css/searchbar.css',
   'css/listItem.css',
   'css/bookmarkManager.css',
