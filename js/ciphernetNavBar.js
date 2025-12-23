@@ -36,7 +36,7 @@ const ciphernetNavBar = {
       })
     }
 
-    console.log('CipherNet NavBar: Elements found, setting up event listeners...')
+    // console.log('CipherNet NavBar: Elements found, setting up event listeners...')
 
     // Initialize search input functionality
     ciphernetNavBar.searchInput.addEventListener('keydown', function (e) {

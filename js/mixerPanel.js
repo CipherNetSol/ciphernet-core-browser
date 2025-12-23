@@ -245,10 +245,10 @@ const mixerPanel = {
         popularTickers.includes(fromCurrency) && popularTickers.includes(toCurrency)
 
       // BNB Chain pairs
-      // const bnbChainPairs = fromNetwork === 'bsc' && toNetwork === 'bsc' &&
-      //   ['bnb', 'usdt', 'usdc', 'eth'].includes(fromCurrency) && ['bnb', 'usdt', 'usdc', 'eth'].includes(toCurrency)
+      const bnbChainPairs = fromNetwork === 'bsc' && toNetwork === 'bsc' &&
+        ['bnb', 'usdt', 'usdc', 'eth'].includes(fromCurrency) && ['bnb', 'usdt', 'usdc', 'eth'].includes(toCurrency)
 
-      return stablecoinSwaps || allERC20 || allBase // || bnbChainPairs
+      return stablecoinSwaps || allERC20 || allBase  || bnbChainPairs
     })
 
     // PHASE 3: Cross-chain Revolution - True interoperability
