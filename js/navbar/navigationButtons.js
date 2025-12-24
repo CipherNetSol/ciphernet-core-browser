@@ -11,6 +11,7 @@ var navigationButtons = {
       navigationButtons.forwardButton.disabled = true
       return
     }
+    
     webviews.callAsync(tabs.getSelected(), 'canGoBack', function (err, canGoBack) {
       if (err) {
         return

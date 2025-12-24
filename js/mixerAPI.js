@@ -1,6 +1,3 @@
-// Mixer API Service for CipherNet Browser
-// Integrates with ChangeNOW API for crypto mixing/exchange
-
 const BASE_URL = 'https://api.ciphernetsol.xyz/api/ciphernet'
 
 /**

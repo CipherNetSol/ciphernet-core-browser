@@ -278,6 +278,7 @@ const mixerPanelInline = {
       } else {
         alert('Mixer Error\n\n' + (result.error || 'Failed to create order'))
       }
+      
     } catch (error) {
       console.error('Error creating order:', error)
       alert('Mixer Error\n\nFailed to create order. Please try again.')
