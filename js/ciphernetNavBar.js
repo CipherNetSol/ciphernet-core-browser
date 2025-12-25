@@ -2,10 +2,12 @@ const webviews = require('webviews.js')
 const browserUI = require('browserUI.js')
 const tabState = require('tabState.js')
 const mixerPanel = require('mixerPanel.js')
+const walletPanel = require('walletPanel.js')
 
 const ciphernetNavBar = {
   bar: null,
   searchInput: null,
+  walletButton: null,
   mixerButton: null,
   vpnButton: null,
   barHeight: 52,
@@ -16,6 +18,7 @@ const ciphernetNavBar = {
     // Get DOM elements
     ciphernetNavBar.bar = document.getElementById('ciphernet-nav-bar')
     ciphernetNavBar.searchInput = document.getElementById('ciphernet-search-input')
+    ciphernetNavBar.walletButton = document.getElementById('wallet-button')
     ciphernetNavBar.mixerButton = document.getElementById('mixer-button')
     ciphernetNavBar.vpnButton = document.getElementById('vpn-button')
     var logoContainer = document.getElementById('ciphernet-logo-container')
@@ -48,6 +51,14 @@ const ciphernetNavBar = {
         ciphernetNavBar.searchInput.blur()
       }
     })
+
+    // Wallet button click handler
+    if (ciphernetNavBar.walletButton) {
+      ciphernetNavBar.walletButton.addEventListener('click', function () {
+        console.log('CipherNet NavBar: Wallet button clicked')
+        ciphernetNavBar.handleWalletClick()
+      })
+    }
 
     // Mixer button click handler
     if (ciphernetNavBar.mixerButton) {
@@ -152,6 +163,15 @@ const ciphernetNavBar = {
 
     // Blur the search input
     ciphernetNavBar.searchInput.blur()
+  },
+
+  handleWalletClick: function () {
+    console.log('Wallet button clicked - Opening wallet panel')
+    if (walletPanel && walletPanel.toggle) {
+      walletPanel.toggle()
+    } else {
+      console.error('Wallet panel not available')
+    }
   },
 
   handleMixerClick: function () {

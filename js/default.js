@@ -172,6 +172,7 @@ require('macHandoff.js').initialize()
 require('ciphernet/sessionTimer.js').initialize()
 require('ciphernetNavBar.js').initialize()
 require('mixerPanel.js').initialize()
+require('walletPanel.js').initialize()
 
 // default searchbar plugins
 

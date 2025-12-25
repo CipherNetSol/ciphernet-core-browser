@@ -1,3 +1,4 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html>
   <head>
@@ -190,6 +191,10 @@
       </div>
 
       <div id="ciphernet-action-buttons">
+        <button id="wallet-button" class="ciphernet-nav-btn" title="Wallet - Session Solana Wallet">
+          <i class="i carbon:wallet"></i>
+          <span>Wallet</span>
+        </button>
         <button id="mixer-button" class="ciphernet-nav-btn" title="Mixer - Randomize your digital fingerprint">
           <i class="i carbon:shuffle"></i>
           <span>Mixer</span>
@@ -294,6 +299,145 @@
             </div>
             <div id="mixer-status-details-inline" class="mixer-status-details"></div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wallet Panel - Session Solana Wallet -->
+    <div id="wallet-panel" class="wallet-panel">
+      <div class="wallet-panel-header">
+        <div class="wallet-panel-title">
+          <i class="i carbon:wallet"></i>
+          <h2>Session Wallet</h2>
+        </div>
+        <button id="wallet-panel-close" class="wallet-close-btn">
+          <i class="i carbon:close"></i>
+        </button>
+      </div>
+
+      <div class="wallet-panel-content">
+        <!-- Session Warning -->
+        <div class="wallet-session-warning">
+          <p><strong>Ephemeral Session Wallet</strong><br>
+          This wallet exists only in memory. It is destroyed when the browser closes. Keep balances minimal.</p>
+        </div>
+
+        <!-- Address Section -->
+        <div class="wallet-address-section">
+          <div class="wallet-section-label">Wallet Address</div>
+          <div class="wallet-address-box">
+            <span id="wallet-address-display" class="wallet-address">Loading...</span>
+            <button id="wallet-copy-address" class="wallet-copy-btn">
+              <i class="i carbon:copy"></i> Copy
+            </button>
+          </div>
+        </div>
+
+        <!-- QR Code -->
+        <div class="wallet-qr-section">
+          <div id="wallet-qr-code" class="wallet-qr-code"></div>
+        </div>
+
+        <!-- Balance Section -->
+        <div class="wallet-balance-section">
+          <div class="wallet-balance-label">Balance</div>
+          <div id="wallet-balance-amount" class="wallet-balance-amount">0.00 SOL</div>
+          <div id="wallet-balance-usd" class="wallet-balance-usd">≈ $0.00</div>
+        </div>
+
+        <!-- Network Selector -->
+        <div class="wallet-network-section">
+          <div class="wallet-section-label">Network</div>
+          <select id="wallet-network-select" class="wallet-network-select">
+            <option value="mainnet-beta">Mainnet</option>
+            <option value="devnet">Devnet</option>
+          </select>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="wallet-actions">
+          <button id="wallet-refresh-btn" class="wallet-btn wallet-btn-primary">
+            <i class="i carbon:renew"></i> Refresh Balance
+          </button>
+          <button id="wallet-export-btn" class="wallet-btn wallet-btn-secondary">
+            <i class="i carbon:download"></i> Export Private Key
+          </button>
+        </div>
+
+        <!-- Private Key Display (hidden by default) -->
+        <div id="wallet-private-key-display" class="wallet-private-key-display">
+          <div class="wallet-section-label">Private Key</div>
+          <div id="wallet-private-key-box" class="wallet-private-key-box"></div>
+          <div style="display: flex; gap: 8px; margin-top: 8px;">
+            <button id="wallet-copy-private-key" class="wallet-btn wallet-btn-secondary" style="flex: 1;">Copy Key</button>
+            <button id="wallet-hide-private-key" class="wallet-btn wallet-btn-danger" style="flex: 1;">Hide</button>
+          </div>
+        </div>
+
+        <!-- Export Warning Overlay -->
+        <div id="wallet-export-warning" class="wallet-export-warning">
+          <div class="wallet-export-warning-content">
+            <h3>Export Private Key?</h3>
+            <p>Your private key gives full access to this wallet. Never share it with anyone. Only export if you need to import this wallet into Phantom or another app.</p>
+            <div class="wallet-export-warning-buttons">
+              <button id="wallet-export-cancel" class="wallet-btn wallet-btn-secondary">Cancel</button>
+              <button id="wallet-export-confirm" class="wallet-btn wallet-btn-primary">Show Key</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wallet Connection Modal -->
+    <div id="wallet-connect-modal" class="wallet-connect-modal">
+      <div class="wallet-connect-content">
+        <div class="wallet-connect-icon">
+          <i class="i carbon:connect"></i>
+        </div>
+        <h3>Connection Request</h3>
+        <div id="wallet-connect-origin" class="wallet-connect-origin"></div>
+        <p class="wallet-connect-info">This site wants to connect to your wallet and view your address.</p>
+        <div class="wallet-connect-buttons">
+          <button id="wallet-connect-reject" class="wallet-btn wallet-btn-secondary">Reject</button>
+          <button id="wallet-connect-approve" class="wallet-btn wallet-btn-primary">Connect</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transaction Confirmation Modal -->
+    <div id="wallet-tx-confirmation" class="wallet-tx-confirmation">
+      <div class="wallet-tx-confirmation-content">
+        <div class="wallet-tx-header">
+          <div>
+            <h3>Confirm Transaction</h3>
+            <div id="wallet-tx-origin" class="wallet-tx-origin"></div>
+          </div>
+        </div>
+        <div class="wallet-tx-body">
+          <div id="wallet-tx-warnings" class="wallet-tx-warnings"></div>
+          <div class="wallet-section-label">Transaction Details</div>
+          <div id="wallet-tx-details" class="wallet-tx-details"></div>
+        </div>
+        <div class="wallet-tx-footer">
+          <button id="wallet-tx-reject" class="wallet-btn wallet-btn-secondary">Reject</button>
+          <button id="wallet-tx-approve" class="wallet-btn wallet-btn-primary">Approve</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Message Signing Modal -->
+    <div id="wallet-msg-modal" class="wallet-connect-modal">
+      <div class="wallet-connect-content">
+        <div class="wallet-connect-icon">
+          <i class="i carbon:pen"></i>
+        </div>
+        <h3>Sign Message</h3>
+        <div id="wallet-msg-origin" class="wallet-connect-origin"></div>
+        <div class="wallet-section-label" style="margin-top: 16px;">Message</div>
+        <div id="wallet-msg-content" class="wallet-private-key-box" style="max-height: 100px; margin-bottom: 16px;"></div>
+        <div class="wallet-connect-buttons">
+          <button id="wallet-msg-reject" class="wallet-btn wallet-btn-secondary">Reject</button>
+          <button id="wallet-msg-approve" class="wallet-btn wallet-btn-primary">Sign</button>
         </div>
       </div>
     </div>
