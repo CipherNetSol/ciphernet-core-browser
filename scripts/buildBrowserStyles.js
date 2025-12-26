@@ -15,6 +15,7 @@ const modules = [
   'css/ciphernetNavBar.css',
   'css/mixerPanel.css',
   'css/mixerPanelInline.css',
+  'css/walletPanel.css',
   'css/searchbar.css',
   'css/listItem.css',
   'css/bookmarkManager.css',

@@ -89,6 +89,7 @@ function buildAppMenu (options = {}) {
     }
   }
 
+  // HIDDEN: Uncomment to show Preferences in menu
   var preferencesAction = {
     label: l('appMenuPreferences'),
     accelerator: 'CmdOrCtrl+,',
@@ -103,6 +104,7 @@ function buildAppMenu (options = {}) {
     ...(options.secondary ? tabTaskActions : []),
     ...(options.secondary ? [{ type: 'separator' }] : []),
     ...(options.secondary ? personalDataItems : []),
+    // HIDDEN: Preferences menu item commented out
     ...(options.secondary ? [{ type: 'separator' }] : []),
     ...(options.secondary ? [preferencesAction] : []),
     ...(options.secondary ? [{ type: 'separator' }] : []),
@@ -118,7 +120,8 @@ function buildAppMenu (options = {}) {
             {
               type: 'separator'
             },
-            preferencesAction,
+            // HIDDEN: Preferences commented out for macOS menu too
+            // preferencesAction,
             {
               label: 'Services',
               role: 'services',
@@ -226,7 +229,7 @@ function buildAppMenu (options = {}) {
           }
         },
         ...(!options.secondary && process.platform !== 'darwin' ? [{ type: 'separator' }] : []),
-        ...(!options.secondary && process.platform !== 'darwin' ? [preferencesAction] : [])
+        // ...(!options.secondary && process.platform !== 'darwin' ? [preferencesAction] : [])
       ]
     },
     {
@@ -314,6 +317,7 @@ function buildAppMenu (options = {}) {
         }
       ]
     },
+    // HIDDEN: Uncomment to show Developer menu
     {
       label: l('appMenuDeveloper'),
       submenu: [
