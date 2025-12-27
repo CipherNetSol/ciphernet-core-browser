@@ -316,6 +316,51 @@
       </div>
 
       <div class="wallet-panel-content">
+        <!-- Connection Approval (inline - shown when dApp requests) -->
+        <div id="wallet-connect-inline" class="wallet-connect-inline">
+          <div class="wallet-connect-inline-header">
+            <i class="i carbon:connect"></i>
+            <h3>Connection Request</h3>
+          </div>
+          <div id="wallet-connect-origin-inline" class="wallet-connect-origin-display"></div>
+          <p class="wallet-connect-info-text">This site wants to connect to your wallet and view your address.</p>
+          <div class="wallet-connect-inline-buttons">
+            <button id="wallet-connect-reject-inline" class="wallet-btn wallet-btn-secondary">Reject</button>
+            <button id="wallet-connect-approve-inline" class="wallet-btn wallet-btn-primary">Connect</button>
+          </div>
+        </div>
+
+        <!-- Transaction Approval (inline) -->
+        <div id="wallet-tx-inline" class="wallet-tx-inline">
+          <div class="wallet-tx-inline-header">
+            <i class="i carbon:security"></i>
+            <h3>Confirm Transaction</h3>
+          </div>
+          <div id="wallet-tx-origin-inline" class="wallet-connect-origin-display"></div>
+          <div id="wallet-tx-warnings-inline" class="wallet-tx-warnings-inline"></div>
+          <div class="wallet-section-label">Transaction Details</div>
+          <div id="wallet-tx-details-inline" class="wallet-tx-details-inline"></div>
+          <div class="wallet-connect-inline-buttons">
+            <button id="wallet-tx-reject-inline" class="wallet-btn wallet-btn-secondary">Reject</button>
+            <button id="wallet-tx-approve-inline" class="wallet-btn wallet-btn-primary">Approve</button>
+          </div>
+        </div>
+
+        <!-- Message Signing (inline) -->
+        <div id="wallet-msg-inline" class="wallet-msg-inline">
+          <div class="wallet-connect-inline-header">
+            <i class="i carbon:pen"></i>
+            <h3>Sign Message</h3>
+          </div>
+          <div id="wallet-msg-origin-inline" class="wallet-connect-origin-display"></div>
+          <div class="wallet-section-label">Message</div>
+          <div id="wallet-msg-content-inline" class="wallet-msg-content-inline"></div>
+          <div class="wallet-connect-inline-buttons">
+            <button id="wallet-msg-reject-inline" class="wallet-btn wallet-btn-secondary">Reject</button>
+            <button id="wallet-msg-approve-inline" class="wallet-btn wallet-btn-primary">Sign</button>
+          </div>
+        </div>
+
         <!-- Session Warning -->
         <div class="wallet-session-warning">
           <p><strong>Ephemeral Session Wallet</strong><br>
@@ -334,9 +379,9 @@
         </div>
 
         <!-- QR Code -->
-        <div class="wallet-qr-section">
+        <!-- <div class="wallet-qr-section">
           <div id="wallet-qr-code" class="wallet-qr-code"></div>
-        </div>
+        </div> -->
 
         <!-- Balance Section -->
         <div class="wallet-balance-section">
@@ -384,60 +429,6 @@
               <button id="wallet-export-confirm" class="wallet-btn wallet-btn-primary">Show Key</button>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Wallet Connection Modal -->
-    <div id="wallet-connect-modal" class="wallet-connect-modal">
-      <div class="wallet-connect-content">
-        <div class="wallet-connect-icon">
-          <i class="i carbon:connect"></i>
-        </div>
-        <h3>Connection Request</h3>
-        <div id="wallet-connect-origin" class="wallet-connect-origin"></div>
-        <p class="wallet-connect-info">This site wants to connect to your wallet and view your address.</p>
-        <div class="wallet-connect-buttons">
-          <button id="wallet-connect-reject" class="wallet-btn wallet-btn-secondary">Reject</button>
-          <button id="wallet-connect-approve" class="wallet-btn wallet-btn-primary">Connect</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Transaction Confirmation Modal -->
-    <div id="wallet-tx-confirmation" class="wallet-tx-confirmation">
-      <div class="wallet-tx-confirmation-content">
-        <div class="wallet-tx-header">
-          <div>
-            <h3>Confirm Transaction</h3>
-            <div id="wallet-tx-origin" class="wallet-tx-origin"></div>
-          </div>
-        </div>
-        <div class="wallet-tx-body">
-          <div id="wallet-tx-warnings" class="wallet-tx-warnings"></div>
-          <div class="wallet-section-label">Transaction Details</div>
-          <div id="wallet-tx-details" class="wallet-tx-details"></div>
-        </div>
-        <div class="wallet-tx-footer">
-          <button id="wallet-tx-reject" class="wallet-btn wallet-btn-secondary">Reject</button>
-          <button id="wallet-tx-approve" class="wallet-btn wallet-btn-primary">Approve</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Message Signing Modal -->
-    <div id="wallet-msg-modal" class="wallet-connect-modal">
-      <div class="wallet-connect-content">
-        <div class="wallet-connect-icon">
-          <i class="i carbon:pen"></i>
-        </div>
-        <h3>Sign Message</h3>
-        <div id="wallet-msg-origin" class="wallet-connect-origin"></div>
-        <div class="wallet-section-label" style="margin-top: 16px;">Message</div>
-        <div id="wallet-msg-content" class="wallet-private-key-box" style="max-height: 100px; margin-bottom: 16px;"></div>
-        <div class="wallet-connect-buttons">
-          <button id="wallet-msg-reject" class="wallet-btn wallet-btn-secondary">Reject</button>
-          <button id="wallet-msg-approve" class="wallet-btn wallet-btn-primary">Sign</button>
         </div>
       </div>
     </div>

@@ -52,26 +52,26 @@ const walletPanel = {
       copyPrivateKeyBtn: document.getElementById('wallet-copy-private-key'),
       hidePrivateKeyBtn: document.getElementById('wallet-hide-private-key'),
 
-      // Connection modal
-      connectModal: document.getElementById('wallet-connect-modal'),
-      connectOrigin: document.getElementById('wallet-connect-origin'),
-      connectApproveBtn: document.getElementById('wallet-connect-approve'),
-      connectRejectBtn: document.getElementById('wallet-connect-reject'),
+      // Inline connection approval (inside wallet panel)
+      connectInline: document.getElementById('wallet-connect-inline'),
+      connectOrigin: document.getElementById('wallet-connect-origin-inline'),
+      connectApproveBtn: document.getElementById('wallet-connect-approve-inline'),
+      connectRejectBtn: document.getElementById('wallet-connect-reject-inline'),
 
-      // Transaction modal
-      txModal: document.getElementById('wallet-tx-confirmation'),
-      txOrigin: document.getElementById('wallet-tx-origin'),
-      txWarnings: document.getElementById('wallet-tx-warnings'),
-      txDetails: document.getElementById('wallet-tx-details'),
-      txApproveBtn: document.getElementById('wallet-tx-approve'),
-      txRejectBtn: document.getElementById('wallet-tx-reject'),
+      // Inline transaction approval
+      txInline: document.getElementById('wallet-tx-inline'),
+      txOrigin: document.getElementById('wallet-tx-origin-inline'),
+      txWarnings: document.getElementById('wallet-tx-warnings-inline'),
+      txDetails: document.getElementById('wallet-tx-details-inline'),
+      txApproveBtn: document.getElementById('wallet-tx-approve-inline'),
+      txRejectBtn: document.getElementById('wallet-tx-reject-inline'),
 
-      // Message modal
-      msgModal: document.getElementById('wallet-msg-modal'),
-      msgOrigin: document.getElementById('wallet-msg-origin'),
-      msgContent: document.getElementById('wallet-msg-content'),
-      msgApproveBtn: document.getElementById('wallet-msg-approve'),
-      msgRejectBtn: document.getElementById('wallet-msg-reject')
+      // Inline message signing
+      msgInline: document.getElementById('wallet-msg-inline'),
+      msgOrigin: document.getElementById('wallet-msg-origin-inline'),
+      msgContent: document.getElementById('wallet-msg-content-inline'),
+      msgApproveBtn: document.getElementById('wallet-msg-approve-inline'),
+      msgRejectBtn: document.getElementById('wallet-msg-reject-inline')
     }
 
     // Set up event listeners
@@ -196,6 +196,21 @@ const walletPanel = {
     ipc.on('wallet:showMessageApproval', (event, data) => {
       this.showMessageModal(data)
     })
+
+    // Real-time balance updates
+    ipc.on('wallet:balanceChanged', (event, balance) => {
+      console.log('[WalletPanel] Balance changed:', balance.sol, 'SOL')
+      this.balance = balance
+      this.updateBalanceDisplay()
+
+      // Flash the balance to indicate update
+      if (this.elements.balanceAmount) {
+        this.elements.balanceAmount.classList.add('balance-updated')
+        setTimeout(() => {
+          this.elements.balanceAmount.classList.remove('balance-updated')
+        }, 500)
+      }
+    })
   },
 
   async initializeWallet() {
@@ -219,8 +234,24 @@ const walletPanel = {
 
       // Get balance
       await this.refreshBalance()
+
+      // Subscribe to real-time balance updates
+      await this.subscribeToBalanceUpdates()
     } catch (error) {
       console.error('[WalletPanel] Error initializing wallet:', error)
+    }
+  },
+
+  async subscribeToBalanceUpdates() {
+    try {
+      const result = await ipc.invoke('wallet:subscribeBalance')
+      if (result.success) {
+        console.log('[WalletPanel] Subscribed to real-time balance updates')
+      } else {
+        console.error('[WalletPanel] Failed to subscribe to balance:', result.error)
+      }
+    } catch (error) {
+      console.error('[WalletPanel] Error subscribing to balance:', error)
     }
   },
 
@@ -387,22 +418,39 @@ const walletPanel = {
     }
   },
 
-  // Connection approval
+  // Connection approval - now inline inside wallet panel
   showConnectModal: function (data) {
     console.log('[WalletPanel] showConnectModal called with:', data)
     this.pendingConnectRequest = data
 
-    console.log('[WalletPanel] connectOrigin element:', this.elements.connectOrigin)
-    console.log('[WalletPanel] connectModal element:', this.elements.connectModal)
+    // Auto-open the wallet panel to show the approval request
+    if (!this.isOpen) {
+      this.open()
+    }
+
+    // Hide other inline approvals
+    this.hideAllInlineApprovals()
 
     if (this.elements.connectOrigin) {
       this.elements.connectOrigin.textContent = data.origin
     }
-    if (this.elements.connectModal) {
-      this.elements.connectModal.classList.add('active')
-      console.log('[WalletPanel] Connect modal activated')
+    if (this.elements.connectInline) {
+      this.elements.connectInline.classList.add('active')
+      console.log('[WalletPanel] Connect inline approval shown')
     } else {
-      console.error('[WalletPanel] Connect modal element not found!')
+      console.error('[WalletPanel] Connect inline element not found!')
+    }
+  },
+
+  hideAllInlineApprovals: function () {
+    if (this.elements.connectInline) {
+      this.elements.connectInline.classList.remove('active')
+    }
+    if (this.elements.txInline) {
+      this.elements.txInline.classList.remove('active')
+    }
+    if (this.elements.msgInline) {
+      this.elements.msgInline.classList.remove('active')
     }
   },
 
@@ -437,15 +485,23 @@ const walletPanel = {
   },
 
   hideConnectModal: function () {
-    if (this.elements.connectModal) {
-      this.elements.connectModal.classList.remove('active')
+    if (this.elements.connectInline) {
+      this.elements.connectInline.classList.remove('active')
     }
     this.pendingConnectRequest = null
   },
 
-  // Transaction approval
+  // Transaction approval - now inline inside wallet panel
   showTransactionModal: function (data) {
     this.pendingTransactionRequest = data
+
+    // Auto-open the wallet panel
+    if (!this.isOpen) {
+      this.open()
+    }
+
+    // Hide other inline approvals
+    this.hideAllInlineApprovals()
 
     if (this.elements.txOrigin) {
       this.elements.txOrigin.textContent = data.origin
@@ -484,14 +540,22 @@ const walletPanel = {
       this.elements.txDetails.innerHTML = detailsHtml
     }
 
-    if (this.elements.txModal) {
-      this.elements.txModal.classList.add('active')
+    if (this.elements.txInline) {
+      this.elements.txInline.classList.add('active')
     }
   },
 
   showMultiTransactionModal: function (data) {
     // For multiple transactions, show count and combined warnings
     this.pendingTransactionRequest = { ...data, isMulti: true }
+
+    // Auto-open the wallet panel
+    if (!this.isOpen) {
+      this.open()
+    }
+
+    // Hide other inline approvals
+    this.hideAllInlineApprovals()
 
     if (this.elements.txOrigin) {
       this.elements.txOrigin.textContent = `${data.origin} (${data.count} transactions)`
@@ -519,8 +583,8 @@ const walletPanel = {
       this.elements.txDetails.innerHTML = `<strong>${data.count} transactions</strong> require your signature.`
     }
 
-    if (this.elements.txModal) {
-      this.elements.txModal.classList.add('active')
+    if (this.elements.txInline) {
+      this.elements.txInline.classList.add('active')
     }
   },
 
@@ -567,15 +631,23 @@ const walletPanel = {
   },
 
   hideTransactionModal: function () {
-    if (this.elements.txModal) {
-      this.elements.txModal.classList.remove('active')
+    if (this.elements.txInline) {
+      this.elements.txInline.classList.remove('active')
     }
     this.pendingTransactionRequest = null
   },
 
-  // Message signing approval
+  // Message signing approval - now inline inside wallet panel
   showMessageModal: function (data) {
     this.pendingMessageRequest = data
+
+    // Auto-open the wallet panel
+    if (!this.isOpen) {
+      this.open()
+    }
+
+    // Hide other inline approvals
+    this.hideAllInlineApprovals()
 
     if (this.elements.msgOrigin) {
       this.elements.msgOrigin.textContent = data.origin
@@ -585,8 +657,8 @@ const walletPanel = {
       this.elements.msgContent.textContent = data.messageText
     }
 
-    if (this.elements.msgModal) {
-      this.elements.msgModal.classList.add('active')
+    if (this.elements.msgInline) {
+      this.elements.msgInline.classList.add('active')
     }
   },
 
@@ -621,8 +693,8 @@ const walletPanel = {
   },
 
   hideMessageModal: function () {
-    if (this.elements.msgModal) {
-      this.elements.msgModal.classList.remove('active')
+    if (this.elements.msgInline) {
+      this.elements.msgInline.classList.remove('active')
     }
     this.pendingMessageRequest = null
   },

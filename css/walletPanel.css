@@ -304,10 +304,46 @@
   font-weight: 700;
   color: #ffffff;
   font-family: 'SF Mono', 'Fira Code', monospace;
+  transition: transform 0.2s ease, text-shadow 0.2s ease;
 }
 
 .dark-theme .wallet-balance-section .wallet-balance-amount {
   color: #000000;
+}
+
+/* Balance update animation */
+.wallet-balance-amount.balance-updated {
+  animation: balancePulse 0.5s ease;
+}
+
+@keyframes balancePulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.dark-theme .wallet-balance-amount.balance-updated {
+  animation: balancePulseDark 0.5s ease;
+}
+
+@keyframes balancePulseDark {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+    text-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 .wallet-balance-usd {
@@ -582,15 +618,17 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
   display: none;
   align-items: center;
   justify-content: center;
-  z-index: 20000;
+  z-index: 99999;
 }
 
 .wallet-tx-confirmation.active {
-  display: flex;
+  display: flex !important;
 }
 
 .dark-theme .wallet-tx-confirmation {
@@ -601,15 +639,18 @@
   background: #ffffff;
   border-radius: 12px;
   width: 420px;
+  max-width: 90vw;
   max-height: 80vh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .dark-theme .wallet-tx-confirmation-content {
-  background: #0a0a0a;
-  border: 1px solid #2a2a2a;
+  background: #1a1a1a;
+  border: 2px solid #444444;
+  box-shadow: 0 8px 32px rgba(255, 255, 255, 0.1);
 }
 
 .wallet-tx-header {
@@ -705,28 +746,33 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
   display: none;
   align-items: center;
   justify-content: center;
-  z-index: 20000;
+  z-index: 99999;
 }
 
 .wallet-connect-modal.active {
-  display: flex;
+  display: flex !important;
 }
 
 .wallet-connect-content {
   background: #ffffff;
   border-radius: 12px;
   width: 360px;
+  max-width: 90vw;
   padding: 24px;
   text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .dark-theme .wallet-connect-content {
-  background: #0a0a0a;
-  border: 1px solid #2a2a2a;
+  background: #1a1a1a;
+  border: 2px solid #444444;
+  box-shadow: 0 8px 32px rgba(255, 255, 255, 0.1);
 }
 
 .wallet-connect-icon {
@@ -777,6 +823,178 @@
 
 .wallet-connect-buttons .wallet-btn {
   flex: 1;
+}
+
+/* ================================
+   INLINE APPROVAL STYLES
+   (Inside wallet panel - not modals)
+   ================================ */
+
+/* Base inline approval container */
+.wallet-connect-inline,
+.wallet-tx-inline,
+.wallet-msg-inline {
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background: #f0f5ff;
+  border: 2px solid #000000;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  animation: inlineSlideIn 0.3s ease;
+}
+
+.wallet-connect-inline.active,
+.wallet-tx-inline.active,
+.wallet-msg-inline.active {
+  display: flex;
+}
+
+.dark-theme .wallet-connect-inline,
+.dark-theme .wallet-tx-inline,
+.dark-theme .wallet-msg-inline {
+  background: #1a1a2e;
+  border-color: #ffffff;
+}
+
+@keyframes inlineSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Inline header */
+.wallet-connect-inline-header,
+.wallet-tx-inline-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.dark-theme .wallet-connect-inline-header,
+.dark-theme .wallet-tx-inline-header {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.wallet-connect-inline-header .i,
+.wallet-tx-inline-header .i {
+  font-size: 24px;
+  color: #000000;
+}
+
+.dark-theme .wallet-connect-inline-header .i,
+.dark-theme .wallet-tx-inline-header .i {
+  color: #ffffff;
+}
+
+.wallet-connect-inline-header h3,
+.wallet-tx-inline-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #000000;
+}
+
+.dark-theme .wallet-connect-inline-header h3,
+.dark-theme .wallet-tx-inline-header h3 {
+  color: #ffffff;
+}
+
+/* Origin display */
+.wallet-connect-origin-display {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333333;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 8px 12px;
+  border-radius: 6px;
+  word-break: break-all;
+}
+
+.dark-theme .wallet-connect-origin-display {
+  color: #cccccc;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Info text */
+.wallet-connect-info-text {
+  font-size: 12px;
+  color: #666666;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.dark-theme .wallet-connect-info-text {
+  color: #999999;
+}
+
+/* Inline buttons */
+.wallet-connect-inline-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.wallet-connect-inline-buttons .wallet-btn {
+  flex: 1;
+  padding: 12px 16px;
+  font-weight: 600;
+}
+
+/* Transaction warnings inline */
+.wallet-tx-warnings-inline {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wallet-tx-warnings-inline .wallet-tx-warning-item {
+  margin-bottom: 0;
+}
+
+/* Transaction details inline */
+.wallet-tx-details-inline {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 6px;
+  padding: 12px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 11px;
+  line-height: 1.6;
+  color: #333333;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.dark-theme .wallet-tx-details-inline {
+  background: rgba(255, 255, 255, 0.05);
+  color: #cccccc;
+}
+
+/* Message content inline */
+.wallet-msg-content-inline {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 6px;
+  padding: 12px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #333333;
+  max-height: 100px;
+  overflow-y: auto;
+  word-break: break-word;
+}
+
+.dark-theme .wallet-msg-content-inline {
+  background: rgba(255, 255, 255, 0.05);
+  color: #cccccc;
 }
 
 /* Responsive */
