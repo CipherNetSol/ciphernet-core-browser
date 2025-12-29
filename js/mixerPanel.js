@@ -25,7 +25,7 @@ const mixerPanel = {
   elements: {},
 
   initialize: function () {
-    console.log('Mixer Panel: Initializing...')
+    // console.log('Mixer Panel: Initializing...')
 
     // Get DOM elements
     this.panel = document.getElementById('mixer-panel')
@@ -78,11 +78,11 @@ const mixerPanel = {
     // Check for existing order
     this.checkExistingOrder()
 
-    console.log('Mixer Panel: Initialization complete')
+    // console.log('Mixer Panel: Initialization complete')
   },
 
   open: function () {
-    console.log('Mixer Panel: Opening...')
+    // console.log('Mixer Panel: Opening...')
 
     if (this.panel) {
       this.panel.classList.add('active')
@@ -100,7 +100,7 @@ const mixerPanel = {
   },
 
   close: function () {
-    console.log('Mixer Panel: Closing...')
+    // console.log('Mixer Panel: Closing...')
     if (this.panel) {
       this.panel.classList.remove('active')
     }

@@ -14,7 +14,7 @@ const mixerPanelInline = {
   elements: {},
 
   initialize: function () {
-    console.log('Mixer Panel Inline: Initializing...')
+    // console.log('Mixer Panel Inline: Initializing...')
 
     // Get DOM elements
     this.panel = document.getElementById('mixer-panel-inline')
@@ -50,13 +50,13 @@ const mixerPanelInline = {
     // Load currencies
     this.loadCurrencies()
 
-    console.log('Mixer Panel Inline: Initialization complete')
+    // console.log('Mixer Panel Inline: Initialization complete')
   },
 
   open: function () {
-    console.log('Mixer Panel Inline: Opening...')
-    console.log('Panel element:', this.panel)
-    console.log('Panel classes before:', this.panel.className)
+    // console.log('Mixer Panel Inline: Opening...')
+    // console.log('Panel element:', this.panel)
+    // console.log('Panel classes before:', this.panel.className)
 
     this.panel.classList.add('active')
     this.isOpen = true
@@ -64,8 +64,8 @@ const mixerPanelInline = {
     // Push webviews down to make room for the mixer panel
     webviews.adjustMargin([this.panelHeight, 0, 0, 0])
 
-    console.log('Panel classes after:', this.panel.className)
-    console.log('isOpen:', this.isOpen)
+    // console.log('Panel classes after:', this.panel.className)
+    // console.log('isOpen:', this.isOpen)
 
     // Load currencies if not already loaded
     if (this.currencies.length === 0) {
@@ -74,7 +74,7 @@ const mixerPanelInline = {
   },
 
   close: function () {
-    console.log('Mixer Panel Inline: Closing...')
+    // console.log('Mixer Panel Inline: Closing...')
     this.panel.classList.remove('active')
     this.isOpen = false
 
@@ -91,7 +91,7 @@ const mixerPanelInline = {
   },
 
   async loadCurrencies() {
-    console.log('Mixer Panel Inline: Loading currencies...')
+    // console.log('Mixer Panel Inline: Loading currencies...')
 
     try {
       const result = await mixerAPI.getAvailableCurrencies(false, true)
@@ -108,7 +108,7 @@ const mixerPanelInline = {
   },
 
   populateCurrencySelects() {
-    console.log('Mixer Panel Inline: Populating currency selects with', this.currencies.length, 'currencies')
+    // console.log('Mixer Panel Inline: Populating currency selects with', this.currencies.length, 'currencies')
 
     // Clear existing options
     this.elements.fromCurrency.innerHTML = '<option value="">Select currency</option>'
@@ -163,7 +163,7 @@ const mixerPanelInline = {
   },
 
   onCurrencyChange() {
-    console.log('Mixer Panel Inline: Currency changed')
+    // console.log('Mixer Panel Inline: Currency changed')
     this.updateMinimumAmount()
     this.getEstimate()
   },
@@ -218,7 +218,7 @@ const mixerPanelInline = {
   },
 
   async createOrder() {
-    console.log('Mixer Panel Inline: Creating order...')
+    // console.log('Mixer Panel Inline: Creating order...')
 
     // Validate inputs
     const fromCurrency = this.elements.fromCurrency.value

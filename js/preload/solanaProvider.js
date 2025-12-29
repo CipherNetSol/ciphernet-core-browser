@@ -15,7 +15,7 @@ var webFrame = electron.webFrame
     return
   }
 
-  console.log('[CipherNet Wallet] Initializing Solana provider...')
+  // console.log('[CipherNet Wallet] Initializing Solana provider...')
 
   // Generate unique channel ID for this page instance
   const channelId = 'ciphernet_wallet_' + Math.random().toString(36).substr(2, 9)
@@ -372,7 +372,7 @@ var webFrame = electron.webFrame
       // PHANTOM-COMPATIBLE PROVIDER (window.solana)
       // ============================================
       const ciphernetSolana = {
-        isPhantom: true,
+        // isPhantom: true,
         isCipherNet: true,
         isConnected: false,
         publicKey: null,
@@ -403,7 +403,7 @@ var webFrame = electron.webFrame
         },
 
         async connect(options = {}) {
-          console.log('[CipherNet Wallet] Connect requested');
+          // console.log('[CipherNet Wallet] Connect requested');
           const result = await sendRequest('connect', options);
 
           publicKey = new PublicKey(result.publicKey);
@@ -427,7 +427,7 @@ var webFrame = electron.webFrame
         },
 
         async disconnect() {
-          console.log('[CipherNet Wallet] Disconnect requested');
+          // console.log('[CipherNet Wallet] Disconnect requested');
           publicKey = null;
           isConnected = false;
           currentAccount = null;
@@ -439,7 +439,7 @@ var webFrame = electron.webFrame
         },
 
         async signTransaction(transaction) {
-          console.log('[CipherNet Wallet] Sign transaction requested');
+          // console.log('[CipherNet Wallet] Sign transaction requested');
           if (!isConnected) throw new Error('Wallet not connected');
 
           const serialized = Array.from(transaction.serialize({ requireAllSignatures: false }));
@@ -455,7 +455,7 @@ var webFrame = electron.webFrame
         },
 
         async signAllTransactions(transactions) {
-          console.log('[CipherNet Wallet] Sign all transactions requested');
+          // console.log('[CipherNet Wallet] Sign all transactions requested');
           if (!isConnected) throw new Error('Wallet not connected');
 
           const serialized = transactions.map(tx => Array.from(tx.serialize({ requireAllSignatures: false })));
@@ -472,14 +472,14 @@ var webFrame = electron.webFrame
         },
 
         async signAndSendTransaction(transaction, options = {}) {
-          console.log('[CipherNet Wallet] Sign and send transaction requested');
+          // console.log('[CipherNet Wallet] Sign and send transaction requested');
           const signedTx = await this.signTransaction(transaction);
           const result = await sendRequest('sendTransaction', { signedTransaction: Array.from(signedTx.serialize()) });
           return { signature: result.signature };
         },
 
         async signMessage(message, display) {
-          console.log('[CipherNet Wallet] Sign message requested');
+          // console.log('[CipherNet Wallet] Sign message requested');
           if (!isConnected) throw new Error('Wallet not connected');
 
           const messageBytes = message instanceof Uint8Array ? Array.from(message) : Array.from(new TextEncoder().encode(message));
@@ -578,7 +578,7 @@ var webFrame = electron.webFrame
             [StandardConnect]: {
               version: '1.0.0',
               connect: async () => {
-                console.log('[CipherNet Wallet Standard] connect called');
+                // console.log('[CipherNet Wallet Standard] connect called');
                 const result = await ciphernetSolana.connect();
                 const account = new CipherNetWalletAccount(result.publicKey);
                 return { accounts: [account] };
@@ -587,7 +587,7 @@ var webFrame = electron.webFrame
             [StandardDisconnect]: {
               version: '1.0.0',
               disconnect: async () => {
-                console.log('[CipherNet Wallet Standard] disconnect called');
+                // console.log('[CipherNet Wallet Standard] disconnect called');
                 await ciphernetSolana.disconnect();
               }
             },
@@ -608,39 +608,89 @@ var webFrame = electron.webFrame
             [SolanaSignTransaction]: {
               version: '1.0.0',
               supportedTransactionVersions: ['legacy', 0],
-              signTransaction: async (transaction) => {
-                console.log('[CipherNet Wallet Standard] signTransaction called');
-                const signed = await ciphernetSolana.signTransaction(transaction);
-                return signed.serialize();
+              signTransaction: async (...inputs) => {
+                // console.log('[CipherNet Wallet Standard] signTransaction called', inputs);
+                // Wallet Standard passes { transaction, account, chain } or just transaction
+                // Handle both formats
+                const input = inputs[0];
+                const transaction = input.transaction || input;
+
+                // Get serialized bytes from the transaction
+                let serializedBytes;
+                if (typeof transaction.serialize === 'function') {
+                  serializedBytes = transaction.serialize({ requireAllSignatures: false });
+                } else if (transaction instanceof Uint8Array) {
+                  serializedBytes = transaction;
+                } else {
+                  throw new Error('Invalid transaction format');
+                }
+
+                const serialized = Array.from(serializedBytes);
+                const result = await sendRequest('signTransaction', { transaction: serialized });
+                const signedBytes = new Uint8Array(result.signedTransaction);
+
+                // Return the signed transaction in the expected Wallet Standard format
+                // { signedTransaction: Uint8Array }
+                return [{ signedTransaction: signedBytes }];
               }
             },
             [SolanaSignAllTransactions]: {
               version: '1.0.0',
               supportedTransactionVersions: ['legacy', 0],
-              signAllTransactions: async (transactions) => {
-                console.log('[CipherNet Wallet Standard] signAllTransactions called');
-                const signed = await ciphernetSolana.signAllTransactions(transactions);
-                return signed.map(tx => tx.serialize());
+              signAllTransactions: async (...inputs) => {
+                // console.log('[CipherNet Wallet Standard] signAllTransactions called', inputs);
+                // Handle Wallet Standard format: array of { transaction, account, chain }
+                const inputArray = inputs[0];
+                const transactions = Array.isArray(inputArray)
+                  ? inputArray.map(input => input.transaction || input)
+                  : [inputArray.transaction || inputArray];
+
+                const serialized = transactions.map(tx => {
+                  if (typeof tx.serialize === 'function') {
+                    return Array.from(tx.serialize({ requireAllSignatures: false }));
+                  } else if (tx instanceof Uint8Array) {
+                    return Array.from(tx);
+                  }
+                  throw new Error('Invalid transaction format');
+                });
+
+                const result = await sendRequest('signAllTransactions', { transactions: serialized });
+
+                // Return signed transactions in Wallet Standard format
+                return result.signedTransactions.map(tx => ({
+                  signedTransaction: new Uint8Array(tx)
+                }));
               }
             },
             [SolanaSignMessage]: {
               version: '1.0.0',
-              signMessage: async (message) => {
-                console.log('[CipherNet Wallet Standard] signMessage called');
+              signMessage: async (...inputs) => {
+                // console.log('[CipherNet Wallet Standard] signMessage called', inputs);
+                // Handle Wallet Standard format: { message, account }
+                const input = inputs[0];
+                const message = input.message || input;
+
                 const result = await ciphernetSolana.signMessage(message);
-                return {
+                // Return in Wallet Standard format: array of { signature, signedMessage }
+                return [{
                   signature: result.signature,
-                  signedMessage: message
-                };
+                  signedMessage: message instanceof Uint8Array ? message : new TextEncoder().encode(message)
+                }];
               }
             },
             [SolanaSignAndSendTransaction]: {
               version: '1.0.0',
               supportedTransactionVersions: ['legacy', 0],
-              signAndSendTransaction: async (transaction, options = {}) => {
-                console.log('[CipherNet Wallet Standard] signAndSendTransaction called');
+              signAndSendTransaction: async (...inputs) => {
+                // console.log('[CipherNet Wallet Standard] signAndSendTransaction called', inputs);
+                // Handle Wallet Standard format
+                const input = inputs[0];
+                const transaction = input.transaction || input;
+                const options = input.options || {};
+
                 const result = await ciphernetSolana.signAndSendTransaction(transaction, options);
-                return { signature: decodeBase58(result.signature) };
+                // Return in Wallet Standard format: array of { signature: Uint8Array }
+                return [{ signature: decodeBase58(result.signature) }];
               }
             }
           };
@@ -678,7 +728,7 @@ var webFrame = electron.webFrame
             const { register } = event.detail || {};
             if (typeof register === 'function') {
               register(ciphernetWalletStandard);
-              console.log('[CipherNet Wallet] Registered with Wallet Standard via event');
+              // console.log('[CipherNet Wallet] Registered with Wallet Standard via event');
             }
           };
 
@@ -701,7 +751,7 @@ var webFrame = electron.webFrame
           if (wallets) {
             if (typeof wallets.register === 'function') {
               wallets.register(ciphernetWalletStandard);
-              console.log('[CipherNet Wallet] Registered via navigator.wallets.register');
+              // console.log('[CipherNet Wallet] Registered via navigator.wallets.register');
             }
           }
 
@@ -742,7 +792,7 @@ var webFrame = electron.webFrame
           walletsWindow.__walletStandard.register(ciphernetWalletStandard);
         }
 
-        console.log('[CipherNet Wallet] Wallet Standard registration complete');
+        // console.log('[CipherNet Wallet] Wallet Standard registration complete');
       }
 
       // ============================================
@@ -782,14 +832,14 @@ var webFrame = electron.webFrame
         }
       }));
 
-      console.log('[CipherNet Wallet] Solana provider + Wallet Standard injected successfully');
+      // console.log('[CipherNet Wallet] Solana provider + Wallet Standard injected successfully');
     })();
   `
 
   // Execute the script in the page context at document start
   webFrame.executeJavaScript(providerScript)
     .then(() => {
-      console.log('[CipherNet Wallet] Provider script executed in page context')
+      // console.log('[CipherNet Wallet] Provider script executed in page context')
     })
     .catch((err) => {
       console.error('[CipherNet Wallet] Failed to inject provider:', err)

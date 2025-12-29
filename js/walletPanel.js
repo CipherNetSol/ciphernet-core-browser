@@ -11,6 +11,8 @@ const walletPanel = {
   network: 'mainnet-beta',
   isExportWarningVisible: false,
   isPrivateKeyVisible: false,
+  solPrice: 0, // Real SOL/USD price
+  priceUpdateInterval: null,
 
   // Pending approval requests
   pendingConnectRequest: null,
@@ -21,7 +23,7 @@ const walletPanel = {
   elements: {},
 
   initialize: function () {
-    console.log('[WalletPanel] Initializing... (renderer process)')
+    // console.log('[WalletPanel] Initializing... (renderer process)')
 
     // Get DOM elements
     this.panel = document.getElementById('wallet-panel')
@@ -37,6 +39,7 @@ const walletPanel = {
       qrCodeContainer: document.getElementById('wallet-qr-code'),
       balanceAmount: document.getElementById('wallet-balance-amount'),
       balanceUsd: document.getElementById('wallet-balance-usd'),
+      balanceRefreshBtn: document.getElementById('wallet-balance-refresh-btn'),
       networkSelect: document.getElementById('wallet-network-select'),
       exportBtn: document.getElementById('wallet-export-btn'),
       refreshBtn: document.getElementById('wallet-refresh-btn'),
@@ -83,7 +86,7 @@ const walletPanel = {
     // Listen for wallet IPC events
     this.setupIPCListeners()
 
-    console.log('[WalletPanel] Initialization complete')
+    // console.log('[WalletPanel] Initialization complete')
   },
 
   setupEventListeners: function () {
@@ -111,9 +114,14 @@ const walletPanel = {
       this.elements.exportBtn.addEventListener('click', () => this.showExportWarning())
     }
 
-    // Refresh button
+    // Refresh button (in actions section)
     if (this.elements.refreshBtn) {
-      this.elements.refreshBtn.addEventListener('click', () => this.refreshBalance())
+      this.elements.refreshBtn.addEventListener('click', () => this.refreshBalanceWithAnimation())
+    }
+
+    // Balance refresh button (top-right corner of balance box)
+    if (this.elements.balanceRefreshBtn) {
+      this.elements.balanceRefreshBtn.addEventListener('click', () => this.refreshBalanceWithAnimation())
     }
 
     // Export warning buttons
@@ -166,15 +174,15 @@ const walletPanel = {
   },
 
   setupIPCListeners: function () {
-    console.log('[WalletPanel] Setting up IPC listeners')
+    // console.log('[WalletPanel] Setting up IPC listeners')
 
     // Connection approval request
     ipc.on('wallet:showConnectApproval', (event, data) => {
-      console.log('[WalletPanel] Received wallet:showConnectApproval', data)
+      // console.log('[WalletPanel] Received wallet:showConnectApproval', data)
       // Flash the wallet button to indicate activity
       const walletBtn = document.getElementById('wallet-button')
       if (walletBtn) {
-        walletBtn.style.backgroundColor = '#ff0000'
+        // walletBtn.style.backgroundColor = '#ff0000'
         setTimeout(() => {
           walletBtn.style.backgroundColor = ''
         }, 1000)
@@ -199,7 +207,7 @@ const walletPanel = {
 
     // Real-time balance updates
     ipc.on('wallet:balanceChanged', (event, balance) => {
-      console.log('[WalletPanel] Balance changed:', balance.sol, 'SOL')
+      // console.log('[WalletPanel] Balance changed:', balance.sol, 'SOL')
       this.balance = balance
       this.updateBalanceDisplay()
 
@@ -232,21 +240,50 @@ const walletPanel = {
         }
       }
 
+      // Get SOL price first
+      await this.fetchSolPrice()
+
       // Get balance
       await this.refreshBalance()
 
       // Subscribe to real-time balance updates
       await this.subscribeToBalanceUpdates()
+
+      // Start price update interval (every 30 seconds)
+      this.startPriceUpdates()
     } catch (error) {
       console.error('[WalletPanel] Error initializing wallet:', error)
     }
+  },
+
+  async fetchSolPrice() {
+    try {
+      const response = await fetch('https://min-api.cryptocompare.com/data/price?fsym=SOL&tsyms=USDT')
+      const data = await response.json()
+      if (data && data.USDT) {
+        this.solPrice = data.USDT
+        // console.log('[WalletPanel] SOL price updated:', this.solPrice)
+        this.updateBalanceDisplay()
+      }
+    } catch (error) {
+      console.error('[WalletPanel] Error fetching SOL price:', error)
+    }
+  },
+
+  startPriceUpdates() {
+    // Clear any existing interval
+    if (this.priceUpdateInterval) {
+      clearInterval(this.priceUpdateInterval)
+    }
+    // Update price every 30 seconds
+    this.priceUpdateInterval = setInterval(() => this.fetchSolPrice(), 30000)
   },
 
   async subscribeToBalanceUpdates() {
     try {
       const result = await ipc.invoke('wallet:subscribeBalance')
       if (result.success) {
-        console.log('[WalletPanel] Subscribed to real-time balance updates')
+        // console.log('[WalletPanel] Subscribed to real-time balance updates')
       } else {
         console.error('[WalletPanel] Failed to subscribe to balance:', result.error)
       }
@@ -290,10 +327,6 @@ const walletPanel = {
 
   async refreshBalance() {
     try {
-      if (this.elements.balanceAmount) {
-        this.elements.balanceAmount.textContent = '...'
-      }
-
       const result = await ipc.invoke('wallet:getBalance')
       if (result.success) {
         this.balance = result.data
@@ -302,8 +335,30 @@ const walletPanel = {
     } catch (error) {
       console.error('[WalletPanel] Error refreshing balance:', error)
       if (this.elements.balanceAmount) {
-        this.elements.balanceAmount.textContent = '0.00'
+        this.elements.balanceAmount.textContent = '0.0000 SOL'
       }
+    }
+  },
+
+  async refreshBalanceWithAnimation() {
+    // Add spinning animation to refresh button
+    if (this.elements.balanceRefreshBtn) {
+      this.elements.balanceRefreshBtn.classList.add('refreshing')
+    }
+
+    try {
+      // Refresh both price and balance
+      await Promise.all([
+        this.fetchSolPrice(),
+        this.refreshBalance()
+      ])
+    } finally {
+      // Remove spinning animation after a minimum of 500ms for visual feedback
+      setTimeout(() => {
+        if (this.elements.balanceRefreshBtn) {
+          this.elements.balanceRefreshBtn.classList.remove('refreshing')
+        }
+      }, 500)
     }
   },
 
@@ -312,8 +367,8 @@ const walletPanel = {
       this.elements.balanceAmount.textContent = this.balance.sol.toFixed(4) + ' SOL'
     }
     if (this.elements.balanceUsd) {
-      // Simple USD estimate (would need price feed for accuracy)
-      const usdValue = this.balance.sol * 100 // Placeholder rate
+      // Use real SOL price from CryptoCompare
+      const usdValue = this.balance.sol * this.solPrice
       this.elements.balanceUsd.textContent = '≈ $' + usdValue.toFixed(2)
     }
   },
@@ -363,23 +418,23 @@ const walletPanel = {
   },
 
   async confirmExport() {
-    console.log('[WalletPanel] confirmExport called')
+    // console.log('[WalletPanel] confirmExport called')
     this.hideExportWarning()
 
     try {
       const result = await ipc.invoke('wallet:exportPrivateKey')
-      console.log('[WalletPanel] Export result:', result)
+      // console.log('[WalletPanel] Export result:', result)
       if (result.success) {
         // Show private key
         if (this.elements.privateKeyBox) {
           // Display as Base58 format
           this.elements.privateKeyBox.textContent = result.data.secretKeyBase58
-          console.log('[WalletPanel] Private key set in box (Base58)')
+          // console.log('[WalletPanel] Private key set in box (Base58)')
         }
         if (this.elements.privateKeyDisplay) {
           this.elements.privateKeyDisplay.classList.add('active')
           this.isPrivateKeyVisible = true
-          console.log('[WalletPanel] Private key display shown')
+          // console.log('[WalletPanel] Private key display shown')
         } else {
           console.error('[WalletPanel] privateKeyDisplay element not found')
         }
@@ -420,7 +475,7 @@ const walletPanel = {
 
   // Connection approval - now inline inside wallet panel
   showConnectModal: function (data) {
-    console.log('[WalletPanel] showConnectModal called with:', data)
+    // console.log('[WalletPanel] showConnectModal called with:', data)
     this.pendingConnectRequest = data
 
     // Auto-open the wallet panel to show the approval request
@@ -436,7 +491,7 @@ const walletPanel = {
     }
     if (this.elements.connectInline) {
       this.elements.connectInline.classList.add('active')
-      console.log('[WalletPanel] Connect inline approval shown')
+      // console.log('[WalletPanel] Connect inline approval shown')
     } else {
       console.error('[WalletPanel] Connect inline element not found!')
     }

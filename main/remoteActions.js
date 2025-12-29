@@ -47,7 +47,7 @@ ipc.handle('addWordToSpellCheckerDictionary', function (e, word) {
 
 // PRIVACY MODE: Comprehensive storage clearing function
 async function clearAllBrowsingData() {
-  console.log('PRIVACY MODE: Clearing all browsing data...')
+  // console.log('PRIVACY MODE: Clearing all browsing data...')
 
   try {
     // Clear main partition storage (cookies, localStorage, indexedDB, etc.)
@@ -85,12 +85,12 @@ async function clearAllBrowsingData() {
         if (error) {
           console.error('PRIVACY MODE: Failed to flush Windows DNS cache:', error)
         } else {
-          console.log('PRIVACY MODE: Windows DNS cache flushed')
+          // console.log('PRIVACY MODE: Windows DNS cache flushed')
         }
       })
     }
 
-    console.log('PRIVACY MODE: All browsing data cleared successfully')
+    // console.log('PRIVACY MODE: All browsing data cleared successfully')
   } catch (error) {
     console.error('PRIVACY MODE: Error clearing browsing data:', error)
   }

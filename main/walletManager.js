@@ -1,7 +1,7 @@
 // Solana Session Wallet Manager - Main Process
 // Ephemeral wallet that exists only in memory for the browser session
 
-const { Keypair, Connection, PublicKey, LAMPORTS_PER_SOL, Transaction, SystemProgram } = require('@solana/web3.js')
+const { Keypair, Connection, PublicKey, LAMPORTS_PER_SOL, Transaction, VersionedTransaction, SystemProgram } = require('@solana/web3.js')
 const bs58Module = require('bs58')
 // Handle both bs58 v4.x (default export) and v6.x (named export)
 const bs58 = bs58Module.default || bs58Module
@@ -34,10 +34,10 @@ class WalletManager {
     const rpcUrl = this.network === 'mainnet-beta' ? MAINNET_RPC : DEVNET_RPC
     this.connection = new Connection(rpcUrl, 'confirmed')
 
-    console.log('[WalletManager] Session wallet initialized')
-    console.log('[WalletManager] Public Key:', this.getPublicKey())
-    console.log('[WalletManager] Private Key (Array):', JSON.stringify(this.getSecretKey()))
-    console.log('[WalletManager] Private Key (Base58):', this.getSecretKeyBase58())
+    // console.log('[WalletManager] Session wallet initialized')
+    // console.log('[WalletManager] Public Key:', this.getPublicKey())
+    // console.log('[WalletManager] Private Key (Array):', JSON.stringify(this.getSecretKey()))
+    // console.log('[WalletManager] Private Key (Base58):', this.getSecretKeyBase58())
 
     return {
       publicKey: this.getPublicKey(),
@@ -134,7 +134,7 @@ class WalletManager {
           // Only emit if balance actually changed
           if (this.lastKnownBalance === null || this.lastKnownBalance.lamports !== lamports) {
             this.lastKnownBalance = { lamports, sol }
-            console.log('[WalletManager] Balance changed:', sol, 'SOL')
+            // console.log('[WalletManager] Balance changed:', sol, 'SOL')
 
             // Notify all callbacks
             this.balanceCallbacks.forEach(callback => {
@@ -149,7 +149,7 @@ class WalletManager {
         'confirmed'
       )
 
-      console.log('[WalletManager] Balance subscription started, ID:', this.balanceSubscriptionId)
+      // console.log('[WalletManager] Balance subscription started, ID:', this.balanceSubscriptionId)
     } catch (error) {
       console.error('[WalletManager] Failed to start balance subscription:', error)
     }
@@ -162,7 +162,7 @@ class WalletManager {
     if (this.balanceSubscriptionId !== null && this.connection) {
       try {
         this.connection.removeAccountChangeListener(this.balanceSubscriptionId)
-        console.log('[WalletManager] Balance subscription stopped')
+        // console.log('[WalletManager] Balance subscription stopped')
       } catch (error) {
         console.error('[WalletManager] Error stopping balance subscription:', error)
       }
@@ -171,7 +171,7 @@ class WalletManager {
   }
 
   /**
-   * Sign a transaction
+   * Sign a transaction (supports both legacy and versioned transactions)
    * @param {Buffer} serializedTransaction - Serialized transaction buffer
    * @returns {Buffer} - Signed serialized transaction
    */
@@ -181,14 +181,45 @@ class WalletManager {
     }
 
     try {
-      // Deserialize the transaction
-      const transaction = Transaction.from(Buffer.from(serializedTransaction))
+      const txBuffer = Buffer.from(serializedTransaction)
 
-      // Sign with our keypair
-      transaction.sign(this.keypair)
+      // Try to detect versioned transaction by checking the message version byte
+      // The structure is: [num_signatures (1 byte)][signatures (64 bytes each)][message...]
+      // For versioned transactions, the message starts with a version byte with high bit set (0x80 for v0)
+      const numSignatures = txBuffer[0]
+      const messageOffset = 1 + (numSignatures * 64)
+      const messageVersionByte = txBuffer[messageOffset]
+      const isVersioned = messageVersionByte !== undefined && (messageVersionByte & 0x80) !== 0
 
-      // Return serialized signed transaction
-      return Array.from(transaction.serialize())
+      console.log('[WalletManager] Transaction detection:', {
+        numSignatures,
+        messageOffset,
+        messageVersionByte,
+        isVersioned,
+        totalLength: txBuffer.length
+      })
+
+      if (isVersioned) {
+        // Handle VersionedTransaction (v0 transactions used by Jupiter, etc.)
+        // console.log('[WalletManager] Signing VersionedTransaction')
+        const versionedTx = VersionedTransaction.deserialize(txBuffer)
+
+        // Sign the versioned transaction
+        versionedTx.sign([this.keypair])
+
+        // Return serialized signed transaction
+        return Array.from(versionedTx.serialize())
+      } else {
+        // Handle legacy Transaction
+        // console.log('[WalletManager] Signing legacy Transaction')
+        const transaction = Transaction.from(txBuffer)
+
+        // Sign with our keypair
+        transaction.sign(this.keypair)
+
+        // Return serialized signed transaction
+        return Array.from(transaction.serialize())
+      }
     } catch (error) {
       console.error('[WalletManager] Error signing transaction:', error)
       throw error
@@ -196,7 +227,7 @@ class WalletManager {
   }
 
   /**
-   * Sign multiple transactions
+   * Sign multiple transactions (supports both legacy and versioned transactions)
    * @param {Array<Buffer>} serializedTransactions - Array of serialized transaction buffers
    * @returns {Array<Buffer>} - Array of signed serialized transactions
    */
@@ -209,9 +240,23 @@ class WalletManager {
       const signedTransactions = []
 
       for (const serializedTx of serializedTransactions) {
-        const transaction = Transaction.from(Buffer.from(serializedTx))
-        transaction.sign(this.keypair)
-        signedTransactions.push(Array.from(transaction.serialize()))
+        const txBuffer = Buffer.from(serializedTx)
+
+        // Detect versioned transaction by checking the message version byte
+        const numSignatures = txBuffer[0]
+        const messageOffset = 1 + (numSignatures * 64)
+        const messageVersionByte = txBuffer[messageOffset]
+        const isVersioned = messageVersionByte !== undefined && (messageVersionByte & 0x80) !== 0
+
+        if (isVersioned) {
+          const versionedTx = VersionedTransaction.deserialize(txBuffer)
+          versionedTx.sign([this.keypair])
+          signedTransactions.push(Array.from(versionedTx.serialize()))
+        } else {
+          const transaction = Transaction.from(txBuffer)
+          transaction.sign(this.keypair)
+          signedTransactions.push(Array.from(transaction.serialize()))
+        }
       }
 
       return signedTransactions
@@ -244,22 +289,69 @@ class WalletManager {
 
   /**
    * Decode a transaction for display in confirmation UI
+   * Supports both legacy and versioned transactions
    * @param {Buffer} serializedTransaction - Serialized transaction buffer
    * @returns {Object} - Decoded transaction details
    */
   decodeTransaction(serializedTransaction) {
     try {
-      const transaction = Transaction.from(Buffer.from(serializedTransaction))
+      const txBuffer = Buffer.from(serializedTransaction)
 
-      const details = {
-        recentBlockhash: transaction.recentBlockhash,
-        feePayer: transaction.feePayer?.toBase58() || null,
-        instructions: [],
-        signatures: transaction.signatures.map(sig => ({
-          publicKey: sig.publicKey.toBase58(),
-          signature: sig.signature ? bs58.encode(sig.signature) : null
-        }))
-      }
+      // Detect versioned transaction by checking the message version byte
+      // The structure is: [num_signatures (1 byte)][signatures (64 bytes each)][message...]
+      // For versioned transactions, the message starts with a version byte with high bit set (0x80 for v0)
+      const numSignatures = txBuffer[0]
+      const messageOffset = 1 + (numSignatures * 64)
+      const messageVersionByte = txBuffer[messageOffset]
+      const isVersioned = messageVersionByte !== undefined && (messageVersionByte & 0x80) !== 0
+
+      let details
+
+      if (isVersioned) {
+        // Handle VersionedTransaction
+        const versionedTx = VersionedTransaction.deserialize(txBuffer)
+        const message = versionedTx.message
+
+        details = {
+          isVersioned: true,
+          version: message.version,
+          recentBlockhash: message.recentBlockhash,
+          feePayer: message.staticAccountKeys[0]?.toBase58() || null,
+          instructions: [],
+          signatures: versionedTx.signatures.map((sig, idx) => ({
+            publicKey: message.staticAccountKeys[idx]?.toBase58() || 'unknown',
+            signature: sig ? bs58.encode(sig) : null
+          }))
+        }
+
+        // Decode compiled instructions for versioned transaction
+        for (const instruction of message.compiledInstructions) {
+          const programId = message.staticAccountKeys[instruction.programIdIndex]?.toBase58() || 'unknown'
+
+          const decodedInstruction = {
+            programId,
+            programIdIndex: instruction.programIdIndex,
+            accountKeyIndexes: instruction.accountKeyIndexes,
+            data: bs58.encode(instruction.data),
+            programName: this._getProgramName(programId)
+          }
+
+          details.instructions.push(decodedInstruction)
+        }
+      } else {
+        // Handle legacy Transaction
+        const transaction = Transaction.from(txBuffer)
+
+        details = {
+          isVersioned: false,
+          recentBlockhash: transaction.recentBlockhash,
+          feePayer: transaction.feePayer?.toBase58() || null,
+          instructions: [],
+          signatures: transaction.signatures.map(sig => ({
+            publicKey: sig.publicKey.toBase58(),
+            signature: sig.signature ? bs58.encode(sig.signature) : null
+          }))
+        }
 
       // Decode each instruction
       for (const instruction of transaction.instructions) {
@@ -307,8 +399,9 @@ class WalletManager {
 
         details.instructions.push(decodedInstruction)
       }
+      }
 
-      // Calculate warnings
+      // Calculate warnings (applies to both versioned and legacy transactions)
       details.warnings = []
 
       // Check for full balance transfer
@@ -343,6 +436,29 @@ class WalletManager {
       console.error('[WalletManager] Error decoding transaction:', error)
       throw error
     }
+  }
+
+  /**
+   * Get human-readable program name from program ID
+   * @param {string} programId - Program ID in base58
+   * @returns {string} - Program name
+   */
+  _getProgramName(programId) {
+    const knownPrograms = {
+      '11111111111111111111111111111111': 'System Program',
+      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA': 'Token Program',
+      'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL': 'Associated Token Account Program',
+      'JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4': 'Jupiter Aggregator v6',
+      'JUP4Fb2cqiRUcaTHdrPC8h2gNsA2ETXiPDD33WcGuJB': 'Jupiter Aggregator v4',
+      '675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8': 'Raydium AMM',
+      'CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK': 'Raydium CLMM',
+      'whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc': 'Orca Whirlpool',
+      '9W959DqEETiGZocYWCQPaJ6sBmUzgfxXfqGeTEdp3aQP': 'Orca Swap v2',
+      'ComputeBudget111111111111111111111111111111': 'Compute Budget Program',
+      'MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr': 'Memo Program',
+      'Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo': 'Memo Program v1'
+    }
+    return knownPrograms[programId] || 'Unknown Program'
   }
 
   /**
@@ -395,7 +511,7 @@ class WalletManager {
     // Reset last known balance
     this.lastKnownBalance = null
 
-    console.log('[WalletManager] Switched to network:', network)
+    // console.log('[WalletManager] Switched to network:', network)
 
     return { network: this.network }
   }
@@ -439,7 +555,7 @@ class WalletManager {
     this.pendingTransactions.clear()
     this.lastKnownBalance = null
 
-    console.log('[WalletManager] Wallet destroyed')
+    // console.log('[WalletManager] Wallet destroyed')
   }
 }
 

@@ -6,7 +6,7 @@ const walletManager = require('./walletManager')
 const pendingApprovals = new Map()
 
 function setupWalletIPC() {
-  console.log('[WalletIPC] Setting up IPC handlers...')
+  // console.log('[WalletIPC] Setting up IPC handlers...')
 
   // Initialize wallet on app start
   ipcMain.handle('wallet:initialize', async () => {
@@ -91,12 +91,12 @@ function setupWalletIPC() {
       // Send to renderer to show approval UI
       // Use focused window since webview's parent can't be found via fromWebContents
       const win = BaseWindow.getFocusedWindow() || BaseWindow.getAllWindows()[0]
-      console.log('[WalletIPC] Window found:', !!win)
+      // console.log('[WalletIPC] Window found:', !!win)
       if (win) {
         // BaseWindow uses contentView property, not getContentView()
         const contentView = win.contentView
-        console.log('[WalletIPC] Content view:', !!contentView)
-        console.log('[WalletIPC] Children count:', contentView?.children?.length)
+        // console.log('[WalletIPC] Content view:', !!contentView)
+        // console.log('[WalletIPC] Children count:', contentView?.children?.length)
         if (contentView && contentView.children && contentView.children[0]) {
           const mainView = contentView.children[0]
           mainView.webContents.send('wallet:showConnectApproval', {
@@ -105,7 +105,7 @@ function setupWalletIPC() {
             tabId,
             publicKey: walletManager.getPublicKey()
           })
-          console.log('[WalletIPC] Sent showConnectApproval to renderer')
+          // console.log('[WalletIPC] Sent showConnectApproval to renderer')
         } else {
           console.error('[WalletIPC] Could not find main view')
         }
@@ -486,10 +486,14 @@ function setupWalletIPC() {
   })
 
   // Subscribe to balance changes - sends updates to renderer
+  // Uses both WebSocket subscription AND polling as fallback
+  let balancePollingInterval = null
+  let lastPolledBalance = null
+
   ipcMain.handle('wallet:subscribeBalance', async (event) => {
     try {
-      // Set up subscription that sends balance updates to renderer
-      const unsubscribe = walletManager.subscribeToBalance((balance) => {
+      // Set up WebSocket subscription that sends balance updates to renderer
+      walletManager.subscribeToBalance((balance) => {
         // Send balance update to the renderer that requested it
         const win = BaseWindow.getFocusedWindow() || BaseWindow.getAllWindows()[0]
         if (win) {
@@ -497,12 +501,39 @@ function setupWalletIPC() {
           if (contentView && contentView.children && contentView.children[0]) {
             const mainView = contentView.children[0]
             mainView.webContents.send('wallet:balanceChanged', balance)
+            lastPolledBalance = balance.lamports
           }
         }
       })
 
-      // Store unsubscribe function (could be used for cleanup)
-      console.log('[WalletIPC] Balance subscription started')
+      // Also start polling as fallback (WebSocket only works for existing accounts)
+      // Poll every 5 seconds
+      if (balancePollingInterval) {
+        clearInterval(balancePollingInterval)
+      }
+
+      balancePollingInterval = setInterval(async () => {
+        try {
+          const balance = await walletManager.getBalance()
+          // Only send update if balance actually changed
+          if (lastPolledBalance !== balance.lamports) {
+            lastPolledBalance = balance.lamports
+            const win = BaseWindow.getFocusedWindow() || BaseWindow.getAllWindows()[0]
+            if (win) {
+              const contentView = win.contentView
+              if (contentView && contentView.children && contentView.children[0]) {
+                const mainView = contentView.children[0]
+                mainView.webContents.send('wallet:balanceChanged', balance)
+                // console.log('[WalletIPC] Balance poll update:', balance.sol, 'SOL')
+              }
+            }
+          }
+        } catch (error) {
+          // Ignore polling errors (network issues, etc.)
+        }
+      }, 5000) // Poll every 5 seconds
+
+      // console.log('[WalletIPC] Balance subscription + polling started')
       return { success: true }
     } catch (error) {
       return { success: false, error: error.message }
@@ -527,12 +558,12 @@ function setupWalletIPC() {
     for (const [requestId, request] of pendingApprovals.entries()) {
       if (now - request.timestamp > timeout) {
         pendingApprovals.delete(requestId)
-        console.log(`[WalletIPC] Expired pending request: ${requestId}`)
+        // console.log(`[WalletIPC] Expired pending request: ${requestId}`)
       }
     }
   }, 60 * 1000) // Check every minute
 
-  console.log('[WalletIPC] IPC handlers ready')
+  // console.log('[WalletIPC] IPC handlers ready')
 }
 
 function destroyWallet() {

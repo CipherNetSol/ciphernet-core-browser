@@ -3,23 +3,26 @@ const browserUI = require('browserUI.js')
 const tabState = require('tabState.js')
 const mixerPanel = require('mixerPanel.js')
 const walletPanel = require('walletPanel.js')
+const bridgePanel = require('bridgePanel.js')
 
 const ciphernetNavBar = {
   bar: null,
   searchInput: null,
   walletButton: null,
   mixerButton: null,
+  bridgeButton: null,
   vpnButton: null,
   barHeight: 52,
 
   initialize: function () {
-    console.log('CipherNet NavBar: Initializing...')
+    // console.log('CipherNet NavBar: Initializing...')
 
     // Get DOM elements
     ciphernetNavBar.bar = document.getElementById('ciphernet-nav-bar')
     ciphernetNavBar.searchInput = document.getElementById('ciphernet-search-input')
     ciphernetNavBar.walletButton = document.getElementById('wallet-button')
     ciphernetNavBar.mixerButton = document.getElementById('mixer-button')
+    ciphernetNavBar.bridgeButton = document.getElementById('bridge-button')
     ciphernetNavBar.vpnButton = document.getElementById('vpn-button')
     var logoContainer = document.getElementById('ciphernet-logo-container')
 
@@ -45,7 +48,7 @@ const ciphernetNavBar = {
     ciphernetNavBar.searchInput.addEventListener('keydown', function (e) {
       if (e.key === 'Enter') {
         e.preventDefault()
-        console.log('CipherNet NavBar: Enter key pressed, handling search...')
+        // console.log('CipherNet NavBar: Enter key pressed, handling search...')
         ciphernetNavBar.handleSearch()
       } else if (e.key === 'Escape') {
         ciphernetNavBar.searchInput.blur()
@@ -55,7 +58,7 @@ const ciphernetNavBar = {
     // Wallet button click handler
     if (ciphernetNavBar.walletButton) {
       ciphernetNavBar.walletButton.addEventListener('click', function () {
-        console.log('CipherNet NavBar: Wallet button clicked')
+        // console.log('CipherNet NavBar: Wallet button clicked')
         ciphernetNavBar.handleWalletClick()
       })
     }
@@ -63,15 +66,23 @@ const ciphernetNavBar = {
     // Mixer button click handler
     if (ciphernetNavBar.mixerButton) {
       ciphernetNavBar.mixerButton.addEventListener('click', function () {
-        console.log('CipherNet NavBar: Mixer button clicked')
+        // console.log('CipherNet NavBar: Mixer button clicked')
         ciphernetNavBar.handleMixerClick()
+      })
+    }
+
+    // Bridge button click handler
+    if (ciphernetNavBar.bridgeButton) {
+      ciphernetNavBar.bridgeButton.addEventListener('click', function () {
+        // console.log('CipherNet NavBar: Bridge button clicked')
+        ciphernetNavBar.handleBridgeClick()
       })
     }
 
     // VPN button click handler
     if (ciphernetNavBar.vpnButton) {
       ciphernetNavBar.vpnButton.addEventListener('click', function () {
-        console.log('CipherNet NavBar: VPN button clicked')
+        // console.log('CipherNet NavBar: VPN button clicked')
         ciphernetNavBar.handleVPNClick()
       })
     }
@@ -108,16 +119,16 @@ const ciphernetNavBar = {
       ciphernetNavBar.searchInput.select()
     })
 
-    console.log('CipherNet NavBar: Initialization complete!')
+    // console.log('CipherNet NavBar: Initialization complete!')
   },
 
   handleSearch: function () {
-    console.log('CipherNet NavBar: handleSearch called')
+    // console.log('CipherNet NavBar: handleSearch called')
     var searchText = ciphernetNavBar.searchInput.value.trim()
-    console.log('CipherNet NavBar: Search text:', searchText)
+    // console.log('CipherNet NavBar: Search text:', searchText)
 
     if (!searchText) {
-      console.log('CipherNet NavBar: Empty search text, returning')
+      // console.log('CipherNet NavBar: Empty search text, returning')
       return
     }
 
@@ -128,7 +139,7 @@ const ciphernetNavBar = {
     }
 
     var currentTab = tabs.get(tabs.getSelected())
-    console.log('CipherNet NavBar: Current tab:', currentTab)
+    // console.log('CipherNet NavBar: Current tab:', currentTab)
 
     // Determine if it's a URL or search query
     var isURL = searchText.includes('.') || searchText.startsWith('http://') ||
@@ -148,7 +159,7 @@ const ciphernetNavBar = {
       urlToNavigate = 'https://www.google.com/search?q=' + encodeURIComponent(searchText)
     }
 
-    console.log('CipherNet NavBar: Navigating to:', urlToNavigate)
+    // console.log('CipherNet NavBar: Navigating to:', urlToNavigate)
 
     // Navigate current tab to the URL
     if (currentTab) {
@@ -156,7 +167,7 @@ const ciphernetNavBar = {
       tabs.update(tabId, { url: urlToNavigate })
       webviews.update(tabId, urlToNavigate)
       webviews.focus()
-      console.log('CipherNet NavBar: Tab updated and webview navigated')
+      // console.log('CipherNet NavBar: Tab updated and webview navigated')
     } else {
       console.error('CipherNet NavBar: No current tab found!')
     }
@@ -166,7 +177,7 @@ const ciphernetNavBar = {
   },
 
   handleWalletClick: function () {
-    console.log('Wallet button clicked - Opening wallet panel')
+    // console.log('Wallet button clicked - Opening wallet panel')
     if (walletPanel && walletPanel.toggle) {
       walletPanel.toggle()
     } else {
@@ -175,7 +186,7 @@ const ciphernetNavBar = {
   },
 
   handleMixerClick: function () {
-    console.log('Mixer button clicked - Opening mixer panel')
+    // console.log('Mixer button clicked - Opening mixer panel')
     if (mixerPanel && mixerPanel.toggle) {
       mixerPanel.toggle()
     } else {
@@ -183,8 +194,17 @@ const ciphernetNavBar = {
     }
   },
 
+  handleBridgeClick: function () {
+    // console.log('Bridge button clicked - Opening bridge panel')
+    if (bridgePanel && bridgePanel.toggle) {
+      bridgePanel.toggle()
+    } else {
+      console.error('Bridge panel not available')
+    }
+  },
+
   handleVPNClick: function () {
-    console.log('VPN button clicked - Feature to be implemented')
+    // console.log('VPN button clicked - Feature to be implemented')
     // TODO: Implement VPN functionality
     // This could include:
     // - Connect to VPN service
