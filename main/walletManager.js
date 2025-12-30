@@ -562,4 +562,4 @@ class WalletManager {
 // Singleton instance
 const walletManager = new WalletManager()
 
-module.exports = walletManager
+// walletManager is available globally in the concatenated bundle

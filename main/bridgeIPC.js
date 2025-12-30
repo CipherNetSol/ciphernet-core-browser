@@ -1,12 +1,12 @@
 // main\bridgeIPC.js
 // Bridge IPC - Main process API calls to avoid CORS
-const { ipcMain } = require('electron')
+// Note: ipc (ipc) is available from electron require in main.js
 
 const BRIDGE_API_BASE = 'https://nulltrace.app/api'
 const BRIDGE_REF = 'ciphernetsol'
 
 function setupBridgeIPC() {
-  ipcMain.handle('bridge:getCurrencies', async () => {
+  ipc.handle('bridge:getCurrencies', async () => {
     try {
       const response = await fetch(`${BRIDGE_API_BASE}/currencies`)
       if (!response.ok) {
@@ -21,7 +21,7 @@ function setupBridgeIPC() {
     }
   })
 
-  ipcMain.handle('bridge:simulate', async (event, params) => {
+  ipc.handle('bridge:simulate', async (event, params) => {
     try {
       // console.log('[BridgeIPC] Simulate request:', params)
       const response = await fetch(`${BRIDGE_API_BASE}/simulate`, {
@@ -49,7 +49,7 @@ function setupBridgeIPC() {
     }
   })
 
-  ipcMain.handle('bridge:createBridge', async (event, params) => {
+  ipc.handle('bridge:createBridge', async (event, params) => {
     try {
       // console.log('[BridgeIPC] Create bridge request:', params)
       const response = await fetch(`${BRIDGE_API_BASE}/bridge`, {
@@ -79,7 +79,7 @@ function setupBridgeIPC() {
     }
   })
 
-  ipcMain.handle('bridge:getStatus', async (event, orderId) => {
+  ipc.handle('bridge:getStatus', async (event, orderId) => {
     try {
       const response = await fetch(`${BRIDGE_API_BASE}/status`, {
         method: 'POST',
@@ -101,4 +101,4 @@ function setupBridgeIPC() {
   // console.log('[BridgeIPC] Bridge IPC handlers registered')
 }
 
-module.exports = { setupBridgeIPC }
+// Function setupBridgeIPC is available globally in the concatenated bundle

@@ -1,6 +1,6 @@
 // Wallet IPC Handlers - Bridge between main process and renderer/webviews
-const { ipcMain, BaseWindow } = require('electron')
-const walletManager = require('./walletManager')
+// Note: ipc (ipc), BaseWindow are available from electron require in main.js
+// walletManager is loaded before this file in buildMain.js
 
 // Store pending approval requests
 const pendingApprovals = new Map()
@@ -9,7 +9,7 @@ function setupWalletIPC() {
   // console.log('[WalletIPC] Setting up IPC handlers...')
 
   // Initialize wallet on app start
-  ipcMain.handle('wallet:initialize', async () => {
+  ipc.handle('wallet:initialize', async () => {
     try {
       const result = walletManager.initialize()
       return { success: true, data: result }
@@ -19,7 +19,7 @@ function setupWalletIPC() {
   })
 
   // Get public key
-  ipcMain.handle('wallet:getPublicKey', async () => {
+  ipc.handle('wallet:getPublicKey', async () => {
     try {
       const publicKey = walletManager.getPublicKey()
       return { success: true, data: { publicKey } }
@@ -29,7 +29,7 @@ function setupWalletIPC() {
   })
 
   // Get balance
-  ipcMain.handle('wallet:getBalance', async () => {
+  ipc.handle('wallet:getBalance', async () => {
     try {
       const balance = await walletManager.getBalance()
       return { success: true, data: balance }
@@ -39,7 +39,7 @@ function setupWalletIPC() {
   })
 
   // Export private key (user action from wallet panel)
-  ipcMain.handle('wallet:exportPrivateKey', async () => {
+  ipc.handle('wallet:exportPrivateKey', async () => {
     try {
       const secretKey = walletManager.getSecretKey()
       const secretKeyBase58 = walletManager.getSecretKeyBase58()
@@ -56,7 +56,7 @@ function setupWalletIPC() {
   })
 
   // Get network
-  ipcMain.handle('wallet:getNetwork', async () => {
+  ipc.handle('wallet:getNetwork', async () => {
     try {
       return { success: true, data: { network: walletManager.network } }
     } catch (error) {
@@ -65,7 +65,7 @@ function setupWalletIPC() {
   })
 
   // Switch network
-  ipcMain.handle('wallet:switchNetwork', async (event, network) => {
+  ipc.handle('wallet:switchNetwork', async (event, network) => {
     try {
       const result = walletManager.switchNetwork(network)
       return { success: true, data: result }
@@ -75,7 +75,7 @@ function setupWalletIPC() {
   })
 
   // Request connection approval from dApp
-  ipcMain.handle('wallet:requestConnect', async (event, { origin, tabId }) => {
+  ipc.handle('wallet:requestConnect', async (event, { origin, tabId }) => {
     try {
       const requestId = `connect_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 
@@ -120,7 +120,7 @@ function setupWalletIPC() {
   })
 
   // User approves connection
-  ipcMain.handle('wallet:approveConnect', async (event, { requestId }) => {
+  ipc.handle('wallet:approveConnect', async (event, { requestId }) => {
     try {
       const request = pendingApprovals.get(requestId)
       if (!request) {
@@ -151,7 +151,7 @@ function setupWalletIPC() {
   })
 
   // User rejects connection
-  ipcMain.handle('wallet:rejectConnect', async (event, { requestId }) => {
+  ipc.handle('wallet:rejectConnect', async (event, { requestId }) => {
     try {
       const request = pendingApprovals.get(requestId)
 
@@ -170,7 +170,7 @@ function setupWalletIPC() {
   })
 
   // Request transaction signing approval
-  ipcMain.handle('wallet:requestSignTransaction', async (event, { transaction, origin, tabId }) => {
+  ipc.handle('wallet:requestSignTransaction', async (event, { transaction, origin, tabId }) => {
     try {
       const requestId = `sign_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 
@@ -210,7 +210,7 @@ function setupWalletIPC() {
   })
 
   // User approves transaction signing
-  ipcMain.handle('wallet:approveSignTransaction', async (event, { requestId }) => {
+  ipc.handle('wallet:approveSignTransaction', async (event, { requestId }) => {
     try {
       const request = pendingApprovals.get(requestId)
       if (!request) {
@@ -241,7 +241,7 @@ function setupWalletIPC() {
   })
 
   // User rejects transaction
-  ipcMain.handle('wallet:rejectSignTransaction', async (event, { requestId }) => {
+  ipc.handle('wallet:rejectSignTransaction', async (event, { requestId }) => {
     try {
       const request = pendingApprovals.get(requestId)
 
@@ -260,7 +260,7 @@ function setupWalletIPC() {
   })
 
   // Request signing multiple transactions
-  ipcMain.handle('wallet:requestSignAllTransactions', async (event, { transactions, origin, tabId }) => {
+  ipc.handle('wallet:requestSignAllTransactions', async (event, { transactions, origin, tabId }) => {
     try {
       const requestId = `signAll_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 
@@ -301,7 +301,7 @@ function setupWalletIPC() {
   })
 
   // User approves all transactions
-  ipcMain.handle('wallet:approveSignAllTransactions', async (event, { requestId }) => {
+  ipc.handle('wallet:approveSignAllTransactions', async (event, { requestId }) => {
     try {
       const request = pendingApprovals.get(requestId)
       if (!request) {
@@ -332,7 +332,7 @@ function setupWalletIPC() {
   })
 
   // User rejects all transactions
-  ipcMain.handle('wallet:rejectSignAllTransactions', async (event, { requestId }) => {
+  ipc.handle('wallet:rejectSignAllTransactions', async (event, { requestId }) => {
     try {
       const request = pendingApprovals.get(requestId)
 
@@ -351,7 +351,7 @@ function setupWalletIPC() {
   })
 
   // Request message signing
-  ipcMain.handle('wallet:requestSignMessage', async (event, { message, origin, tabId }) => {
+  ipc.handle('wallet:requestSignMessage', async (event, { message, origin, tabId }) => {
     try {
       const requestId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 
@@ -396,7 +396,7 @@ function setupWalletIPC() {
   })
 
   // User approves message signing
-  ipcMain.handle('wallet:approveSignMessage', async (event, { requestId }) => {
+  ipc.handle('wallet:approveSignMessage', async (event, { requestId }) => {
     try {
       const request = pendingApprovals.get(requestId)
       if (!request) {
@@ -427,7 +427,7 @@ function setupWalletIPC() {
   })
 
   // User rejects message signing
-  ipcMain.handle('wallet:rejectSignMessage', async (event, { requestId }) => {
+  ipc.handle('wallet:rejectSignMessage', async (event, { requestId }) => {
     try {
       const request = pendingApprovals.get(requestId)
 
@@ -446,7 +446,7 @@ function setupWalletIPC() {
   })
 
   // Direct sign transaction (from wallet panel, already approved)
-  ipcMain.handle('wallet:signTransaction', async (event, { transaction }) => {
+  ipc.handle('wallet:signTransaction', async (event, { transaction }) => {
     try {
       const signedTransaction = await walletManager.signTransaction(transaction)
       return { success: true, data: { signedTransaction } }
@@ -456,7 +456,7 @@ function setupWalletIPC() {
   })
 
   // Direct sign message (from wallet panel, already approved)
-  ipcMain.handle('wallet:signMessage', async (event, { message }) => {
+  ipc.handle('wallet:signMessage', async (event, { message }) => {
     try {
       const signature = await walletManager.signMessage(message)
       return { success: true, data: { signature } }
@@ -466,7 +466,7 @@ function setupWalletIPC() {
   })
 
   // Send transaction
-  ipcMain.handle('wallet:sendTransaction', async (event, { signedTransaction }) => {
+  ipc.handle('wallet:sendTransaction', async (event, { signedTransaction }) => {
     try {
       const signature = await walletManager.sendTransaction(signedTransaction)
       return { success: true, data: { signature } }
@@ -476,7 +476,7 @@ function setupWalletIPC() {
   })
 
   // Decode transaction (for inspection)
-  ipcMain.handle('wallet:decodeTransaction', async (event, { transaction }) => {
+  ipc.handle('wallet:decodeTransaction', async (event, { transaction }) => {
     try {
       const decoded = walletManager.decodeTransaction(transaction)
       return { success: true, data: decoded }
@@ -490,7 +490,7 @@ function setupWalletIPC() {
   let balancePollingInterval = null
   let lastPolledBalance = null
 
-  ipcMain.handle('wallet:subscribeBalance', async (event) => {
+  ipc.handle('wallet:subscribeBalance', async (event) => {
     try {
       // Set up WebSocket subscription that sends balance updates to renderer
       walletManager.subscribeToBalance((balance) => {
@@ -541,7 +541,7 @@ function setupWalletIPC() {
   })
 
   // Get last known balance (synchronous, from cache)
-  ipcMain.handle('wallet:getLastKnownBalance', async () => {
+  ipc.handle('wallet:getLastKnownBalance', async () => {
     try {
       const balance = walletManager.lastKnownBalance
       return { success: true, data: balance }
@@ -571,7 +571,4 @@ function destroyWallet() {
   pendingApprovals.clear()
 }
 
-module.exports = {
-  setupWalletIPC,
-  destroyWallet
-}
+// Functions setupWalletIPC and destroyWallet are available globally in the concatenated bundle
