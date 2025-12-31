@@ -177,7 +177,10 @@ const ciphernetNavBar = {
   },
 
   handleWalletClick: function () {
-    // console.log('Wallet button clicked - Opening wallet panel')
+    // Close other panels first
+    if (mixerPanel && mixerPanel.isOpen) mixerPanel.close()
+    if (bridgePanel && bridgePanel.isOpen) bridgePanel.close()
+    // Toggle wallet panel
     if (walletPanel && walletPanel.toggle) {
       walletPanel.toggle()
     } else {
@@ -186,7 +189,10 @@ const ciphernetNavBar = {
   },
 
   handleMixerClick: function () {
-    // console.log('Mixer button clicked - Opening mixer panel')
+    // Close other panels first
+    if (walletPanel && walletPanel.isOpen) walletPanel.close()
+    if (bridgePanel && bridgePanel.isOpen) bridgePanel.close()
+    // Toggle mixer panel
     if (mixerPanel && mixerPanel.toggle) {
       mixerPanel.toggle()
     } else {
@@ -195,7 +201,10 @@ const ciphernetNavBar = {
   },
 
   handleBridgeClick: function () {
-    // console.log('Bridge button clicked - Opening bridge panel')
+    // Close other panels first
+    if (walletPanel && walletPanel.isOpen) walletPanel.close()
+    if (mixerPanel && mixerPanel.isOpen) mixerPanel.close()
+    // Toggle bridge panel
     if (bridgePanel && bridgePanel.toggle) {
       bridgePanel.toggle()
     } else {

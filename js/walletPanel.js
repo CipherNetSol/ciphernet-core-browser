@@ -5,7 +5,7 @@ const ipc = require('electron').ipcRenderer
 const walletPanel = {
   panel: null,
   isOpen: false,
-  panelWidth: 400,
+  panelWidth: 450,
   publicKey: null,
   balance: { sol: 0, lamports: 0 },
   network: 'mainnet-beta',

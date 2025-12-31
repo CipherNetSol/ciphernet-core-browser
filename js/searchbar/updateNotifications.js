@@ -17,29 +17,29 @@ function getUpdateRandomNum () {
 
 function getAvailableUpdates () {
   if (settings.get('updateNotificationsEnabled') !== false) {
-    console.info('checking for updates')
+    // console.info('checking for updates')
     fetch(UPDATE_URL, {
       cache: 'no-cache'
     })
       .then(res => res.json())
       .then(function (response) {
-        console.info('got response from update check', response)
+        // console.info('got response from update check', response)
         if (response.version &&
             compareVersions(window.globalArgs['app-version'], response.version) > 0 &&
             (!response.availabilityPercent || getUpdateRandomNum() < response.availabilityPercent)) {
-          console.info('an update is available')
+          // console.info('an update is available')
           localStorage.setItem('availableUpdate', JSON.stringify(response))
         } else {
-          console.info('update is not available')
+          // console.info('update is not available')
           /* this can happen if either the update is no longer being offered, or the update has already been installed */
           localStorage.removeItem('availableUpdate')
         }
       })
       .catch(function (e) {
-        console.info('failed to get update info', e)
+        // console.info('failed to get update info', e)
       })
   } else {
-    console.info('update checking is disabled')
+    // console.info('update checking is disabled')
   }
 }
 

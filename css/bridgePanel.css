@@ -1,0 +1,931 @@
+/* Bridge Panel Styles - NullTrace Bridge Integration */
+/* Matches Wallet & Mixer panel architecture */
+
+/* ============================================
+   PANEL BASE STYLES
+   ============================================ */
+.bridge-panel {
+  position: fixed;
+  top: calc(36px + var(--control-space-top) + 52px);
+  right: -450px;
+  width: 450px;
+  height: calc(100vh - 36px - var(--control-space-top) - 52px);
+  background: #ffffff;
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
+  z-index: 10000;
+  transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  pointer-events: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.bridge-panel.active {
+  right: 0;
+  pointer-events: auto;
+}
+
+.dark-theme .bridge-panel {
+  background: #0a0a0a;
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.6);
+}
+
+/* ============================================
+   PANEL HEADER
+   ============================================ */
+.bridge-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e5e5e5;
+  background: #fafafa;
+  flex-shrink: 0;
+}
+
+.dark-theme .bridge-panel-header {
+  background: #111111;
+  border-bottom-color: #222222;
+}
+
+.bridge-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bridge-panel-title i {
+  font-size: 22px;
+  color: #9333ea;
+}
+
+.bridge-panel-title h2 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+  color: #1a1a1a;
+}
+
+.dark-theme .bridge-panel-title h2 {
+  color: #ffffff;
+}
+
+.bridge-close-btn {
+  background: transparent;
+  border: none;
+  color: #666666;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bridge-close-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #333333;
+}
+
+.dark-theme .bridge-close-btn {
+  color: #888888;
+}
+
+.dark-theme .bridge-close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.bridge-close-btn i {
+  font-size: 20px;
+}
+
+/* ============================================
+   PANEL CONTENT
+   ============================================ */
+.bridge-panel-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.bridge-panel-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.bridge-panel-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.bridge-panel-content::-webkit-scrollbar-thumb {
+  background: #cccccc;
+  border-radius: 3px;
+}
+
+.dark-theme .bridge-panel-content::-webkit-scrollbar-thumb {
+  background: #333333;
+}
+
+/* ============================================
+   SECTION LABELS
+   ============================================ */
+.bridge-section-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #888888;
+  margin-bottom: 8px;
+}
+
+.dark-theme .bridge-section-label {
+  color: #666666;
+}
+
+/* ============================================
+   PRIVACY MODE SELECTOR
+   ============================================ */
+.bridge-privacy-section {
+  margin-bottom: 24px;
+}
+
+.bridge-privacy-modes {
+  display: flex;
+  gap: 8px;
+}
+
+.bridge-privacy-mode {
+  flex: 1;
+  padding: 16px 12px;
+  border: 2px solid #e5e5e5;
+  border-radius: 12px;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.bridge-privacy-mode:hover {
+  border-color: #9333ea;
+  background: rgba(147, 51, 234, 0.05);
+}
+
+.bridge-privacy-mode.active {
+  border-color: #9333ea;
+  background: #9333ea;
+  color: #ffffff;
+}
+
+.dark-theme .bridge-privacy-mode {
+  border-color: #333333;
+}
+
+.dark-theme .bridge-privacy-mode:hover {
+  border-color: #9333ea;
+  background: rgba(147, 51, 234, 0.15);
+}
+
+.dark-theme .bridge-privacy-mode.active {
+  background: #9333ea;
+  border-color: #9333ea;
+}
+
+.bridge-privacy-mode i {
+  font-size: 24px;
+  color: #9333ea;
+}
+
+.bridge-privacy-mode.active i {
+  color: #ffffff;
+}
+
+.bridge-privacy-mode-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.dark-theme .bridge-privacy-mode-name {
+  color: #ffffff;
+}
+
+.bridge-privacy-mode.active .bridge-privacy-mode-name {
+  color: #ffffff;
+}
+
+.bridge-privacy-mode-desc {
+  font-size: 10px;
+  color: #888888;
+  text-align: center;
+}
+
+.bridge-privacy-mode.active .bridge-privacy-mode-desc {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* ============================================
+   FROM/TO SECTIONS
+   ============================================ */
+.bridge-from-section,
+.bridge-to-section {
+  margin-bottom: 16px;
+}
+
+.bridge-input-group {
+  background: #f5f5f5;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 8px;
+}
+
+.dark-theme .bridge-input-group {
+  background: #1a1a1a;
+}
+
+.bridge-network-currency-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.bridge-select-wrapper {
+  flex: 1;
+  position: relative;
+}
+
+.bridge-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #1a1a1a;
+  font-size: 13px;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+
+.bridge-select:focus {
+  outline: none;
+  border-color: #9333ea;
+}
+
+.dark-theme .bridge-select {
+  background-color: #0a0a0a;
+  border-color: #333333;
+  color: #ffffff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+}
+
+.bridge-amount-input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #1a1a1a;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.bridge-amount-input:focus {
+  outline: none;
+  border-color: #9333ea;
+}
+
+.bridge-amount-input::placeholder {
+  color: #aaaaaa;
+}
+
+.dark-theme .bridge-amount-input {
+  background: #0a0a0a;
+  border-color: #333333;
+  color: #ffffff;
+}
+
+.dark-theme .bridge-amount-input::placeholder {
+  color: #555555;
+}
+
+/* ============================================
+   SWAP DIRECTION BUTTON
+   ============================================ */
+.bridge-swap-direction {
+  display: flex;
+  justify-content: center;
+  margin: -8px 0;
+  position: relative;
+  z-index: 1;
+}
+
+.bridge-swap-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #9333ea;
+  border: 3px solid #ffffff;
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.bridge-swap-btn:hover {
+  transform: rotate(180deg);
+  background: #7c22ce;
+}
+
+.dark-theme .bridge-swap-btn {
+  border-color: #0a0a0a;
+}
+
+.bridge-swap-btn i {
+  font-size: 18px;
+}
+
+/* ============================================
+   RECIPIENT ADDRESS
+   ============================================ */
+.bridge-recipient-section {
+  margin-bottom: 20px;
+}
+
+.bridge-address-input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  background: #f5f5f5;
+  color: #1a1a1a;
+  font-size: 12px;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+}
+
+.bridge-address-input:focus {
+  outline: none;
+  border-color: #9333ea;
+  background: #ffffff;
+}
+
+.dark-theme .bridge-address-input {
+  background: #1a1a1a;
+  border-color: #333333;
+  color: #ffffff;
+}
+
+.dark-theme .bridge-address-input:focus {
+  background: #0a0a0a;
+}
+
+.bridge-address-hint {
+  font-size: 11px;
+  color: #888888;
+  margin-top: 6px;
+}
+
+/* ============================================
+   SIMULATION RESULTS
+   ============================================ */
+.bridge-simulation-section {
+  background: #f5f5f5;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.dark-theme .bridge-simulation-section {
+  background: #1a1a1a;
+}
+
+.bridge-simulation-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.bridge-simulation-row:last-child {
+  border-bottom: none;
+}
+
+.dark-theme .bridge-simulation-row {
+  border-bottom-color: #333333;
+}
+
+.bridge-simulation-label {
+  font-size: 12px;
+  color: #666666;
+}
+
+.dark-theme .bridge-simulation-label {
+  color: #888888;
+}
+
+.bridge-simulation-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.dark-theme .bridge-simulation-value {
+  color: #ffffff;
+}
+
+.bridge-simulation-value.highlight {
+  color: #22c55e;
+  font-size: 16px;
+}
+
+.bridge-warning-message {
+  background: rgba(234, 179, 8, 0.15);
+  border: 1px solid #eab308;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-top: 12px;
+  font-size: 12px;
+  color: #a16207;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.dark-theme .bridge-warning-message {
+  background: rgba(234, 179, 8, 0.1);
+  color: #fbbf24;
+}
+
+.bridge-warning-message i {
+  font-size: 16px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.bridge-warning-message.hidden {
+  display: none;
+}
+
+/* ============================================
+   CREATE BRIDGE BUTTON
+   ============================================ */
+.bridge-create-btn {
+  width: 100%;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #9333ea 0%, #7c22ce 100%);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.bridge-create-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.4);
+}
+
+.bridge-create-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.bridge-create-btn i {
+  font-size: 18px;
+}
+
+/* ============================================
+   ORDER STATUS VIEW
+   ============================================ */
+.bridge-order-view {
+  display: none;
+}
+
+.bridge-order-view.active {
+  display: block;
+}
+
+.bridge-form-view.hidden {
+  display: none;
+}
+
+.bridge-order-header {
+  text-align: center;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.bridge-order-id {
+  font-size: 12px;
+  color: #888888;
+  margin-bottom: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.bridge-order-id:hover {
+  color: #ffffff;
+}
+
+.bridge-order-id span {
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  color: #9333ea;
+}
+
+.bridge-copy-order-id-btn {
+  background: transparent;
+  border: 1px solid rgba(147, 51, 234, 0.3);
+  color: #9333ea;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+  vertical-align: middle;
+  margin-left: 8px;
+}
+
+.bridge-copy-order-id-btn:hover {
+  background: rgba(147, 51, 234, 0.1);
+  border-color: #9333ea;
+}
+
+.bridge-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.bridge-status-badge.waiting {
+  background: rgba(234, 179, 8, 0.15);
+  color: #eab308;
+}
+
+.bridge-status-badge.confirming,
+.bridge-status-badge.exchanging,
+.bridge-status-badge.sending {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+}
+
+.bridge-status-badge.completed {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.bridge-status-badge.failed,
+.bridge-status-badge.expired {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+/* ============================================
+   DEPOSIT ADDRESS BOX
+   ============================================ */
+.bridge-deposit-section {
+  background: #f5f5f5;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.dark-theme .bridge-deposit-section {
+  background: #1a1a1a;
+}
+
+.bridge-deposit-label {
+  font-size: 12px;
+  color: #666666;
+  margin-bottom: 8px;
+}
+
+.dark-theme .bridge-deposit-label {
+  color: #888888;
+}
+
+.bridge-deposit-instruction {
+  font-size: 14px;
+  font-weight: 600;
+  color: #9333ea;
+  margin-bottom: 12px;
+}
+
+.bridge-deposit-address-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.dark-theme .bridge-deposit-address-box {
+  background: #0a0a0a;
+  border-color: #333333;
+}
+
+.bridge-deposit-address {
+  flex: 1;
+  font-size: 11px;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  color: #1a1a1a;
+  word-break: break-all;
+  text-align: left;
+}
+
+.dark-theme .bridge-deposit-address {
+  color: #ffffff;
+}
+
+.bridge-copy-btn {
+  background: #9333ea;
+  border: none;
+  color: #ffffff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.bridge-copy-btn:hover {
+  background: #7c22ce;
+}
+
+.bridge-copy-btn i {
+  font-size: 14px;
+}
+
+.bridge-deposit-amount {
+  margin-top: 12px;
+  font-size: 13px;
+  color: #666666;
+}
+
+.bridge-deposit-amount strong {
+  color: #1a1a1a;
+}
+
+.dark-theme .bridge-deposit-amount {
+  color: #888888;
+}
+
+.dark-theme .bridge-deposit-amount strong {
+  color: #ffffff;
+}
+
+/* ============================================
+   ORDER PROGRESS
+   ============================================ */
+.bridge-progress-section {
+  margin-bottom: 20px;
+}
+
+.bridge-progress-steps {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.bridge-progress-steps::before {
+  content: '';
+  position: absolute;
+  top: 15px;
+  left: 30px;
+  right: 30px;
+  height: 2px;
+  background: #e5e5e5;
+}
+
+.dark-theme .bridge-progress-steps::before {
+  background: #333333;
+}
+
+.bridge-progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  z-index: 1;
+}
+
+.bridge-step-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #e5e5e5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: #888888;
+  transition: all 0.3s ease;
+}
+
+.dark-theme .bridge-step-icon {
+  background: #333333;
+}
+
+.bridge-progress-step.active .bridge-step-icon {
+  background: #9333ea;
+  color: #ffffff;
+}
+
+.bridge-progress-step.completed .bridge-step-icon {
+  background: #22c55e;
+  color: #ffffff;
+}
+
+.bridge-step-label {
+  font-size: 10px;
+  color: #888888;
+  text-align: center;
+}
+
+.bridge-progress-step.active .bridge-step-label,
+.bridge-progress-step.completed .bridge-step-label {
+  color: #1a1a1a;
+}
+
+.dark-theme .bridge-progress-step.active .bridge-step-label,
+.dark-theme .bridge-progress-step.completed .bridge-step-label {
+  color: #ffffff;
+}
+
+/* ============================================
+   ORDER DETAILS
+   ============================================ */
+.bridge-order-details {
+  background: #f5f5f5;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.dark-theme .bridge-order-details {
+  background: #1a1a1a;
+}
+
+.bridge-order-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.bridge-order-row:not(:last-child) {
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.dark-theme .bridge-order-row:not(:last-child) {
+  border-bottom-color: #333333;
+}
+
+.bridge-order-label {
+  font-size: 12px;
+  color: #666666;
+}
+
+.dark-theme .bridge-order-label {
+  color: #888888;
+}
+
+.bridge-order-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.dark-theme .bridge-order-value {
+  color: #ffffff;
+}
+
+/* ============================================
+   NEW ORDER BUTTON
+   ============================================ */
+.bridge-new-order-btn {
+  width: 100%;
+  padding: 12px 20px;
+  border: 2px solid #9333ea;
+  border-radius: 10px;
+  background: transparent;
+  color: #9333ea;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.bridge-new-order-btn:hover {
+  background: rgba(147, 51, 234, 0.1);
+}
+
+/* ============================================
+   ERROR MESSAGE
+   ============================================ */
+.bridge-error-message {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid #ef4444;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bridge-error-message.hidden {
+  display: none;
+}
+
+.bridge-error-message i {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   LOADING STATE
+   ============================================ */
+.bridge-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px;
+  color: #888888;
+}
+
+.bridge-loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #e5e5e5;
+  border-top-color: #9333ea;
+  border-radius: 50%;
+  animation: bridge-spin 0.8s linear infinite;
+}
+
+@keyframes bridge-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 500px) {
+  .bridge-panel {
+    width: 100%;
+    right: -100%;
+  }
+
+  .bridge-panel.active {
+    right: 0;
+  }
+
+  .bridge-privacy-modes {
+    flex-direction: column;
+  }
+
+  .bridge-network-currency-row {
+    flex-direction: column;
+  }
+}
