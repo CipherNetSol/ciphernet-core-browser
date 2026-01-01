@@ -2,6 +2,7 @@
 // Ephemeral wallet that exists only in memory for the browser session
 
 const { Keypair, Connection, PublicKey, LAMPORTS_PER_SOL, Transaction, VersionedTransaction, SystemProgram } = require('@solana/web3.js')
+const { TOKEN_PROGRAM_ID, getAssociatedTokenAddress, createTransferInstruction, getAccount } = require('@solana/spl-token')
 const bs58Module = require('bs58')
 // Handle both bs58 v4.x (default export) and v6.x (named export)
 const bs58 = bs58Module.default || bs58Module
@@ -9,6 +10,9 @@ const bs58 = bs58Module.default || bs58Module
 // RPC endpoints
 const MAINNET_RPC = 'https://api.mainnet-beta.solana.com'
 const DEVNET_RPC = 'https://api.devnet.solana.com'
+
+// Token metadata cache
+const TOKEN_METADATA_CACHE = new Map()
 
 class WalletManager {
   constructor() {
@@ -535,6 +539,262 @@ class WalletManager {
    */
   removePendingTransaction(requestId) {
     this.pendingTransactions.delete(requestId)
+  }
+
+  /**
+   * Get all SPL token accounts and balances for this wallet
+   * @returns {Array} - Array of token objects with mint, balance, decimals, etc.
+   */
+  async getTokenAccounts() {
+    if (!this.keypair || !this.connection) {
+      throw new Error('Wallet not initialized')
+    }
+
+    try {
+      const tokenAccounts = await this.connection.getParsedTokenAccountsByOwner(
+        this.keypair.publicKey,
+        { programId: TOKEN_PROGRAM_ID }
+      )
+
+      const tokens = []
+
+      for (const { account, pubkey } of tokenAccounts.value) {
+        const parsedInfo = account.data.parsed.info
+        const mint = parsedInfo.mint
+        const balance = parsedInfo.tokenAmount.uiAmount
+        const decimals = parsedInfo.tokenAmount.decimals
+        const rawBalance = parsedInfo.tokenAmount.amount
+
+        // Only include tokens with balance > 0
+        if (balance > 0) {
+          // Try to get token metadata
+          const metadata = await this._getTokenMetadata(mint)
+
+          tokens.push({
+            mint,
+            tokenAccount: pubkey.toBase58(),
+            balance,
+            rawBalance,
+            decimals,
+            symbol: metadata?.symbol || mint.substring(0, 4) + '...',
+            name: metadata?.name || 'Unknown Token',
+            logo: metadata?.logo || null,
+            usdValue: metadata?.price ? balance * metadata.price : null
+          })
+        }
+      }
+
+      return tokens
+    } catch (error) {
+      console.error('[WalletManager] Error getting token accounts:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Get token metadata from Jupiter API
+   * @param {string} mint - Token mint address
+   * @returns {Object} - Token metadata
+   */
+  async _getTokenMetadata(mint) {
+    // Check cache first
+    if (TOKEN_METADATA_CACHE.has(mint)) {
+      return TOKEN_METADATA_CACHE.get(mint)
+    }
+
+    try {
+      // Use Jupiter's token list API for metadata
+      const response = await fetch(`https://token.jup.ag/strict`)
+      const tokens = await response.json()
+
+      // Cache all tokens for future lookups
+      for (const token of tokens) {
+        TOKEN_METADATA_CACHE.set(token.address, {
+          symbol: token.symbol,
+          name: token.name,
+          logo: token.logoURI,
+          decimals: token.decimals
+        })
+      }
+
+      return TOKEN_METADATA_CACHE.get(mint) || null
+    } catch (error) {
+      console.error('[WalletManager] Error fetching token metadata:', error)
+      return null
+    }
+  }
+
+  /**
+   * Send SOL to a recipient
+   * @param {string} recipientAddress - Recipient's public key
+   * @param {number} amountSOL - Amount in SOL
+   * @returns {string} - Transaction signature
+   */
+  async sendSOL(recipientAddress, amountSOL) {
+    if (!this.keypair || !this.connection) {
+      throw new Error('Wallet not initialized')
+    }
+
+    try {
+      const recipientPubkey = new PublicKey(recipientAddress)
+      const lamports = Math.floor(amountSOL * LAMPORTS_PER_SOL)
+
+      // Create transfer instruction
+      const transaction = new Transaction().add(
+        SystemProgram.transfer({
+          fromPubkey: this.keypair.publicKey,
+          toPubkey: recipientPubkey,
+          lamports
+        })
+      )
+
+      // Get recent blockhash
+      const { blockhash } = await this.connection.getLatestBlockhash('confirmed')
+      transaction.recentBlockhash = blockhash
+      transaction.feePayer = this.keypair.publicKey
+
+      // Sign transaction
+      transaction.sign(this.keypair)
+
+      // Send transaction
+      const signature = await this.connection.sendRawTransaction(
+        transaction.serialize(),
+        { skipPreflight: false, preflightCommitment: 'confirmed' }
+      )
+
+      // Wait for confirmation
+      await this.connection.confirmTransaction(signature, 'confirmed')
+
+      console.log('[WalletManager] SOL sent successfully:', signature)
+      return signature
+    } catch (error) {
+      console.error('[WalletManager] Error sending SOL:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Send SPL token to a recipient
+   * @param {string} mintAddress - Token mint address
+   * @param {string} recipientAddress - Recipient's public key
+   * @param {number} amount - Amount in token units (not raw)
+   * @param {number} decimals - Token decimals
+   * @returns {string} - Transaction signature
+   */
+  async sendToken(mintAddress, recipientAddress, amount, decimals) {
+    if (!this.keypair || !this.connection) {
+      throw new Error('Wallet not initialized')
+    }
+
+    try {
+      const mintPubkey = new PublicKey(mintAddress)
+      const recipientPubkey = new PublicKey(recipientAddress)
+      const rawAmount = BigInt(Math.floor(amount * Math.pow(10, decimals)))
+
+      // Get source token account (sender's ATA)
+      const sourceATA = await getAssociatedTokenAddress(
+        mintPubkey,
+        this.keypair.publicKey
+      )
+
+      // Get destination token account (recipient's ATA)
+      const destinationATA = await getAssociatedTokenAddress(
+        mintPubkey,
+        recipientPubkey
+      )
+
+      // Check if destination ATA exists
+      let destinationAccountExists = false
+      try {
+        await getAccount(this.connection, destinationATA)
+        destinationAccountExists = true
+      } catch (e) {
+        destinationAccountExists = false
+      }
+
+      const transaction = new Transaction()
+
+      // If destination ATA doesn't exist, create it
+      if (!destinationAccountExists) {
+        const { createAssociatedTokenAccountInstruction } = require('@solana/spl-token')
+        transaction.add(
+          createAssociatedTokenAccountInstruction(
+            this.keypair.publicKey, // payer
+            destinationATA, // associated token account
+            recipientPubkey, // owner
+            mintPubkey // mint
+          )
+        )
+      }
+
+      // Add transfer instruction
+      transaction.add(
+        createTransferInstruction(
+          sourceATA, // source
+          destinationATA, // destination
+          this.keypair.publicKey, // owner
+          rawAmount // amount
+        )
+      )
+
+      // Get recent blockhash
+      const { blockhash } = await this.connection.getLatestBlockhash('confirmed')
+      transaction.recentBlockhash = blockhash
+      transaction.feePayer = this.keypair.publicKey
+
+      // Sign transaction
+      transaction.sign(this.keypair)
+
+      // Send transaction
+      const signature = await this.connection.sendRawTransaction(
+        transaction.serialize(),
+        { skipPreflight: false, preflightCommitment: 'confirmed' }
+      )
+
+      // Wait for confirmation
+      await this.connection.confirmTransaction(signature, 'confirmed')
+
+      console.log('[WalletManager] Token sent successfully:', signature)
+      return signature
+    } catch (error) {
+      console.error('[WalletManager] Error sending token:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Estimate transaction fee for SOL transfer
+   * @returns {number} - Estimated fee in SOL
+   */
+  async estimateFee() {
+    if (!this.connection) {
+      throw new Error('Connection not initialized')
+    }
+
+    try {
+      // Get recent blockhash and fee calculator
+      const { feeCalculator } = await this.connection.getRecentBlockhash('confirmed')
+      // A simple transfer is about 1 signature, so fee is lamportsPerSignature
+      const feeInLamports = feeCalculator?.lamportsPerSignature || 5000 // Default 5000 lamports
+      return feeInLamports / LAMPORTS_PER_SOL
+    } catch (error) {
+      // Return a default fee estimate
+      return 0.000005 // 5000 lamports default
+    }
+  }
+
+  /**
+   * Validate a Solana address
+   * @param {string} address - Address to validate
+   * @returns {boolean} - Whether the address is valid
+   */
+  isValidAddress(address) {
+    try {
+      new PublicKey(address)
+      return true
+    } catch (e) {
+      return false
+    }
   }
 
   /**

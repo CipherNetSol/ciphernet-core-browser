@@ -219,6 +219,7 @@
 
 .dark-theme #mixer-button:hover {
   background: #383a39;
+  border-color:#ffffff;
 }
 
 /* VPN button special styling */

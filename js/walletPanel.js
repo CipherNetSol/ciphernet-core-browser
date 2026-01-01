@@ -14,6 +14,15 @@ const walletPanel = {
   solPrice: 0, // Real SOL/USD price
   priceUpdateInterval: null,
 
+  // Token list
+  tokens: [],
+  isTokensLoading: false,
+
+  // Send modal state
+  sendModalOpen: false,
+  sendAsset: null, // { type: 'sol' } or { type: 'token', mint, symbol, balance, decimals, logo }
+  estimatedFee: 0.000005,
+
   // Pending approval requests
   pendingConnectRequest: null,
   pendingTransactionRequest: null,
@@ -74,7 +83,41 @@ const walletPanel = {
       msgOrigin: document.getElementById('wallet-msg-origin-inline'),
       msgContent: document.getElementById('wallet-msg-content-inline'),
       msgApproveBtn: document.getElementById('wallet-msg-approve-inline'),
-      msgRejectBtn: document.getElementById('wallet-msg-reject-inline')
+      msgRejectBtn: document.getElementById('wallet-msg-reject-inline'),
+
+      // Token list
+      tokensList: document.getElementById('wallet-tokens-list'),
+      refreshTokensBtn: document.getElementById('wallet-refresh-tokens-btn'),
+
+      // Send SOL button
+      sendSolBtn: document.getElementById('wallet-send-sol-btn'),
+
+      // Send modal
+      sendModal: document.getElementById('wallet-send-modal'),
+      sendTitle: document.getElementById('wallet-send-title'),
+      sendBackBtn: document.getElementById('wallet-send-back-btn'),
+      sendAssetIcon: document.getElementById('wallet-send-asset-icon'),
+      sendAssetSymbol: document.getElementById('wallet-send-asset-symbol'),
+      sendAssetBalance: document.getElementById('wallet-send-asset-balance'),
+      sendRecipient: document.getElementById('wallet-send-recipient'),
+      sendRecipientError: document.getElementById('wallet-send-recipient-error'),
+      sendAmount: document.getElementById('wallet-send-amount'),
+      sendAmountError: document.getElementById('wallet-send-amount-error'),
+      sendMaxBtn: document.getElementById('wallet-send-max-btn'),
+      sendFeeAmount: document.getElementById('wallet-send-fee-amount'),
+      sendSummary: document.getElementById('wallet-send-summary'),
+      sendSummaryAmount: document.getElementById('wallet-send-summary-amount'),
+      sendSummaryRecipient: document.getElementById('wallet-send-summary-recipient'),
+      sendCancelBtn: document.getElementById('wallet-send-cancel-btn'),
+      sendConfirmBtn: document.getElementById('wallet-send-confirm-btn'),
+      sendProcessing: document.getElementById('wallet-send-processing'),
+      sendSuccess: document.getElementById('wallet-send-success'),
+      sendSuccessMessage: document.getElementById('wallet-send-success-message'),
+      sendExplorerLink: document.getElementById('wallet-send-explorer-link'),
+      sendDoneBtn: document.getElementById('wallet-send-done-btn'),
+      sendErrorState: document.getElementById('wallet-send-error'),
+      sendErrorMessage: document.getElementById('wallet-send-error-message'),
+      sendRetryBtn: document.getElementById('wallet-send-retry-btn')
     }
 
     // Set up event listeners
@@ -170,6 +213,44 @@ const walletPanel = {
     }
     if (this.elements.msgRejectBtn) {
       this.elements.msgRejectBtn.addEventListener('click', () => this.rejectMessage())
+    }
+
+    // Token refresh button
+    if (this.elements.refreshTokensBtn) {
+      this.elements.refreshTokensBtn.addEventListener('click', () => this.refreshTokens())
+    }
+
+    // Send SOL button
+    if (this.elements.sendSolBtn) {
+      this.elements.sendSolBtn.addEventListener('click', () => this.openSendModal('sol'))
+    }
+
+    // Send modal buttons
+    if (this.elements.sendBackBtn) {
+      this.elements.sendBackBtn.addEventListener('click', () => this.closeSendModal())
+    }
+    if (this.elements.sendCancelBtn) {
+      this.elements.sendCancelBtn.addEventListener('click', () => this.closeSendModal())
+    }
+    if (this.elements.sendMaxBtn) {
+      this.elements.sendMaxBtn.addEventListener('click', () => this.setMaxAmount())
+    }
+    if (this.elements.sendConfirmBtn) {
+      this.elements.sendConfirmBtn.addEventListener('click', () => this.executeSend())
+    }
+    if (this.elements.sendDoneBtn) {
+      this.elements.sendDoneBtn.addEventListener('click', () => this.closeSendModal())
+    }
+    if (this.elements.sendRetryBtn) {
+      this.elements.sendRetryBtn.addEventListener('click', () => this.resetSendModal())
+    }
+
+    // Send form validation
+    if (this.elements.sendRecipient) {
+      this.elements.sendRecipient.addEventListener('input', () => this.validateSendForm())
+    }
+    if (this.elements.sendAmount) {
+      this.elements.sendAmount.addEventListener('input', () => this.validateSendForm())
     }
   },
 
@@ -762,8 +843,9 @@ const walletPanel = {
     this.isOpen = true
     webviews.adjustMargin([0, this.panelWidth, 0, 0])
 
-    // Refresh balance when opening
+    // Refresh balance and tokens when opening
     this.refreshBalance()
+    this.refreshTokens()
   },
 
   close: function () {
@@ -776,6 +858,12 @@ const walletPanel = {
     // Hide any open modals/displays
     this.hideExportWarning()
     this.hidePrivateKey()
+
+    // Close send modal if open
+    if (this.sendModalOpen && this.elements.sendModal) {
+      this.elements.sendModal.classList.remove('active')
+      this.sendModalOpen = false
+    }
   },
 
   toggle: function () {
@@ -783,6 +871,311 @@ const walletPanel = {
       this.close()
     } else {
       this.open()
+    }
+  },
+
+  // ================================
+  // TOKEN LIST METHODS
+  // ================================
+
+  async refreshTokens() {
+    if (this.isTokensLoading) return
+
+    this.isTokensLoading = true
+
+    // Add spinning animation
+    if (this.elements.refreshTokensBtn) {
+      this.elements.refreshTokensBtn.classList.add('refreshing')
+    }
+
+    try {
+      const result = await ipc.invoke('wallet:getTokens')
+      if (result.success) {
+        this.tokens = result.data
+        this.renderTokenList()
+      }
+    } catch (error) {
+      console.error('[WalletPanel] Error refreshing tokens:', error)
+    } finally {
+      this.isTokensLoading = false
+      setTimeout(() => {
+        if (this.elements.refreshTokensBtn) {
+          this.elements.refreshTokensBtn.classList.remove('refreshing')
+        }
+      }, 500)
+    }
+  },
+
+  renderTokenList: function () {
+    if (!this.elements.tokensList) return
+
+    if (this.tokens.length === 0) {
+      this.elements.tokensList.innerHTML = '<div class="wallet-tokens-empty">No tokens found</div>'
+      return
+    }
+
+    this.elements.tokensList.innerHTML = this.tokens.map(token => `
+      <div class="wallet-token-item" data-mint="${token.mint}" data-symbol="${token.symbol}" data-balance="${token.balance}" data-decimals="${token.decimals}" data-logo="${token.logo || ''}">
+        <div class="wallet-token-icon">
+          ${token.logo ? `<img src="${token.logo}" alt="${token.symbol}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><i class="i carbon:currency" style="display:none"></i>` : '<i class="i carbon:currency"></i>'}
+        </div>
+        <div class="wallet-token-info">
+          <div class="wallet-token-name">${token.name}</div>
+          <div class="wallet-token-symbol">${token.symbol}</div>
+        </div>
+        <div class="wallet-token-balance">
+          <div class="wallet-token-amount">${this.formatTokenBalance(token.balance, token.decimals)}</div>
+          ${token.usdValue ? `<div class="wallet-token-usd">≈ $${token.usdValue.toFixed(2)}</div>` : ''}
+        </div>
+        <button class="wallet-token-send-btn">Send</button>
+      </div>
+    `).join('')
+
+    // Add click handlers to send buttons
+    this.elements.tokensList.querySelectorAll('.wallet-token-send-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation()
+        const item = e.target.closest('.wallet-token-item')
+        this.openSendModal('token', {
+          mint: item.dataset.mint,
+          symbol: item.dataset.symbol,
+          balance: parseFloat(item.dataset.balance),
+          decimals: parseInt(item.dataset.decimals),
+          logo: item.dataset.logo || null
+        })
+      })
+    })
+  },
+
+  formatTokenBalance: function (balance, decimals) {
+    if (balance < 0.0001) return balance.toExponential(2)
+    if (balance < 1) return balance.toFixed(4)
+    if (balance < 1000) return balance.toFixed(2)
+    return balance.toLocaleString(undefined, { maximumFractionDigits: 2 })
+  },
+
+  // ================================
+  // SEND MODAL METHODS
+  // ================================
+
+  openSendModal: function (type, tokenData) {
+    if (type === 'sol') {
+      this.sendAsset = {
+        type: 'sol',
+        symbol: 'SOL',
+        balance: this.balance.sol,
+        decimals: 9,
+        logo: null
+      }
+    } else {
+      this.sendAsset = {
+        type: 'token',
+        ...tokenData
+      }
+    }
+
+    // Update modal UI
+    if (this.elements.sendTitle) {
+      this.elements.sendTitle.textContent = `Send ${this.sendAsset.symbol}`
+    }
+    if (this.elements.sendAssetSymbol) {
+      this.elements.sendAssetSymbol.textContent = this.sendAsset.symbol
+    }
+    if (this.elements.sendAssetBalance) {
+      this.elements.sendAssetBalance.textContent = `Balance: ${this.formatTokenBalance(this.sendAsset.balance, this.sendAsset.decimals)}`
+    }
+    if (this.elements.sendAssetIcon) {
+      if (this.sendAsset.logo) {
+        this.elements.sendAssetIcon.innerHTML = `<img src="${this.sendAsset.logo}" alt="${this.sendAsset.symbol}" onerror="this.style.display='none'">`
+      } else {
+        this.elements.sendAssetIcon.innerHTML = '<i class="i carbon:currency"></i>'
+      }
+    }
+
+    // Reset form
+    if (this.elements.sendRecipient) this.elements.sendRecipient.value = ''
+    if (this.elements.sendAmount) this.elements.sendAmount.value = ''
+    if (this.elements.sendRecipientError) this.elements.sendRecipientError.textContent = ''
+    if (this.elements.sendAmountError) this.elements.sendAmountError.textContent = ''
+    if (this.elements.sendSummary) this.elements.sendSummary.style.display = 'none'
+    if (this.elements.sendConfirmBtn) this.elements.sendConfirmBtn.disabled = true
+
+    // Show modal
+    this.resetSendModal()
+    if (this.elements.sendModal) {
+      this.elements.sendModal.classList.add('active')
+    }
+    this.sendModalOpen = true
+
+    // Fetch fee estimate
+    this.updateFeeEstimate()
+  },
+
+  closeSendModal: function () {
+    if (this.elements.sendModal) {
+      this.elements.sendModal.classList.remove('active')
+    }
+    this.sendModalOpen = false
+    this.sendAsset = null
+
+    // Refresh balance and tokens after sending
+    this.refreshBalance()
+    this.refreshTokens()
+  },
+
+  resetSendModal: function () {
+    // Hide all states, show form
+    if (this.elements.sendModal) {
+      const content = this.elements.sendModal.querySelector('.wallet-send-modal-content')
+      if (content) content.style.display = 'flex'
+    }
+    if (this.elements.sendProcessing) this.elements.sendProcessing.style.display = 'none'
+    if (this.elements.sendSuccess) this.elements.sendSuccess.style.display = 'none'
+    if (this.elements.sendErrorState) this.elements.sendErrorState.style.display = 'none'
+  },
+
+  async updateFeeEstimate() {
+    try {
+      const result = await ipc.invoke('wallet:estimateFee')
+      if (result.success) {
+        this.estimatedFee = result.data.fee
+        if (this.elements.sendFeeAmount) {
+          this.elements.sendFeeAmount.textContent = `~${this.estimatedFee.toFixed(6)} SOL`
+        }
+      }
+    } catch (error) {
+      console.error('[WalletPanel] Error estimating fee:', error)
+    }
+  },
+
+  setMaxAmount: function () {
+    if (!this.sendAsset || !this.elements.sendAmount) return
+
+    let maxAmount = this.sendAsset.balance
+
+    // For SOL, subtract fee
+    if (this.sendAsset.type === 'sol') {
+      maxAmount = Math.max(0, this.sendAsset.balance - this.estimatedFee - 0.000005) // Leave small buffer
+    }
+
+    this.elements.sendAmount.value = maxAmount > 0 ? maxAmount.toFixed(this.sendAsset.decimals > 6 ? 6 : this.sendAsset.decimals) : '0'
+    this.validateSendForm()
+  },
+
+  async validateSendForm() {
+    let isValid = true
+    const recipient = this.elements.sendRecipient?.value.trim() || ''
+    const amountStr = this.elements.sendAmount?.value.trim() || ''
+    const amount = parseFloat(amountStr)
+
+    // Reset errors
+    if (this.elements.sendRecipientError) this.elements.sendRecipientError.textContent = ''
+    if (this.elements.sendAmountError) this.elements.sendAmountError.textContent = ''
+    if (this.elements.sendRecipient) this.elements.sendRecipient.classList.remove('error')
+    if (this.elements.sendAmount) this.elements.sendAmount.classList.remove('error')
+
+    // Validate recipient
+    if (recipient) {
+      try {
+        const result = await ipc.invoke('wallet:validateAddress', { address: recipient })
+        if (!result.success || !result.data.isValid) {
+          if (this.elements.sendRecipientError) this.elements.sendRecipientError.textContent = 'Invalid Solana address'
+          if (this.elements.sendRecipient) this.elements.sendRecipient.classList.add('error')
+          isValid = false
+        }
+      } catch (e) {
+        isValid = false
+      }
+    } else {
+      isValid = false
+    }
+
+    // Validate amount
+    if (!amountStr || isNaN(amount) || amount <= 0) {
+      isValid = false
+    } else if (this.sendAsset) {
+      const maxAmount = this.sendAsset.type === 'sol'
+        ? this.sendAsset.balance - this.estimatedFee
+        : this.sendAsset.balance
+
+      if (amount > maxAmount) {
+        if (this.elements.sendAmountError) this.elements.sendAmountError.textContent = 'Insufficient balance'
+        if (this.elements.sendAmount) this.elements.sendAmount.classList.add('error')
+        isValid = false
+      }
+    }
+
+    // Update summary
+    if (isValid && this.elements.sendSummary) {
+      this.elements.sendSummary.style.display = 'block'
+      if (this.elements.sendSummaryAmount) {
+        this.elements.sendSummaryAmount.textContent = `${amount} ${this.sendAsset.symbol}`
+      }
+      if (this.elements.sendSummaryRecipient) {
+        this.elements.sendSummaryRecipient.textContent = recipient.substring(0, 8) + '...' + recipient.substring(recipient.length - 8)
+      }
+    } else if (this.elements.sendSummary) {
+      this.elements.sendSummary.style.display = 'none'
+    }
+
+    // Enable/disable confirm button
+    if (this.elements.sendConfirmBtn) {
+      this.elements.sendConfirmBtn.disabled = !isValid
+    }
+
+    return isValid
+  },
+
+  async executeSend() {
+    if (!this.sendAsset) return
+
+    const recipient = this.elements.sendRecipient?.value.trim()
+    const amount = parseFloat(this.elements.sendAmount?.value || '0')
+
+    if (!recipient || !amount) return
+
+    // Show processing state
+    const content = this.elements.sendModal?.querySelector('.wallet-send-modal-content')
+    if (content) content.style.display = 'none'
+    if (this.elements.sendProcessing) this.elements.sendProcessing.style.display = 'flex'
+
+    try {
+      let result
+      if (this.sendAsset.type === 'sol') {
+        result = await ipc.invoke('wallet:sendSOL', { recipient, amount })
+      } else {
+        result = await ipc.invoke('wallet:sendToken', {
+          mint: this.sendAsset.mint,
+          recipient,
+          amount,
+          decimals: this.sendAsset.decimals
+        })
+      }
+
+      if (result.success) {
+        // Show success state
+        if (this.elements.sendProcessing) this.elements.sendProcessing.style.display = 'none'
+        if (this.elements.sendSuccess) this.elements.sendSuccess.style.display = 'flex'
+        if (this.elements.sendSuccessMessage) {
+          this.elements.sendSuccessMessage.textContent = `Sent ${amount} ${this.sendAsset.symbol} successfully!`
+        }
+        if (this.elements.sendExplorerLink) {
+          const explorerBase = this.network === 'devnet'
+            ? 'https://explorer.solana.com/tx/'
+            : 'https://solscan.io/tx/'
+          this.elements.sendExplorerLink.href = `${explorerBase}${result.data.signature}`
+        }
+      } else {
+        throw new Error(result.error || 'Transaction failed')
+      }
+    } catch (error) {
+      console.error('[WalletPanel] Send error:', error)
+      // Show error state
+      if (this.elements.sendProcessing) this.elements.sendProcessing.style.display = 'none'
+      if (this.elements.sendErrorState) this.elements.sendErrorState.style.display = 'flex'
+      if (this.elements.sendErrorMessage) {
+        this.elements.sendErrorMessage.textContent = error.message || 'Transaction failed. Please try again.'
+      }
     }
   }
 }
