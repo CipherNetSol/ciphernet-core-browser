@@ -162,9 +162,9 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 16px;
+  padding: 7px 12px;
   border: 1px solid #dadce0;
-  border-radius: 18px;
+  border-radius: 9px;
   background: #fff;
   color: #1a73e8;
   font-size: 13px;
@@ -219,7 +219,7 @@
 
 .dark-theme #mixer-button:hover {
   background: #383a39;
-  border-color:#ffffff;
+  border-color: #ffffff;
 }
 
 /* VPN button special styling */

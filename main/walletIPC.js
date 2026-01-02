@@ -550,6 +550,66 @@ function setupWalletIPC() {
     }
   })
 
+  // Get all token accounts and balances
+  ipc.handle('wallet:getTokens', async () => {
+    try {
+      const tokens = await walletManager.getTokenAccounts()
+      return { success: true, data: tokens }
+    } catch (error) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  // Send SOL to recipient
+  ipc.handle('wallet:sendSOL', async (event, { recipient, amount }) => {
+    try {
+      // Validate address
+      if (!walletManager.isValidAddress(recipient)) {
+        return { success: false, error: 'Invalid recipient address' }
+      }
+
+      const signature = await walletManager.sendSOL(recipient, amount)
+      return { success: true, data: { signature } }
+    } catch (error) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  // Send SPL token to recipient
+  ipc.handle('wallet:sendToken', async (event, { mint, recipient, amount, decimals }) => {
+    try {
+      // Validate address
+      if (!walletManager.isValidAddress(recipient)) {
+        return { success: false, error: 'Invalid recipient address' }
+      }
+
+      const signature = await walletManager.sendToken(mint, recipient, amount, decimals)
+      return { success: true, data: { signature } }
+    } catch (error) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  // Validate Solana address
+  ipc.handle('wallet:validateAddress', async (event, { address }) => {
+    try {
+      const isValid = walletManager.isValidAddress(address)
+      return { success: true, data: { isValid } }
+    } catch (error) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  // Estimate transaction fee
+  ipc.handle('wallet:estimateFee', async () => {
+    try {
+      const fee = await walletManager.estimateFee()
+      return { success: true, data: { fee } }
+    } catch (error) {
+      return { success: false, error: error.message }
+    }
+  })
+
   // Clean up expired pending approvals periodically
   setInterval(() => {
     const now = Date.now()

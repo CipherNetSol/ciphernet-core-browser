@@ -459,7 +459,12 @@ const walletPanel = {
       const result = await ipc.invoke('wallet:switchNetwork', network)
       if (result.success) {
         this.network = result.data.network
+        // Clear tokens immediately to avoid showing stale data
+        this.tokens = []
+        this.renderTokenList()
+        // Refresh balance and tokens for new network
         await this.refreshBalance()
+        await this.refreshTokens()
       }
     } catch (error) {
       console.error('[WalletPanel] Error switching network:', error)
@@ -927,15 +932,13 @@ const walletPanel = {
           <div class="wallet-token-amount">${this.formatTokenBalance(token.balance, token.decimals)}</div>
           ${token.usdValue ? `<div class="wallet-token-usd">≈ $${token.usdValue.toFixed(2)}</div>` : ''}
         </div>
-        <button class="wallet-token-send-btn">Send</button>
+        <i class="i carbon:chevron-right wallet-token-arrow"></i>
       </div>
     `).join('')
 
-    // Add click handlers to send buttons
-    this.elements.tokensList.querySelectorAll('.wallet-token-send-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation()
-        const item = e.target.closest('.wallet-token-item')
+    // Add click handlers to entire token row
+    this.elements.tokensList.querySelectorAll('.wallet-token-item').forEach(item => {
+      item.addEventListener('click', () => {
         this.openSendModal('token', {
           mint: item.dataset.mint,
           symbol: item.dataset.symbol,
@@ -948,7 +951,9 @@ const walletPanel = {
   },
 
   formatTokenBalance: function (balance, decimals) {
-    if (balance < 0.0001) return balance.toExponential(2)
+    // Show 0 for zero or extremely small balances instead of scientific notation
+    if (balance === 0 || balance < 0.000001) return '0'
+    if (balance < 0.0001) return balance.toFixed(6)
     if (balance < 1) return balance.toFixed(4)
     if (balance < 1000) return balance.toFixed(2)
     return balance.toLocaleString(undefined, { maximumFractionDigits: 2 })
@@ -1053,12 +1058,19 @@ const walletPanel = {
 
     let maxAmount = this.sendAsset.balance
 
-    // For SOL, subtract fee
+    // For SOL, calculate in lamports (integers) to avoid floating-point precision issues
+    // This matches how Phantom calculates max: balance - fee (e.g., 0.256 - 0.000005 = 0.255995)
     if (this.sendAsset.type === 'sol') {
-      maxAmount = Math.max(0, this.sendAsset.balance - this.estimatedFee - 0.000005) // Leave small buffer
+      // Convert to lamports (1 SOL = 1,000,000,000 lamports)
+      const balanceLamports = Math.floor(this.sendAsset.balance * 1e9)
+      const feeLamports = Math.floor(this.estimatedFee * 1e9)
+      const maxLamports = Math.max(0, balanceLamports - feeLamports)
+      maxAmount = maxLamports / 1e9
     }
 
-    this.elements.sendAmount.value = maxAmount > 0 ? maxAmount.toFixed(this.sendAsset.decimals > 6 ? 6 : this.sendAsset.decimals) : '0'
+    // Display with 6 decimal places for precision
+    const decimals = 6
+    this.elements.sendAmount.value = maxAmount > 0 ? maxAmount.toFixed(decimals) : '0'
     this.validateSendForm()
   },
 
@@ -1094,11 +1106,19 @@ const walletPanel = {
     if (!amountStr || isNaN(amount) || amount <= 0) {
       isValid = false
     } else if (this.sendAsset) {
-      const maxAmount = this.sendAsset.type === 'sol'
-        ? this.sendAsset.balance - this.estimatedFee
-        : this.sendAsset.balance
+      // Use lamports-based calculation for SOL to match setMaxAmount precision
+      let maxAmount
+      if (this.sendAsset.type === 'sol') {
+        const balanceLamports = Math.floor(this.sendAsset.balance * 1e9)
+        const feeLamports = Math.floor(this.estimatedFee * 1e9)
+        const maxLamports = Math.max(0, balanceLamports - feeLamports)
+        maxAmount = maxLamports / 1e9
+      } else {
+        maxAmount = this.sendAsset.balance
+      }
 
-      if (amount > maxAmount) {
+      // Compare with small epsilon to handle floating point comparison
+      if (amount > maxAmount + 0.000000001) {
         if (this.elements.sendAmountError) this.elements.sendAmountError.textContent = 'Insufficient balance'
         if (this.elements.sendAmount) this.elements.sendAmount.classList.add('error')
         isValid = false
@@ -1160,10 +1180,11 @@ const walletPanel = {
           this.elements.sendSuccessMessage.textContent = `Sent ${amount} ${this.sendAsset.symbol} successfully!`
         }
         if (this.elements.sendExplorerLink) {
-          const explorerBase = this.network === 'devnet'
-            ? 'https://explorer.solana.com/tx/'
-            : 'https://solscan.io/tx/'
-          this.elements.sendExplorerLink.href = `${explorerBase}${result.data.signature}`
+          // Solscan for both mainnet and devnet
+          const explorerUrl = this.network === 'devnet'
+            ? `https://solscan.io/tx/${result.data.signature}?cluster=devnet`
+            : `https://solscan.io/tx/${result.data.signature}`
+          this.elements.sendExplorerLink.href = explorerUrl
         }
       } else {
         throw new Error(result.error || 'Transaction failed')
@@ -1174,9 +1195,59 @@ const walletPanel = {
       if (this.elements.sendProcessing) this.elements.sendProcessing.style.display = 'none'
       if (this.elements.sendErrorState) this.elements.sendErrorState.style.display = 'flex'
       if (this.elements.sendErrorMessage) {
-        this.elements.sendErrorMessage.textContent = error.message || 'Transaction failed. Please try again.'
+        // Parse and display user-friendly error message like Phantom
+        this.elements.sendErrorMessage.textContent = this.parseTransactionError(error.message)
       }
     }
+  },
+
+  // Parse Solana transaction errors into user-friendly messages
+  parseTransactionError: function (errorMessage) {
+    if (!errorMessage) return 'Transaction failed'
+
+    const msg = errorMessage.toLowerCase()
+
+    // Insufficient funds errors
+    if (msg.includes('insufficient funds') || msg.includes('insufficient lamports')) {
+      return 'Insufficient balance for this transaction'
+    }
+
+    // Rent/account errors
+    if (msg.includes('rent') || msg.includes('below rent-exempt minimum')) {
+      return 'Amount would leave account below minimum balance'
+    }
+
+    // Blockhash expired
+    if (msg.includes('blockhash') && (msg.includes('expired') || msg.includes('not found'))) {
+      return 'Transaction expired. Please try again'
+    }
+
+    // Network errors
+    if (msg.includes('timeout') || msg.includes('network') || msg.includes('connection')) {
+      return 'Network error. Please check your connection'
+    }
+
+    // Invalid address
+    if (msg.includes('invalid') && msg.includes('address')) {
+      return 'Invalid recipient address'
+    }
+
+    // Transaction simulation failed
+    if (msg.includes('simulation failed')) {
+      return 'Transaction simulation failed'
+    }
+
+    // Custom program errors - extract the readable part
+    if (msg.includes('custom program error')) {
+      return 'Transaction rejected by program'
+    }
+
+    // Generic fallback - truncate long messages
+    if (errorMessage.length > 100) {
+      return 'Transaction failed. Please try again'
+    }
+
+    return errorMessage
   }
 }
 

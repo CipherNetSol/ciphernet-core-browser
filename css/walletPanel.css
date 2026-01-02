@@ -1105,6 +1105,14 @@
   border-radius: 4px;
   transition: all 0.2s ease;
   font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wallet-refresh-tokens-btn .i {
+  display: inline-block;
+  transition: transform 0.2s ease;
 }
 
 .wallet-refresh-tokens-btn:hover {
@@ -1255,37 +1263,24 @@
   color: #888888;
 }
 
-.wallet-token-send-btn {
-  background: transparent;
-  border: 1px solid #cccccc;
-  color: #666666;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 12px;
-  cursor: pointer;
+.wallet-token-arrow {
+  font-size: 16px;
+  color: #cccccc;
   transition: all 0.2s ease;
-  opacity: 0;
+  flex-shrink: 0;
 }
 
-.wallet-token-item:hover .wallet-token-send-btn {
-  opacity: 1;
+.wallet-token-item:hover .wallet-token-arrow {
+  color: #666666;
+  transform: translateX(2px);
 }
 
-.wallet-token-send-btn:hover {
-  background: #000000;
-  border-color: #000000;
-  color: #ffffff;
+.dark-theme .wallet-token-arrow {
+  color: #444444;
 }
 
-.dark-theme .wallet-token-send-btn {
-  border-color: #444444;
+.dark-theme .wallet-token-item:hover .wallet-token-arrow {
   color: #999999;
-}
-
-.dark-theme .wallet-token-send-btn:hover {
-  background: #ffffff;
-  border-color: #ffffff;
-  color: #000000;
 }
 
 /* ================================
@@ -1738,7 +1733,7 @@
   color: #ffffff;
 }
 
-/* Error state */
+/* Error state - Phantom-like clean design */
 .wallet-send-error-state {
   position: absolute;
   top: 0;
@@ -1750,7 +1745,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 32px 24px;
   text-align: center;
 }
 
@@ -1759,25 +1754,30 @@
 }
 
 .wallet-send-error-icon {
-  width: 64px;
-  height: 64px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
-  background: #ff4444;
+  background: rgba(239, 68, 68, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+}
+
+.dark-theme .wallet-send-error-icon {
+  background: rgba(239, 68, 68, 0.15);
 }
 
 .wallet-send-error-icon .i {
-  font-size: 32px;
-  color: #ffffff;
+  font-size: 28px;
+  color: #ef4444;
 }
 
 .wallet-send-error-state h3 {
   margin: 0 0 8px 0;
-  font-size: 20px;
-  color: #000000;
+  font-size: 18px;
+  font-weight: 600;
+  color: #111111;
 }
 
 .dark-theme .wallet-send-error-state h3 {
@@ -1785,13 +1785,15 @@
 }
 
 .wallet-send-error-state p {
-  margin: 0 0 24px 0;
+  margin: 0 0 28px 0;
   font-size: 14px;
-  color: #666666;
+  color: #6b7280;
+  line-height: 1.5;
+  max-width: 280px;
 }
 
 .dark-theme .wallet-send-error-state p {
-  color: #999999;
+  color: #9ca3af;
 }
 
 /* Responsive */
