@@ -376,18 +376,17 @@ app.on('ready', function () {
     })
   }
 
-  // Initialize Solana Wallet
-const { setupWalletIPC } = require(
-  path.join(__dirname, 'main', 'walletIPC')
-);
-setupWalletIPC();
+  // Initialize Solana Wallet IPC handlers
+  // setupWalletIPC is available globally from walletIPC.js (loaded via buildMain.js)
+  setupWalletIPC();
 
+  // Initialize Bridge IPC handlers
+  // setupBridgeIPC is available globally from bridgeIPC.js (loaded via buildMain.js)
+  setupBridgeIPC();
 
   // Initialize wallet on startup (session-based ephemeral wallet)
-const walletManager = require(
-  path.join(__dirname, 'main', 'walletManager')
-);
-walletManager.initialize();
+  // walletManager is available globally from walletManager.js (loaded via buildMain.js)
+  walletManager.initialize();
 
   registerBundleProtocol(session.defaultSession)
 
@@ -488,16 +487,8 @@ app.on('before-quit', function (e) {
     e.preventDefault()
     isQuitting = true
 
-    // Destroy wallet before exit
-    // const { destroyWallet } = require('./walletIPC')
-    // const { destroyWallet } = require(
-    //   path.join(__dirname, 'walletIPC')
-    // );
-    // destroyWallet()
-const { destroyWallet } = require(
-  path.join(__dirname, 'main', 'walletIPC')
-);
-destroyWallet();
+    // destroyWallet is available globally from walletIPC.js (loaded via buildMain.js)
+    destroyWallet();
 
     clearAllBrowsingData().then(() => {
       console.log('PRIVACY MODE: Shutdown data clearing completed')

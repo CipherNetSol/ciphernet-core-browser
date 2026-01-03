@@ -1,21 +1,22 @@
 <!-- index.html -->
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self'" />
 
-    <title>CipherNet Browser</title>
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="script-src 'self'" />
 
-    <link rel="stylesheet" href="dist/bundle.css" />
-    <link rel="stylesheet" href="ext/icons/iconfont.css" />
-  </head>
+  <title>CipherNet Browser</title>
 
-  <body>
-    <div class="window-drag-area"></div>
+  <link rel="stylesheet" href="dist/bundle.css" />
+  <link rel="stylesheet" href="ext/icons/iconfont.css" />
+</head>
 
-    <!-- Custom CipherNet Titlebar -->
-    <!-- <div id="ciphernet-titlebar" class="windowDragHandle">
+<body>
+  <div class="window-drag-area"></div>
+
+  <!-- Custom CipherNet Titlebar -->
+  <!-- <div id="ciphernet-titlebar" class="windowDragHandle">
       <div id="status-indicators">
         <div class="status-item">
           <i class="i carbon:flash"></i>
@@ -36,444 +37,465 @@
       </div>
     </div> -->
 
-    <div class="windows-caption-buttons">
-      <div class="element caption-minimise">
-        <svg>
-          <line x1="1" y1="5.5" x2="11" y2="5.5" />
-        </svg>
-      </div>
-      <div class="element caption-maximize">
-        <svg>
-          <rect x="1.5" y="1.5" width="9" height="9" />
-        </svg>
-      </div>
-      <div class="element caption-restore">
-        <svg>
-          <rect x="1.5" y="3.5" width="7" height="7" />
-          <polyline points="3.5,3.5 3.5,1.5 10.5,1.5 10.5,8.5 8.5,8.5" />
-        </svg>
-      </div>
-      <div class="element caption-close">
-        <svg>
-          <path d="M1,1 l 10,10 M1,11 l 10,-10" />
-        </svg>
-      </div>
-    </div>
-
-    <button id="linux-control-buttons" class="theme-text-color">
-      <svg
-        width="74"
-        height="24"
-        version="1.1"
-        fill="none"
-        stroke="none"
-        stroke-linecap="square"
-        stroke-miterlimit="10"
-        xmlns:xlink="http://www.w3.org/1999/xlink"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <g id="minimize-button">
-          <rect width="24" height="24" fill="transparent"></rect>
-          <path
-            class="button-background"
-            d="m0.5826226 9.868774l0 0c0 -5.24453 4.251532 -9.496062 9.496063 -9.496062l0 0c2.5185127 0 4.933873 1.0004752 6.714731 2.7813323c1.7808571 1.7808576 2.781332 4.196218 2.781332 6.7147303l0 0c0 5.2445316 -4.2515326 9.496063 -9.496063 9.496063l0 0c-5.244531 0 -9.496063 -4.2515316 -9.496063 -9.496063z"
-            fill-rule="evenodd"
-          />
-          <path
-            stroke="currentColor"
-            stroke-width="2.0"
-            stroke-linejoin="round"
-            stroke-linecap="butt"
-            d="m6.7086616 12.519685l6.7401576 -0.031496048"
-            fill-rule="evenodd"
-          />
-        </g>
-        <g id="maximize-button">
-          <rect width="24" height="24" x="24" fill="transparent"></rect>
-          <path
-            class="button-background"
-            d="m27.85034 9.868774l0 0c0 -5.24453 4.2515316 -9.496062 9.496061 -9.496062l0 0c2.5185127 0 4.933876 1.0004752 6.714733 2.7813323c1.7808571 1.7808576 2.78133 4.196218 2.78133 6.7147303l0 0c0 5.2445316 -4.2515297 9.496063 -9.496063 9.496063l0 0c-5.2445297 0 -9.496061 -4.2515316 -9.496061 -9.496063z"
-            fill-rule="evenodd"
-          />
-          <path
-            stroke="currentColor"
-            stroke-width="2.0"
-            stroke-linejoin="round"
-            stroke-linecap="butt"
-            d="m34.16273 6.717848l6.3622017 0l0 6.2992125l-6.3622017 0z"
-            fill-rule="evenodd"
-          />
-        </g>
-        <g id="close-button">
-          <rect width="24" height="24" x="48" fill="transparent"></rect>
-          <path
-            class="button-background"
-            d="m55.118057 9.496072l0 0c0 -5.244531 4.2515297 -9.496063 9.496063 -9.496063l0 0c2.518509 0 4.9338684 1.0004753 6.7147293 2.7813325c1.7808533 1.7808573 2.781334 4.1962185 2.781334 6.714731l0 0c0 5.2445307 -4.2515335 9.496062 -9.496063 9.496062l0 0c-5.2445335 0 -9.496063 -4.2515316 -9.496063 -9.496062z"
-            fill-rule="evenodd"
-          />
-          <path
-            stroke="currentColor"
-            stroke-width="2.0"
-            stroke-linejoin="round"
-            stroke-linecap="butt"
-            d="m61.26077 6.1103663l6.740162 6.7716537"
-            fill-rule="evenodd"
-          />
-          <path
-            stroke="currentColor"
-            stroke-width="2.0"
-            stroke-linejoin="round"
-            stroke-linecap="butt"
-            d="m68.01668 6.1261144l-6.771656 6.7401576"
-            fill-rule="evenodd"
-          />
-        </g>
+  <div class="windows-caption-buttons">
+    <div class="element caption-minimise">
+      <svg>
+        <line x1="1" y1="5.5" x2="11" y2="5.5" />
       </svg>
-    </button>
+    </div>
+    <div class="element caption-maximize">
+      <svg>
+        <rect x="1.5" y="1.5" width="9" height="9" />
+      </svg>
+    </div>
+    <div class="element caption-restore">
+      <svg>
+        <rect x="1.5" y="3.5" width="7" height="7" />
+        <polyline points="3.5,3.5 3.5,1.5 10.5,1.5 10.5,8.5 8.5,8.5" />
+      </svg>
+    </div>
+    <div class="element caption-close">
+      <svg>
+        <path d="M1,1 l 10,10 M1,11 l 10,-10" />
+      </svg>
+    </div>
+  </div>
 
-    <div
-      id="navbar"
-      class="theme-background-color theme-text-color windowDragHandle"
-      tabindex="-1"
-    >
+  <button id="linux-control-buttons" class="theme-text-color">
+    <svg width="74" height="24" version="1.1" fill="none" stroke="none" stroke-linecap="square" stroke-miterlimit="10"
+      xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+      <g id="minimize-button">
+        <rect width="24" height="24" fill="transparent"></rect>
+        <path class="button-background"
+          d="m0.5826226 9.868774l0 0c0 -5.24453 4.251532 -9.496062 9.496063 -9.496062l0 0c2.5185127 0 4.933873 1.0004752 6.714731 2.7813323c1.7808571 1.7808576 2.781332 4.196218 2.781332 6.7147303l0 0c0 5.2445316 -4.2515326 9.496063 -9.496063 9.496063l0 0c-5.244531 0 -9.496063 -4.2515316 -9.496063 -9.496063z"
+          fill-rule="evenodd" />
+        <path stroke="currentColor" stroke-width="2.0" stroke-linejoin="round" stroke-linecap="butt"
+          d="m6.7086616 12.519685l6.7401576 -0.031496048" fill-rule="evenodd" />
+      </g>
+      <g id="maximize-button">
+        <rect width="24" height="24" x="24" fill="transparent"></rect>
+        <path class="button-background"
+          d="m27.85034 9.868774l0 0c0 -5.24453 4.2515316 -9.496062 9.496061 -9.496062l0 0c2.5185127 0 4.933876 1.0004752 6.714733 2.7813323c1.7808571 1.7808576 2.78133 4.196218 2.78133 6.7147303l0 0c0 5.2445316 -4.2515297 9.496063 -9.496063 9.496063l0 0c-5.2445297 0 -9.496061 -4.2515316 -9.496061 -9.496063z"
+          fill-rule="evenodd" />
+        <path stroke="currentColor" stroke-width="2.0" stroke-linejoin="round" stroke-linecap="butt"
+          d="m34.16273 6.717848l6.3622017 0l0 6.2992125l-6.3622017 0z" fill-rule="evenodd" />
+      </g>
+      <g id="close-button">
+        <rect width="24" height="24" x="48" fill="transparent"></rect>
+        <path class="button-background"
+          d="m55.118057 9.496072l0 0c0 -5.244531 4.2515297 -9.496063 9.496063 -9.496063l0 0c2.518509 0 4.9338684 1.0004753 6.7147293 2.7813325c1.7808533 1.7808573 2.781334 4.1962185 2.781334 6.714731l0 0c0 5.2445307 -4.2515335 9.496062 -9.496063 9.496062l0 0c-5.2445335 0 -9.496063 -4.2515316 -9.496063 -9.496062z"
+          fill-rule="evenodd" />
+        <path stroke="currentColor" stroke-width="2.0" stroke-linejoin="round" stroke-linecap="butt"
+          d="m61.26077 6.1103663l6.740162 6.7716537" fill-rule="evenodd" />
+        <path stroke="currentColor" stroke-width="2.0" stroke-linejoin="round" stroke-linecap="butt"
+          d="m68.01668 6.1261144l-6.771656 6.7401576" fill-rule="evenodd" />
+      </g>
+    </svg>
+  </button>
+
+  <div id="navbar" class="theme-background-color theme-text-color windowDragHandle" tabindex="-1">
     <div id="mac-window-drag-area"></div>
-      <button
-        id="menu-button"
-        class="navbar-action-button i carbon:overflow-menu-vertical"
-        data-label="openMenu"
-        tabindex="-1"
-      ></button>
-      <div id="toolbar-navigation-buttons" hidden>
-          <button
-          id="back-button"
-          class="navbar-action-button i carbon:chevron-left"
-          data-label="goBack"
-          tabindex="-1"
-        ></button>
-        <button
-        id="forward-button"
-        class="navbar-action-button i carbon:chevron-right"
-        data-label="goForward"
-        tabindex="-1"
-      ></button>
+    <button id="menu-button" class="navbar-action-button i carbon:overflow-menu-vertical" data-label="openMenu"
+      tabindex="-1"></button>
+    <div id="toolbar-navigation-buttons" hidden>
+      <button id="back-button" class="navbar-action-button i carbon:chevron-left" data-label="goBack"
+        tabindex="-1"></button>
+      <button id="forward-button" class="navbar-action-button i carbon:chevron-right" data-label="goForward"
+        tabindex="-1"></button>
+    </div>
+    <div id="tabs">
+      <div id="tab-editor" hidden>
+        <input id="tab-editor-input" spellcheck="false" />
       </div>
-      <div id="tabs">
-        <div id="tab-editor" hidden>
-          <input id="tab-editor-input" spellcheck="false" />
-        </div>
-        <div id="tabs-inner" role="tablist" class="has-thin-scrollbar"></div>
-      </div>
-      <div class="navbar-right-actions">
-        <button
-          id="add-tab-button"
-          class="navbar-action-button i carbon:add"
-          data-label="newTabAction"
-          tabindex="-1"
-        ></button>
-      </div>
+      <div id="tabs-inner" role="tablist" class="has-thin-scrollbar"></div>
+    </div>
+    <div class="navbar-right-actions">
+      <button id="add-tab-button" class="navbar-action-button i carbon:add" data-label="newTabAction"
+        tabindex="-1"></button>
+    </div>
+  </div>
+
+  <!-- CipherNet Navigation Bar -->
+  <div id="ciphernet-nav-bar" class="theme-background-color theme-text-color">
+    <div id="ciphernet-logo-container">
+      <img id="ciphernet-logo" src="icons/icon256.png" alt="CipherNet" />
+      <span id="ciphernet-brand">CipherNet</span>
     </div>
 
-    <!-- CipherNet Navigation Bar -->
-    <div id="ciphernet-nav-bar" class="theme-background-color theme-text-color">
-      <div id="ciphernet-logo-container">
-        <img id="ciphernet-logo" src="icons/icon256.png" alt="CipherNet" />
-        <span id="ciphernet-brand">CipherNet</span>
-      </div>
+    <div id="ciphernet-search-container">
+      <i class="i carbon:search"></i>
+      <input id="ciphernet-search-input" type="text" placeholder="Search or enter address" spellcheck="false" />
+    </div>
 
-      <div id="ciphernet-search-container">
-        <i class="i carbon:search"></i>
-        <input
-          id="ciphernet-search-input"
-          type="text"
-          placeholder="Search or enter address"
-          spellcheck="false"
-        />
-      </div>
-
-      <div id="ciphernet-action-buttons">
-        <button id="wallet-button" class="ciphernet-nav-btn" title="Wallet - Session Solana Wallet">
+    <div id="ciphernet-action-buttons">
+      <button id="wallet-button" class="ciphernet-nav-btn" title="Wallet - Session Solana Wallet">
           <i class="i carbon:wallet"></i>
-          <span>Wallet</span>
+          <!-- <span>Wallets</span> -->
         </button>
-        <button id="mixer-button" class="ciphernet-nav-btn" title="Mixer - Randomize your digital fingerprint">
-          <i class="i carbon:shuffle"></i>
-          <span>Mixer</span>
-        </button>
-        <button id="vpn-button" class="ciphernet-nav-btn" title="VPN - Secure your connection">
-          <i class="i carbon:locked"></i>
-          <span>VPN</span>
-        </button>
+      <button id="mixer-button" class="ciphernet-nav-btn" title="Mixer - Randomize your digital fingerprint">
+        <i class="i carbon:shuffle"></i>
+        <!-- <span>Mixer</span> -->
+      </button>
+      <button id="bridge-button" class="ciphernet-nav-btn" title="Bridge - Cross-chain bridge with privacy">
+        <i class="i carbon:connect"></i>
+        <!-- <span>Bridge</span> -->
+      </button>
+      <button id="vpn-button" class="ciphernet-nav-btn" title="VPN - Secure your connection">
+        <i class="i carbon:locked"></i>
+        <!-- <span>VPN</span> -->
+      </button>
+    </div>
+  </div>
+
+  <!-- Mixer Panel Below Navbar -->
+  <div id="mixer-panel-inline" class="mixer-panel-inline">
+    <div class="mixer-panel-inline-header">
+      <div class="mixer-panel-inline-title">
+        <i class="i carbon:shuffle"></i>
+        <h2>Mixer</h2>
       </div>
+      <button id="mixer-panel-inline-close" class="mixer-close-btn i carbon:close"></button>
     </div>
 
-    <!-- Mixer Panel Below Navbar -->
-    <div id="mixer-panel-inline" class="mixer-panel-inline">
-      <div class="mixer-panel-inline-header">
-        <div class="mixer-panel-inline-title">
-          <i class="i carbon:shuffle"></i>
-          <h2>Mixer</h2>
+    <div class="mixer-panel-inline-content">
+      <!-- How Mixer Works Info -->
+      <div class="mixer-info-section">
+        <div class="mixer-info-header">
+          <i class="i carbon:information"></i>
+          <h3>How Mixer Works</h3>
         </div>
-        <button id="mixer-panel-inline-close" class="mixer-close-btn i carbon:close"></button>
+        <div class="mixer-info-content">
+          <p>The mixer breaks deterministic flow by routing your transaction through multiple hops with randomized
+            timing and amounts. This prevents transaction graph analysis and ensures unlinkability between sender and
+            receiver.</p>
+          <ul>
+            <li>AI-optimized routing paths</li>
+            <li>Randomized timing delays</li>
+            <li>Amount obfuscation</li>
+          </ul>
+        </div>
       </div>
 
-      <div class="mixer-panel-inline-content">
-        <!-- How Mixer Works Info -->
-        <div class="mixer-info-section">
-          <div class="mixer-info-header">
-            <i class="i carbon:information"></i>
-            <h3>How Mixer Works</h3>
+      <!-- Exchange Pair Selection -->
+      <div class="mixer-form-section">
+        <div class="mixer-form-row">
+          <div class="mixer-form-group">
+            <label>From Currency</label>
+            <select id="mixer-from-currency-inline" class="mixer-select">
+              <option value="">Loading...</option>
+            </select>
           </div>
-          <div class="mixer-info-content">
-            <p>The mixer breaks deterministic flow by routing your transaction through multiple hops with randomized timing and amounts. This prevents transaction graph analysis and ensures unlinkability between sender and receiver.</p>
-            <ul>
-              <li>AI-optimized routing paths</li>
-              <li>Randomized timing delays</li>
-              <li>Amount obfuscation</li>
-            </ul>
+          <div class="mixer-swap-icon-inline">
+            <i class="i carbon:arrows-horizontal"></i>
+          </div>
+          <div class="mixer-form-group">
+            <label>To Currency</label>
+            <select id="mixer-to-currency-inline" class="mixer-select">
+              <option value="">Loading...</option>
+            </select>
           </div>
         </div>
 
-        <!-- Exchange Pair Selection -->
-        <div class="mixer-form-section">
-          <div class="mixer-form-row">
-            <div class="mixer-form-group">
-              <label>From Currency</label>
-              <select id="mixer-from-currency-inline" class="mixer-select">
-                <option value="">Loading...</option>
-              </select>
+        <div class="mixer-form-row">
+          <div class="mixer-form-group">
+            <label>Amount</label>
+            <div class="mixer-amount-container">
+              <input type="number" id="mixer-amount-input-inline" class="mixer-input" placeholder="Min 0.0055002 SOL"
+                step="0.00000001" />
+              <button id="mixer-send-max-inline" class="mixer-max-btn">MAX</button>
             </div>
-            <div class="mixer-swap-icon-inline">
-              <i class="i carbon:arrows-horizontal"></i>
-            </div>
-            <div class="mixer-form-group">
-              <label>To Currency</label>
-              <select id="mixer-to-currency-inline" class="mixer-select">
-                <option value="">Loading...</option>
-              </select>
-            </div>
+            <div id="mixer-amount-error-inline" class="mixer-error-text" style="display: none;"></div>
           </div>
 
-          <div class="mixer-form-row">
-            <div class="mixer-form-group">
-              <label>Amount</label>
-              <div class="mixer-amount-container">
-                <input
-                  type="number"
-                  id="mixer-amount-input-inline"
-                  class="mixer-input"
-                  placeholder="Min 0.0055002 SOL"
-                  step="0.00000001"
-                />
-                <button id="mixer-send-max-inline" class="mixer-max-btn">MAX</button>
-              </div>
-              <div id="mixer-amount-error-inline" class="mixer-error-text" style="display: none;"></div>
-            </div>
-
-            <div class="mixer-form-group">
-              <label>Receiving Wallet Address</label>
-              <input
-                type="text"
-                id="mixer-receiving-address-inline"
-                class="mixer-input"
-                placeholder="Enter Wallet Address"
-              />
-              <div id="mixer-address-error-inline" class="mixer-error-text" style="display: none;"></div>
-            </div>
+          <div class="mixer-form-group">
+            <label>Receiving Wallet Address</label>
+            <input type="text" id="mixer-receiving-address-inline" class="mixer-input"
+              placeholder="Enter Wallet Address" />
+            <div id="mixer-address-error-inline" class="mixer-error-text" style="display: none;"></div>
           </div>
+        </div>
 
-          <div class="mixer-estimate-section">
-            <div class="mixer-estimate-label">You will receive approximately:</div>
-            <div id="mixer-estimated-amount-inline" class="mixer-estimate-amount">-</div>
+        <div class="mixer-estimate-section">
+          <div class="mixer-estimate-label">You will receive approximately:</div>
+          <div id="mixer-estimated-amount-inline" class="mixer-estimate-amount">-</div>
+        </div>
+
+        <button id="mixer-create-order-inline" class="mixer-create-btn">
+          <!-- <i class="i carbon:shuffle"></i> -->
+          Create Order
+        </button>
+
+        <!-- Transaction Status -->
+        <div id="mixer-status-section-inline" class="mixer-status-section" style="display: none;">
+          <div class="mixer-status-header">
+            <h3>Last Transaction Status</h3>
+            <span id="mixer-status-badge-inline" class="mixer-status-badge"></span>
           </div>
-
-          <button id="mixer-create-order-inline" class="mixer-create-btn">
-            <!-- <i class="i carbon:shuffle"></i> -->
-            Create Order
-          </button>
-
-          <!-- Transaction Status -->
-          <div id="mixer-status-section-inline" class="mixer-status-section" style="display: none;">
-            <div class="mixer-status-header">
-              <h3>Last Transaction Status</h3>
-              <span id="mixer-status-badge-inline" class="mixer-status-badge"></span>
-            </div>
-            <div id="mixer-status-details-inline" class="mixer-status-details"></div>
-          </div>
+          <div id="mixer-status-details-inline" class="mixer-status-details"></div>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Wallet Panel - Session Solana Wallet -->
-    <div id="wallet-panel" class="wallet-panel">
-      <div class="wallet-panel-header">
-        <div class="wallet-panel-title">
-          <i class="i carbon:wallet"></i>
-          <h2>Session Wallet</h2>
+  <!-- Wallet Panel - Session Solana Wallet -->
+  <div id="wallet-panel" class="wallet-panel">
+    <div class="wallet-panel-header">
+      <div class="wallet-panel-title">
+        <i class="i carbon:wallet"></i>
+        <h2>Session Wallet</h2>
+      </div>
+      <button id="wallet-panel-close" class="wallet-close-btn">
+        <i class="i carbon:close"></i>
+      </button>
+    </div>
+
+    <div class="wallet-panel-content">
+      <!-- Connection Approval (inline - shown when dApp requests) -->
+      <div id="wallet-connect-inline" class="wallet-connect-inline">
+        <div class="wallet-connect-inline-header">
+          <i class="i carbon:connect"></i>
+          <h3>Connection Request</h3>
         </div>
-        <button id="wallet-panel-close" class="wallet-close-btn">
-          <i class="i carbon:close"></i>
-        </button>
+        <div id="wallet-connect-origin-inline" class="wallet-connect-origin-display"></div>
+        <p class="wallet-connect-info-text">This site wants to connect to your wallet and view your address.</p>
+        <div class="wallet-connect-inline-buttons">
+          <button id="wallet-connect-reject-inline" class="wallet-btn wallet-btn-secondary">Reject</button>
+          <button id="wallet-connect-approve-inline" class="wallet-btn wallet-btn-primary">Connect</button>
+        </div>
       </div>
 
-      <div class="wallet-panel-content">
-        <!-- Connection Approval (inline - shown when dApp requests) -->
-        <div id="wallet-connect-inline" class="wallet-connect-inline">
-          <div class="wallet-connect-inline-header">
-            <i class="i carbon:connect"></i>
-            <h3>Connection Request</h3>
-          </div>
-          <div id="wallet-connect-origin-inline" class="wallet-connect-origin-display"></div>
-          <p class="wallet-connect-info-text">This site wants to connect to your wallet and view your address.</p>
-          <div class="wallet-connect-inline-buttons">
-            <button id="wallet-connect-reject-inline" class="wallet-btn wallet-btn-secondary">Reject</button>
-            <button id="wallet-connect-approve-inline" class="wallet-btn wallet-btn-primary">Connect</button>
-          </div>
+      <!-- Transaction Approval (inline) -->
+      <div id="wallet-tx-inline" class="wallet-tx-inline">
+        <div class="wallet-tx-inline-header">
+          <i class="i carbon:security"></i>
+          <h3>Confirm Transaction</h3>
         </div>
-
-        <!-- Transaction Approval (inline) -->
-        <div id="wallet-tx-inline" class="wallet-tx-inline">
-          <div class="wallet-tx-inline-header">
-            <i class="i carbon:security"></i>
-            <h3>Confirm Transaction</h3>
-          </div>
-          <div id="wallet-tx-origin-inline" class="wallet-connect-origin-display"></div>
-          <div id="wallet-tx-warnings-inline" class="wallet-tx-warnings-inline"></div>
-          <div class="wallet-section-label">Transaction Details</div>
-          <div id="wallet-tx-details-inline" class="wallet-tx-details-inline"></div>
-          <div class="wallet-connect-inline-buttons">
-            <button id="wallet-tx-reject-inline" class="wallet-btn wallet-btn-secondary">Reject</button>
-            <button id="wallet-tx-approve-inline" class="wallet-btn wallet-btn-primary">Approve</button>
-          </div>
+        <div id="wallet-tx-origin-inline" class="wallet-connect-origin-display"></div>
+        <div id="wallet-tx-warnings-inline" class="wallet-tx-warnings-inline"></div>
+        <div class="wallet-section-label">Transaction Details</div>
+        <div id="wallet-tx-details-inline" class="wallet-tx-details-inline"></div>
+        <div class="wallet-connect-inline-buttons">
+          <button id="wallet-tx-reject-inline" class="wallet-btn wallet-btn-secondary">Reject</button>
+          <button id="wallet-tx-approve-inline" class="wallet-btn wallet-btn-primary">Approve</button>
         </div>
+      </div>
 
-        <!-- Message Signing (inline) -->
-        <div id="wallet-msg-inline" class="wallet-msg-inline">
-          <div class="wallet-connect-inline-header">
-            <i class="i carbon:pen"></i>
-            <h3>Sign Message</h3>
-          </div>
-          <div id="wallet-msg-origin-inline" class="wallet-connect-origin-display"></div>
-          <div class="wallet-section-label">Message</div>
-          <div id="wallet-msg-content-inline" class="wallet-msg-content-inline"></div>
-          <div class="wallet-connect-inline-buttons">
-            <button id="wallet-msg-reject-inline" class="wallet-btn wallet-btn-secondary">Reject</button>
-            <button id="wallet-msg-approve-inline" class="wallet-btn wallet-btn-primary">Sign</button>
-          </div>
+      <!-- Message Signing (inline) -->
+      <div id="wallet-msg-inline" class="wallet-msg-inline">
+        <div class="wallet-connect-inline-header">
+          <i class="i carbon:pen"></i>
+          <h3>Sign Message</h3>
         </div>
+        <div id="wallet-msg-origin-inline" class="wallet-connect-origin-display"></div>
+        <div class="wallet-section-label">Message</div>
+        <div id="wallet-msg-content-inline" class="wallet-msg-content-inline"></div>
+        <div class="wallet-connect-inline-buttons">
+          <button id="wallet-msg-reject-inline" class="wallet-btn wallet-btn-secondary">Reject</button>
+          <button id="wallet-msg-approve-inline" class="wallet-btn wallet-btn-primary">Sign</button>
+        </div>
+      </div>
 
-        <!-- Session Warning -->
-        <div class="wallet-session-warning">
-          <p><strong>Ephemeral Session Wallet</strong><br>
+      <!-- Session Warning -->
+      <div class="wallet-session-warning">
+        <p><strong>Ephemeral Session Wallet</strong><br>
           This wallet exists only in memory. It is destroyed when the browser closes. Keep balances minimal.</p>
-        </div>
+      </div>
 
-        <!-- Address Section -->
-        <div class="wallet-address-section">
-          <div class="wallet-section-label">Wallet Address</div>
-          <div class="wallet-address-box">
-            <span id="wallet-address-display" class="wallet-address">Loading...</span>
-            <button id="wallet-copy-address" class="wallet-copy-btn">
-              <i class="i carbon:copy"></i> Copy
-            </button>
-          </div>
+      <!-- Address Section -->
+      <div class="wallet-address-section">
+        <div class="wallet-section-label">Wallet Address</div>
+        <div class="wallet-address-box">
+          <span id="wallet-address-display" class="wallet-address">Loading...</span>
+          <button id="wallet-copy-address" class="wallet-copy-btn">
+            <i class="i carbon:copy"></i> Copy
+          </button>
         </div>
+      </div>
 
-        <!-- QR Code -->
-        <!-- <div class="wallet-qr-section">
+      <!-- QR Code -->
+      <!-- <div class="wallet-qr-section">
           <div id="wallet-qr-code" class="wallet-qr-code"></div>
         </div> -->
 
-        <!-- Balance Section -->
-        <div class="wallet-balance-section">
-          <div class="wallet-balance-label">Balance</div>
-          <div id="wallet-balance-amount" class="wallet-balance-amount">0.00 SOL</div>
-          <div id="wallet-balance-usd" class="wallet-balance-usd">≈ $0.00</div>
-        </div>
+      <!-- Balance Section -->
+      <div class="wallet-balance-section">
+        <button id="wallet-balance-refresh-btn" class="wallet-balance-refresh-btn" title="Refresh Balance">
+          <i class="i carbon:renew"></i>
+        </button>
+        <div class="wallet-balance-label">Balance</div>
+        <div id="wallet-balance-amount" class="wallet-balance-amount">0.0000 SOL</div>
+        <div id="wallet-balance-usd" class="wallet-balance-usd">≈ $0.00</div>
+        <button id="wallet-send-sol-btn" class="wallet-send-btn">
+          <i class="i carbon:send-alt"></i> Send
+        </button>
+      </div>
 
-        <!-- Network Selector -->
-        <div class="wallet-network-section">
-          <div class="wallet-section-label">Network</div>
-          <select id="wallet-network-select" class="wallet-network-select">
-            <option value="mainnet-beta">Mainnet</option>
-            <option value="devnet">Devnet</option>
-          </select>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="wallet-actions">
-          <button id="wallet-refresh-btn" class="wallet-btn wallet-btn-primary">
-            <i class="i carbon:renew"></i> Refresh Balance
-          </button>
-          <button id="wallet-export-btn" class="wallet-btn wallet-btn-secondary">
-            <i class="i carbon:download"></i> Export Private Key
+      <!-- Token List Section -->
+      <div class="wallet-tokens-section">
+        <div class="wallet-tokens-header">
+          <div class="wallet-section-label">Tokens</div>
+          <button id="wallet-refresh-tokens-btn" class="wallet-refresh-tokens-btn" title="Refresh Tokens">
+            <i class="i carbon:renew"></i>
           </button>
         </div>
+        <div id="wallet-tokens-list" class="wallet-tokens-list">
+          <div class="wallet-tokens-empty">No tokens found</div>
+        </div>
+      </div>
 
-        <!-- Private Key Display (hidden by default) -->
-        <div id="wallet-private-key-display" class="wallet-private-key-display">
-          <div class="wallet-section-label">Private Key</div>
-          <div id="wallet-private-key-box" class="wallet-private-key-box"></div>
-          <div style="display: flex; gap: 8px; margin-top: 8px;">
-            <button id="wallet-copy-private-key" class="wallet-btn wallet-btn-secondary" style="flex: 1;">Copy Key</button>
-            <button id="wallet-hide-private-key" class="wallet-btn wallet-btn-danger" style="flex: 1;">Hide</button>
+      <!-- Send Modal -->
+      <div id="wallet-send-modal" class="wallet-send-modal">
+        <div class="wallet-send-modal-content">
+          <div class="wallet-send-header">
+            <button id="wallet-send-back-btn" class="wallet-send-back-btn">
+              <i class="i carbon:arrow-left"></i>
+            </button>
+            <h3 id="wallet-send-title">Send SOL</h3>
+            <div class="wallet-send-header-spacer"></div>
+          </div>
+
+          <div class="wallet-send-body">
+            <!-- Asset being sent -->
+            <div class="wallet-send-asset">
+              <div class="wallet-send-asset-icon" id="wallet-send-asset-icon">
+                <i class="i carbon:currency"></i>
+              </div>
+              <div class="wallet-send-asset-info">
+                <span id="wallet-send-asset-symbol" class="wallet-send-asset-symbol">SOL</span>
+                <span id="wallet-send-asset-balance" class="wallet-send-asset-balance">Balance: 0.0000</span>
+              </div>
+            </div>
+
+            <!-- Recipient Address -->
+            <div class="wallet-send-field">
+              <label for="wallet-send-recipient">Recipient Address</label>
+              <input type="text" id="wallet-send-recipient" class="wallet-send-input" placeholder="Enter Solana address">
+              <span id="wallet-send-recipient-error" class="wallet-send-error"></span>
+            </div>
+
+            <!-- Amount -->
+            <div class="wallet-send-field">
+              <label for="wallet-send-amount">Amount</label>
+              <div class="wallet-send-amount-container">
+                <input type="number" id="wallet-send-amount" class="wallet-send-input" placeholder="0.00" step="any">
+                <button id="wallet-send-max-btn" class="wallet-send-max-btn">MAX</button>
+              </div>
+              <span id="wallet-send-amount-error" class="wallet-send-error"></span>
+            </div>
+
+            <!-- Fee Estimate -->
+            <div class="wallet-send-fee">
+              <span>Network Fee</span>
+              <span id="wallet-send-fee-amount">~0.000005 SOL</span>
+            </div>
+
+            <!-- Summary -->
+            <div class="wallet-send-summary" id="wallet-send-summary" style="display: none;">
+              <div class="wallet-send-summary-row">
+                <span>You're sending</span>
+                <span id="wallet-send-summary-amount">0 SOL</span>
+              </div>
+              <div class="wallet-send-summary-row">
+                <span>To</span>
+                <span id="wallet-send-summary-recipient" class="wallet-send-summary-address">...</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="wallet-send-footer">
+            <button id="wallet-send-cancel-btn" class="wallet-btn wallet-btn-secondary">Cancel</button>
+            <button id="wallet-send-confirm-btn" class="wallet-btn wallet-btn-primary" disabled>Send</button>
           </div>
         </div>
 
-        <!-- Export Warning Overlay -->
-        <div id="wallet-export-warning" class="wallet-export-warning">
-          <div class="wallet-export-warning-content">
-            <h3>Export Private Key?</h3>
-            <p>Your private key gives full access to this wallet. Never share it with anyone. Only export if you need to import this wallet into Phantom or another app.</p>
-            <div class="wallet-export-warning-buttons">
-              <button id="wallet-export-cancel" class="wallet-btn wallet-btn-secondary">Cancel</button>
-              <button id="wallet-export-confirm" class="wallet-btn wallet-btn-primary">Show Key</button>
-            </div>
+        <!-- Sending State -->
+        <div id="wallet-send-processing" class="wallet-send-processing" style="display: none;">
+          <div class="wallet-send-processing-spinner"></div>
+          <p>Sending transaction...</p>
+        </div>
+
+        <!-- Success State -->
+        <div id="wallet-send-success" class="wallet-send-success" style="display: none;">
+          <div class="wallet-send-success-icon">
+            <i class="i carbon:checkmark-filled"></i>
+          </div>
+          <h3>Transaction Sent!</h3>
+          <p id="wallet-send-success-message">Your transaction has been submitted.</p>
+          <a id="wallet-send-explorer-link" href="#" target="_blank" class="wallet-send-explorer-link">
+            View on Explorer <i class="i carbon:launch"></i>
+          </a>
+          <button id="wallet-send-done-btn" class="wallet-btn wallet-btn-primary">Done</button>
+        </div>
+
+        <!-- Error State -->
+        <div id="wallet-send-error" class="wallet-send-error-state" style="display: none;">
+          <div class="wallet-send-error-icon">
+            <i class="i carbon:close-filled"></i>
+          </div>
+          <h3>Transaction Failed</h3>
+          <p id="wallet-send-error-message">An error occurred.</p>
+          <button id="wallet-send-retry-btn" class="wallet-btn wallet-btn-primary">Try Again</button>
+        </div>
+      </div>
+
+      <!-- Network Selector -->
+      <div class="wallet-network-section">
+        <div class="wallet-section-label">Network</div>
+        <select id="wallet-network-select" class="wallet-network-select">
+          <option value="mainnet-beta">Mainnet</option>
+          <option value="devnet">Devnet</option>
+        </select>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="wallet-actions">
+        <button id="wallet-export-btn" class="wallet-btn wallet-btn-secondary">
+          <i class="i carbon:download"></i> Export Private Key
+        </button>
+      </div>
+
+      <!-- Private Key Display (hidden by default) -->
+      <div id="wallet-private-key-display" class="wallet-private-key-display">
+        <div class="wallet-section-label">Private Key</div>
+        <div id="wallet-private-key-box" class="wallet-private-key-box"></div>
+        <div style="display: flex; gap: 8px; margin-top: 8px;">
+          <button id="wallet-copy-private-key" class="wallet-btn wallet-btn-secondary" style="flex: 1;">Copy
+            Key</button>
+          <button id="wallet-hide-private-key" class="wallet-btn wallet-btn-danger" style="flex: 1;">Hide</button>
+        </div>
+      </div>
+
+      <!-- Export Warning Overlay -->
+      <div id="wallet-export-warning" class="wallet-export-warning">
+        <div class="wallet-export-warning-content">
+          <h3>Export Private Key?</h3>
+          <p>Your private key gives full access to this wallet. Never share it with anyone.</p>
+          <div class="wallet-export-warning-buttons">
+            <button id="wallet-export-cancel" class="wallet-btn wallet-btn-secondary">Cancel</button>
+            <button id="wallet-export-confirm" class="wallet-btn wallet-btn-primary">Show Key</button>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <button
-      id="switch-task-button"
-      class="navbar-action-button theme-text-color windowDragHandle i"
-      data-label="viewTasks"
-      tabindex="-1"
-    >
-      <svg
-        version="1.1"
-        viewBox="0.0 0.0 26.0 26.0"
-        fill="none"
-        stroke="none"
-        stroke-linecap="square"
-        stroke-miterlimit="10"
-        xmlns:xlink="http://www.w3.org/1999/xlink"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <g clip-path="url(#p.0)">
-          <path
-            fill="currentColor"
-            d="m0 0l32 0l0 4l-32 0z"
-            fill-rule="evenodd"
-          />
-          <path
-            fill="currentColor"
-            d="m0 11l32 0l0 4l-32 0z"
-            fill-rule="evenodd"
-          />
-          <path
-            fill="currentColor"
-            d="m0 22l32 0l0 4l-32 0z"
-            fill-rule="evenodd"
-          />
-        </g>
-      </svg>
-    </button>
+  <button id="switch-task-button" class="navbar-action-button theme-text-color windowDragHandle i"
+    data-label="viewTasks" tabindex="-1">
+    <svg version="1.1" viewBox="0.0 0.0 26.0 26.0" fill="none" stroke="none" stroke-linecap="square"
+      stroke-miterlimit="10" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+      <g clip-path="url(#p.0)">
+        <path fill="currentColor" d="m0 0l32 0l0 4l-32 0z" fill-rule="evenodd" />
+        <path fill="currentColor" d="m0 11l32 0l0 4l-32 0z" fill-rule="evenodd" />
+        <path fill="currentColor" d="m0 22l32 0l0 4l-32 0z" fill-rule="evenodd" />
+      </g>
+    </svg>
+  </button>
 
-    <div id="searchbar" class="theme-background-color theme-text-color">
-      <div class="top-answer-area"></div>
-    </div>
+  <div id="searchbar" class="theme-background-color theme-text-color">
+    <div class="top-answer-area"></div>
+  </div>
 
-    <!-- <div id="cipher-toolbar-buttons">
+  <!-- <div id="cipher-toolbar-buttons">
       <button id="mixer-button" class="cipher-toolbar-btn" title="Mixer">
         <i class="i carbon:shuffle"></i>
         <span>Mixer</span>
@@ -484,294 +506,460 @@
       </button>
     </div> -->
 
-    <div id="overlay"></div>
+  <div id="overlay"></div>
 
-    <div id="webviews">
-      <div id="leftArrowContainer" class="arrow-indicator">
-        <i id="leftArrow" class="i carbon:chevron-left"></i>
-      </div>
-      <div id="rightArrowContainer" class="arrow-indicator">
-        <i id="rightArrow" class="i carbon:chevron-right"></i>
-      </div>
-      <img id="webview-placeholder" hidden aria-hidden="true" />
-      <div id="ntp-content">
-          <img id="ntp-background" hidden>
-          <div id="ntp-background-controls">
-            <button id="ntp-image-remove"><i class="i carbon:trash-can"></i></button>
-            <button id="ntp-image-picker"><i class="i carbon:camera"></i></button>
-          </div>
+  <div id="webviews">
+    <div id="leftArrowContainer" class="arrow-indicator">
+      <i id="leftArrow" class="i carbon:chevron-left"></i>
+    </div>
+    <div id="rightArrowContainer" class="arrow-indicator">
+      <i id="rightArrow" class="i carbon:chevron-right"></i>
+    </div>
+    <img id="webview-placeholder" hidden aria-hidden="true" />
+    <div id="ntp-content">
+      <img id="ntp-background" hidden>
+      <div id="ntp-background-controls">
+        <button id="ntp-image-remove"><i class="i carbon:trash-can"></i></button>
+        <button id="ntp-image-picker"><i class="i carbon:camera"></i></button>
       </div>
     </div>
+  </div>
 
-    <!-- findinpage ui -->
+  <!-- findinpage ui -->
 
-    <div
-      id="findinpage-bar"
-      hidden
-      class="theme-background-color theme-text-color"
-    >
-      <input id="findinpage-input" />
-      <span id="findinpage-count" class="inline-text"></span>
-      <div class="divider"></div>
-      <button id="findinpage-previous-match">
-        <i class="i carbon:chevron-up navbar-action-button"></i>
-      </button>
-      <button id="findinpage-next-match">
-        <i class="i carbon:chevron-down navbar-action-button"></i>
-      </button>
-      <div class="divider"></div>
-      <button id="findinpage-end">
-        <i class="i carbon:close navbar-action-button"></i>
-      </button>
-    </div>
+  <div id="findinpage-bar" hidden class="theme-background-color theme-text-color">
+    <input id="findinpage-input" />
+    <span id="findinpage-count" class="inline-text"></span>
+    <div class="divider"></div>
+    <button id="findinpage-previous-match">
+      <i class="i carbon:chevron-up navbar-action-button"></i>
+    </button>
+    <button id="findinpage-next-match">
+      <i class="i carbon:chevron-down navbar-action-button"></i>
+    </button>
+    <div class="divider"></div>
+    <button id="findinpage-end">
+      <i class="i carbon:close navbar-action-button"></i>
+    </button>
+  </div>
 
-    <div id="task-overlay" class="" hidden tabindex="-1">
-      <div
-        class="simulated-navbar windowDragHandle"
-        id="task-overlay-navbar"
-      >
+  <div id="task-overlay" class="" hidden tabindex="-1">
+    <div class="simulated-navbar windowDragHandle" id="task-overlay-navbar">
       <div class="task-search-input-container">
         <i class="i carbon:search"></i>
-        <input type="search" id="task-search-input"/>
+        <input type="search" id="task-search-input" />
       </div>
     </div>
-      <div id="task-area"></div>
-      <button id="add-task">
-        <i class="i carbon:new-tab"></i>
-        <span></span>
+    <div id="task-area"></div>
+    <button id="add-task">
+      <i class="i carbon:new-tab"></i>
+      <span></span>
+    </button>
+  </div>
+
+  <div id="download-bar" hidden>
+    <div id="download-container" role="list" class="has-thin-scrollbar"></div>
+    <button id="download-close-button" class="i carbon:close"></button>
+  </div>
+
+  <!-- Mixer Panel -->
+  <div id="mixer-panel" class="mixer-panel">
+    <div class="mixer-panel-header">
+      <div class="mixer-panel-title">
+        <i class="i carbon:shuffle"></i>
+        <h2>Mixer</h2>
+      </div>
+      <button id="mixer-panel-close" class="mixer-close-btn i carbon:close"></button>
+    </div>
+
+    <div class="mixer-panel-content">
+      <!-- Form View -->
+      <div id="mixer-form-view" style="display: flex; flex-direction: column; gap: 16px;">
+        <!-- Error Message -->
+        <div id="mixer-error-message"
+          style="display: none; background: #ff555520; border: 1px solid #ff5555; border-radius: 8px; padding: 12px; color: #ff5555; font-size: 13px;">
+        </div>
+
+        <!-- How Mixer Works Info -->
+        <div class="mixer-info-section">
+          <div class="mixer-info-header">
+            <i class="i carbon:information"></i>
+            <h3>How Mixer Works</h3>
+          </div>
+          <div class="mixer-info-content">
+            <p>The mixer breaks deterministic flow by routing your transaction through multiple hops with randomized
+              timing and amounts. This prevents transaction graph analysis and ensures unlinkability between sender and
+              receiver.</p>
+            <ul>
+              <li>Optimized routing paths</li>
+              <li>Randomized timing delays</li>
+              <li>Amount obfuscation</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Exchange Pair Selection -->
+        <div class="mixer-form-group">
+          <label>Exchange Pair</label>
+          <select id="mixer-pair-select" class="mixer-select">
+            <option value="">Loading...</option>
+          </select>
+        </div>
+
+        <!-- Amount Input -->
+        <div class="mixer-form-group">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <label style="margin: 0;">Amount</label>
+            <span id="mixer-min-amount" style="font-size: 12px; color: #888;"></span>
+          </div>
+          <input type="number" id="mixer-amount-input" class="mixer-input" placeholder="0.5" step="0.00000001"
+            min="0" />
+        </div>
+        <!-- Estimated Amount -->
+        <div
+          style="background: #f1f3f4; border-radius: 8px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 13px; color: #5f6368;">Estimated to receive:</span>
+          <span id="mixer-estimated-amount" style="font-size: 14px; font-weight: 600; color: #000;">-</span>
+        </div>
+
+        <!-- Receiving Wallet Address -->
+        <div class="mixer-form-group">
+          <label>Enter Receiving Wallet Address</label>
+          <input type="text" id="mixer-receiving-address" class="mixer-input" placeholder="Enter Wallet Address" />
+        </div>
+
+
+        <!-- Create Order Button -->
+        <button id="mixer-create-order" class="mixer-create-btn">
+          <!-- <i class="i carbon:shuffle"></i> -->
+          Create Order
+        </button>
+      </div>
+
+      <!-- Order View -->
+      <div id="mixer-order-view" style="display: none; flex-direction: column; gap: 12px;">
+        <div
+          style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #e0e0e0;">
+          <span style="font-size: 13px; color: #5f6368;">Order ID:</span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span id="mixer-order-id" style="font-size: 13px; font-weight: 500;"></span>
+            <button id="mixer-copy-order-id"
+              style="background: none; border: none; cursor: pointer; color: #ffffff; font-size: 16px;">📋</button>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0;">
+          <span style="font-size: 13px; color: #5f6368;">Please Send:</span>
+          <span id="mixer-send-amount" style="font-size: 13px; font-weight: 500;"></span>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0;">
+          <span style="font-size: 13px; color: #5f6368;">Send To:</span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span id="mixer-send-address" style="font-size: 13px; font-weight: 500;"></span>
+            <button id="mixer-copy-send-address"
+              style="background: none; border: none; cursor: pointer; color: #ffffff; font-size: 16px;">📋</button>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0;">
+          <span style="font-size: 13px; color: #5f6368;">You will receive:</span>
+          <span id="mixer-receive-amount" style="font-size: 13px; font-weight: 500; color: #ffffff;"></span>
+        </div>
+
+        <div
+          style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0;color: black; background: #fff; border-radius: 8px; padding: 12px;">
+          <span style="font-size: 13px; font-weight: 600;">⏱️ Time Remaining:</span>
+          <span id="mixer-time-remaining" style="font-size: 16px; font-weight: 700;">30:00</span>
+        </div>
+
+        <!-- Progress Bar -->
+        <div
+          style="width: 100%; background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden; margin: 8px 0;">
+          <div id="mixer-progress-bar" style="height: 100%; background: #000; width: 0%; transition: width 0.5s ease;">
+          </div>
+        </div>
+
+        <div
+          style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #e0e0e0;">
+          <span style="font-size: 13px; color: #5f6368;">Status</span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span id="mixer-status-text" style="font-size: 13px; font-weight: 500;">Awaiting Deposit</span>
+            <button id="mixer-refresh-status"
+              style="background: none; border: 1px solid #ffffff; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; color: #ffffff; display: flex; align-items: center; justify-content: center;">↻</button>
+          </div>
+        </div>
+
+        <button id="mixer-cancel-order"
+          style="width: 100%; padding: 12px; background: #ff555520; border: 1px solid #ff5555; border-radius: 8px; color: #ff5555; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.2s;">
+          Cancel Order
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bridge Panel -->
+  <div id="bridge-panel" class="bridge-panel">
+    <div class="bridge-panel-header">
+      <div class="bridge-panel-title">
+        <i class="i carbon:connect"></i>
+        <h2>Bridge</h2>
+      </div>
+      <button id="bridge-panel-close" class="bridge-close-btn">
+        <i class="i carbon:close"></i>
       </button>
     </div>
 
-    <div id="download-bar" hidden>
-      <div id="download-container" role="list" class="has-thin-scrollbar"></div>
-      <button id="download-close-button" class="i carbon:close"></button>
-    </div>
-
-    <!-- Mixer Panel -->
-    <div id="mixer-panel" class="mixer-panel">
-      <div class="mixer-panel-header">
-        <div class="mixer-panel-title">
-          <i class="i carbon:shuffle"></i>
-          <h2>Mixer</h2>
-        </div>
-        <button id="mixer-panel-close" class="mixer-close-btn i carbon:close"></button>
+    <div class="bridge-panel-content">
+      <!-- Error Message -->
+      <div id="bridge-error-message" class="bridge-error-message hidden">
+        <i class="i carbon:warning"></i>
+        <span></span>
       </div>
 
-      <div class="mixer-panel-content">
-        <!-- Form View -->
-        <div id="mixer-form-view" style="display: flex; flex-direction: column; gap: 16px;">
-          <!-- Error Message -->
-          <div id="mixer-error-message" style="display: none; background: #ff555520; border: 1px solid #ff5555; border-radius: 8px; padding: 12px; color: #ff5555; font-size: 13px;"></div>
-
-          <!-- How Mixer Works Info -->
-          <div class="mixer-info-section">
-            <div class="mixer-info-header">
-              <i class="i carbon:information"></i>
-              <h3>How Mixer Works</h3>
+      <!-- Form View -->
+      <div id="bridge-form-view" class="bridge-form-view">
+        <!-- Privacy Mode Selector -->
+        <!-- <div class="bridge-privacy-section">
+            <div class="bridge-section-label">Privacy Mode</div>
+            <div class="bridge-privacy-modes">
+              <button class="bridge-privacy-mode active" data-privacy="standard">
+                <i class="i carbon:rocket"></i>
+                <span class="bridge-privacy-mode-name">Standard</span>
+                <span class="bridge-privacy-mode-desc">Quick & basic privacy</span>
+              </button>
+              <button class="bridge-privacy-mode" data-privacy="private">
+                <i class="i carbon:shield"></i>
+                <span class="bridge-privacy-mode-name">Private</span>
+                <span class="bridge-privacy-mode-desc">Balanced privacy & speed</span>
+              </button>
+              <button class="bridge-privacy-mode" data-privacy="xmr">
+                <i class="i carbon:security"></i>
+                <span class="bridge-privacy-mode-name">XMR</span>
+                <span class="bridge-privacy-mode-desc">Maximum privacy protection</span>
+              </button>
             </div>
-            <div class="mixer-info-content">
-              <p>The mixer breaks deterministic flow by routing your transaction through multiple hops with randomized timing and amounts. This prevents transaction graph analysis and ensures unlinkability between sender and receiver.</p>
-              <ul>
-                <li>Optimized routing paths</li>
-                <li>Randomized timing delays</li>
-                <li>Amount obfuscation</li>
-              </ul>
+          </div> -->
+
+        <!-- From Section -->
+        <div class="bridge-from-section">
+          <div class="bridge-section-label">From</div>
+          <div class="bridge-input-group">
+            <div class="bridge-network-currency-row">
+              <div class="bridge-select-wrapper">
+                <select id="bridge-from-network" class="bridge-select">
+                  <option value="">Select Network</option>
+                </select>
+              </div>
+              <div class="bridge-select-wrapper">
+                <select id="bridge-from-currency" class="bridge-select">
+                  <option value="">Select Currency</option>
+                </select>
+              </div>
             </div>
+            <input type="number" id="bridge-from-amount" class="bridge-amount-input" placeholder="Enter amount"
+              step="0.00000001" min="0" />
           </div>
+        </div>
 
-          <!-- Exchange Pair Selection -->
-          <div class="mixer-form-group">
-            <label>Exchange Pair</label>
-            <select id="mixer-pair-select" class="mixer-select">
-              <option value="">Loading...</option>
-            </select>
-          </div>
-
-          <!-- Amount Input -->
-          <div class="mixer-form-group">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-              <label style="margin: 0;">Amount</label>
-              <span id="mixer-min-amount" style="font-size: 12px; color: #888;"></span>
-            </div>
-            <input
-              type="number"
-              id="mixer-amount-input"
-              class="mixer-input"
-              placeholder="0.5"
-              step="0.00000001"
-              min="0"
-            />
-          </div>
-   <!-- Estimated Amount -->
-          <div style="background: #f1f3f4; border-radius: 8px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-size: 13px; color: #5f6368;">Estimated to receive:</span>
-            <span id="mixer-estimated-amount" style="font-size: 14px; font-weight: 600; color: #000;">-</span>
-          </div>
-
-          <!-- Receiving Wallet Address -->
-          <div class="mixer-form-group">
-            <label>Enter Receiving Wallet Address</label>
-            <input
-              type="text"
-              id="mixer-receiving-address"
-              class="mixer-input"
-              placeholder="Enter Wallet Address"
-            />
-          </div>
-
-       
-          <!-- Create Order Button -->
-          <button id="mixer-create-order" class="mixer-create-btn">
-            <!-- <i class="i carbon:shuffle"></i> -->
-            Create Order
+        <!-- Swap Direction Button -->
+        <div class="bridge-swap-direction">
+          <button id="bridge-swap-direction-btn" class="bridge-swap-btn">
+            <i class="i carbon:arrows-vertical"></i>
           </button>
         </div>
 
-        <!-- Order View -->
-        <div id="mixer-order-view" style="display: none; flex-direction: column; gap: 12px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #e0e0e0;">
-            <span style="font-size: 13px; color: #5f6368;">Order ID:</span>
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span id="mixer-order-id" style="font-size: 13px; font-weight: 500;"></span>
-              <button id="mixer-copy-order-id" style="background: none; border: none; cursor: pointer; color: #ffffff; font-size: 16px;">📋</button>
+        <!-- To Section -->
+        <div class="bridge-to-section">
+          <div class="bridge-section-label">To</div>
+          <div class="bridge-input-group">
+            <div class="bridge-network-currency-row">
+              <div class="bridge-select-wrapper">
+                <select id="bridge-to-network" class="bridge-select">
+                  <option value="">Select Network</option>
+                </select>
+              </div>
+              <div class="bridge-select-wrapper">
+                <select id="bridge-to-currency" class="bridge-select">
+                  <option value="">Select Currency</option>
+                </select>
+              </div>
             </div>
           </div>
-
-          <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0;">
-            <span style="font-size: 13px; color: #5f6368;">Please Send:</span>
-            <span id="mixer-send-amount" style="font-size: 13px; font-weight: 500;"></span>
-          </div>
-
-          <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0;">
-            <span style="font-size: 13px; color: #5f6368;">Send To:</span>
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span id="mixer-send-address" style="font-size: 13px; font-weight: 500;"></span>
-              <button id="mixer-copy-send-address" style="background: none; border: none; cursor: pointer; color: #ffffff; font-size: 16px;">📋</button>
-            </div>
-          </div>
-
-          <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0;">
-            <span style="font-size: 13px; color: #5f6368;">You will receive:</span>
-            <span id="mixer-receive-amount" style="font-size: 13px; font-weight: 500; color: #ffffff;"></span>
-          </div>
-
-          <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0;color: black; background: #fff; border-radius: 8px; padding: 12px;">
-            <span style="font-size: 13px; font-weight: 600;">⏱️ Time Remaining:</span>
-            <span id="mixer-time-remaining" style="font-size: 16px; font-weight: 700;">30:00</span>
-          </div>
-
-          <!-- Progress Bar -->
-          <div style="width: 100%; background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden; margin: 8px 0;">
-            <div id="mixer-progress-bar" style="height: 100%; background: #000; width: 0%; transition: width 0.5s ease;"></div>
-          </div>
-
-          <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #e0e0e0;">
-            <span style="font-size: 13px; color: #5f6368;">Status</span>
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span id="mixer-status-text" style="font-size: 13px; font-weight: 500;">Awaiting Deposit</span>
-              <button id="mixer-refresh-status" style="background: none; border: 1px solid #ffffff; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; color: #ffffff; display: flex; align-items: center; justify-content: center;">↻</button>
-            </div>
-          </div>
-
-          <button id="mixer-cancel-order" style="width: 100%; padding: 12px; background: #ff555520; border: 1px solid #ff5555; border-radius: 8px; color: #ff5555; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.2s;">
-            Cancel Order
-          </button>
         </div>
+
+        <!-- Recipient Address -->
+        <div class="bridge-recipient-section">
+          <div class="bridge-section-label">Recipient Address</div>
+          <input type="text" id="bridge-recipient-address" class="bridge-address-input"
+            placeholder="Enter destination wallet address" />
+          <!-- <div class="bridge-address-hint">Auto-filled with your CipherNet wallet address</div> -->
+        </div>
+
+        <!-- Simulation Results -->
+        <div id="bridge-simulation-section" class="bridge-simulation-section" style="display: none;">
+          <div class="bridge-simulation-row">
+            <span class="bridge-simulation-label">Estimated Output</span>
+            <span id="bridge-estimated-output" class="bridge-simulation-value highlight">-</span>
+          </div>
+          <div class="bridge-simulation-row">
+            <span class="bridge-simulation-label">Fee</span>
+            <span id="bridge-fee" class="bridge-simulation-value">-</span>
+          </div>
+          <div class="bridge-simulation-row">
+            <span class="bridge-simulation-label">Estimated Time</span>
+            <span id="bridge-estimated-time" class="bridge-simulation-value">-</span>
+          </div>
+          <div class="bridge-simulation-row">
+            <span class="bridge-simulation-label">Min Input</span>
+            <span id="bridge-min-input" class="bridge-simulation-value">-</span>
+          </div>
+          <!-- <div class="bridge-simulation-row">
+              <span class="bridge-simulation-label">Max Input</span>
+              <span id="bridge-max-input" class="bridge-simulation-value">-</span>
+            </div> -->
+          <div id="bridge-warning-message" class="bridge-warning-message hidden">
+            <i class="i carbon:warning"></i>
+            <span></span>
+          </div>
+        </div>
+
+        <!-- Create Bridge Button -->
+        <button id="bridge-create-btn" class="bridge-create-btn" disabled>
+          <i class="i carbon:arrow-right"></i>
+          Create Bridge
+        </button>
+      </div>
+
+      <!-- Order View -->
+      <div id="bridge-order-view" class="bridge-order-view">
+        <!-- Order Header -->
+        <div class="bridge-order-header">
+          <div id="bridge-order-id" class="bridge-order-id" title="Click to copy">Order: <span>-</span></div>
+          <button id="bridge-copy-order-id" class="bridge-copy-order-id-btn" title="Copy Order ID">
+            <i class="i carbon:copy"></i>
+          </button>
+          <div id="bridge-status-badge" class="bridge-status-badge waiting">Waiting for deposit</div>
+        </div>
+
+        <!-- Deposit Section -->
+        <div class="bridge-deposit-section">
+          <div class="bridge-deposit-label">Send funds to continue</div>
+          <div id="bridge-deposit-instruction" class="bridge-deposit-instruction">Send funds to this address</div>
+          <div class="bridge-deposit-address-box">
+            <span id="bridge-deposit-address" class="bridge-deposit-address">-</span>
+            <button id="bridge-copy-deposit" class="bridge-copy-btn">
+              <i class="i carbon:copy"></i>
+              Copy
+            </button>
+          </div>
+          <div id="bridge-deposit-amount" class="bridge-deposit-amount">
+            Send <strong>- -</strong> to this address
+          </div>
+        </div>
+
+        <!-- Progress Steps -->
+        <div class="bridge-progress-section">
+          <div class="bridge-progress-steps">
+            <div class="bridge-progress-step active" data-step="1">
+              <div class="bridge-step-icon"><i class="i carbon:time"></i></div>
+              <span class="bridge-step-label">Waiting</span>
+            </div>
+            <div class="bridge-progress-step" data-step="2">
+              <div class="bridge-step-icon"><i class="i carbon:checkmark"></i></div>
+              <span class="bridge-step-label">Confirming</span>
+            </div>
+            <div class="bridge-progress-step" data-step="3">
+              <div class="bridge-step-icon"><i class="i carbon:shuffle"></i></div>
+              <span class="bridge-step-label">Exchanging</span>
+            </div>
+            <div class="bridge-progress-step" data-step="4">
+              <div class="bridge-step-icon"><i class="i carbon:send"></i></div>
+              <span class="bridge-step-label">Sending</span>
+            </div>
+            <div class="bridge-progress-step" data-step="5">
+              <div class="bridge-step-icon"><i class="i carbon:checkmark-filled"></i></div>
+              <span class="bridge-step-label">Done</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Order Details -->
+        <div class="bridge-order-details">
+          <div class="bridge-order-row">
+            <span class="bridge-order-label">You Send</span>
+            <span id="bridge-order-from-amount" class="bridge-order-value">-</span>
+          </div>
+          <div class="bridge-order-row">
+            <span class="bridge-order-label">You Receive</span>
+            <span id="bridge-order-to-amount" class="bridge-order-value">-</span>
+          </div>
+        </div>
+
+        <!-- New Order Button -->
+        <button id="bridge-new-order-btn" class="bridge-new-order-btn">
+          Start New Bridge
+        </button>
       </div>
     </div>
+  </div>
 
-    <div class="modal" id="manager-setup-dialog" hidden>
-      <h3 class="modal-title" id="manager-setup-heading"></h3>
-      <button
-        id="manager-setup-close"
-        class="modal-close-button i carbon:close"
-      ></button>
+  <div class="modal" id="manager-setup-dialog" hidden>
+    <h3 class="modal-title" id="manager-setup-heading"></h3>
+    <button id="manager-setup-close" class="modal-close-button i carbon:close"></button>
 
-      <div id="manager-setup-instructions-primary">
-        <div
-          class="light-fade"
-          data-string="passwordManagerSetupStep1"
-          data-allowHTML
-        ></div>
-        <div class="spacer"></div>
-        <div
-          class="light-fade"
-          data-string="passwordManagerSetupStep2"
-          data-allowHTML
-        ></div>
-      </div>
-
-      <div id="manager-setup-instructions-secondary">
-        <div
-          class="light-fade"
-          data-string="passwordManagerInstallerSetup"
-          data-allowHTML
-        ></div>
-      </div>
-
+    <div id="manager-setup-instructions-primary">
+      <div class="light-fade" data-string="passwordManagerSetupStep1" data-allowHTML></div>
       <div class="spacer"></div>
-
-      <div
-        id="manager-setup-drop-box"
-        class="drag-and-drop-box"
-        data-string="passwordManagerSetupDragBox"
-      ></div>
-
-      <div class="spacer"></div>
-      <div class="spacer"></div>
-
-      <div class="buttons">
-        <input
-          type="button"
-          id="manager-setup-disable"
-          data-value="disableAutofill"
-        />
-      </div>
+      <div class="light-fade" data-string="passwordManagerSetupStep2" data-allowHTML></div>
     </div>
 
-    <div id="password-capture-bar" hidden>
-      <span id="password-capture-description"></span>
-      <input id="password-capture-username" type="text" required />
-      <span class="password-capture-section">
-        <input id="password-capture-password" type="password" required />
-        <button
-          id="password-capture-reveal-password"
-          class="i carbon:view"
-        ></button>
-      </span>
-      <span class="password-capture-section">
-        <button
-          id="password-capture-save"
-          data-string="passwordCaptureSave"
-        ></button>
-        <button
-          id="password-capture-ignore"
-          data-string="passwordCaptureDontSave"
-        ></button>
-      </span>
-      <button
-      id="password-capture-never-save"
-      data-string="passwordCaptureNeverSave"
-      ></button>
+    <div id="manager-setup-instructions-secondary">
+      <div class="light-fade" data-string="passwordManagerInstallerSetup" data-allowHTML></div>
     </div>
 
-    <div id="password-viewer" class="modal" hidden>
-      <h2 class="modal-title" data-string="savedPasswordsHeading"></h2>
-      <button class="modal-close-button i carbon:close"></button>
-      <div
-        id="password-viewer-empty"
-        data-string="savedPasswordsEmpty"
-        hidden
-      ></div>
-      <div id="password-viewer-list"></div>
-      <div id="password-viewer-import-container">
-        <button id="password-viewer-import"><span class="i carbon:document-import"></span><span data-string="importCredentials"></span></button>
-        <button id="password-viewer-export"><span class="i carbon:export"></span><span data-string="exportCredentials"></span></button>
-</div>
+    <div class="spacer"></div>
+
+    <div id="manager-setup-drop-box" class="drag-and-drop-box" data-string="passwordManagerSetupDragBox"></div>
+
+    <div class="spacer"></div>
+    <div class="spacer"></div>
+
+    <div class="buttons">
+      <input type="button" id="manager-setup-disable" data-value="disableAutofill" />
     </div>
+  </div>
 
-    <!-- add scripts in Gruntfile.js -->
+  <div id="password-capture-bar" hidden>
+    <span id="password-capture-description"></span>
+    <input id="password-capture-username" type="text" required />
+    <span class="password-capture-section">
+      <input id="password-capture-password" type="password" required />
+      <button id="password-capture-reveal-password" class="i carbon:view"></button>
+    </span>
+    <span class="password-capture-section">
+      <button id="password-capture-save" data-string="passwordCaptureSave"></button>
+      <button id="password-capture-ignore" data-string="passwordCaptureDontSave"></button>
+    </span>
+    <button id="password-capture-never-save" data-string="passwordCaptureNeverSave"></button>
+  </div>
 
-    <script src="dist/bundle.js"></script>
-  </body>
+  <div id="password-viewer" class="modal" hidden>
+    <h2 class="modal-title" data-string="savedPasswordsHeading"></h2>
+    <button class="modal-close-button i carbon:close"></button>
+    <div id="password-viewer-empty" data-string="savedPasswordsEmpty" hidden></div>
+    <div id="password-viewer-list"></div>
+    <div id="password-viewer-import-container">
+      <button id="password-viewer-import"><span class="i carbon:document-import"></span><span
+          data-string="importCredentials"></span></button>
+      <button id="password-viewer-export"><span class="i carbon:export"></span><span
+          data-string="exportCredentials"></span></button>
+    </div>
+  </div>
+
+  <!-- add scripts in Gruntfile.js -->
+
+  <script src="dist/bundle.js"></script>
+</body>
+
 </html>
