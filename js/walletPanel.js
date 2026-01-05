@@ -1,6 +1,7 @@
 // Wallet Panel UI Controller
 const webviews = require('./webviews.js')
 const ipc = require('electron').ipcRenderer
+const browserUI = require('./browserUI.js')
 
 const walletPanel = {
   panel: null,
@@ -21,7 +22,7 @@ const walletPanel = {
   // Send modal state
   sendModalOpen: false,
   sendAsset: null, // { type: 'sol' } or { type: 'token', mint, symbol, balance, decimals, logo }
-  estimatedFee: 0.000005,
+  estimatedFee: 0.00001, // 10000 lamports buffer for fee variations
 
   // Pending approval requests
   pendingConnectRequest: null,
@@ -244,6 +245,17 @@ const walletPanel = {
     if (this.elements.sendRetryBtn) {
       this.elements.sendRetryBtn.addEventListener('click', () => this.resetSendModal())
     }
+    if (this.elements.sendExplorerLink) {
+      this.elements.sendExplorerLink.addEventListener('click', (e) => {
+        e.preventDefault()
+        const url = this.elements.sendExplorerLink.href
+        if (url && url !== '#') {
+          // Open in new browser tab
+          const newTab = tabs.add({ url: url })
+          browserUI.addTab(newTab, { enterEditMode: false })
+        }
+      })
+    }
 
     // Send form validation
     if (this.elements.sendRecipient) {
@@ -445,13 +457,22 @@ const walletPanel = {
 
   updateBalanceDisplay: function () {
     if (this.elements.balanceAmount) {
-      this.elements.balanceAmount.textContent = this.balance.sol.toFixed(4) + ' SOL'
+      this.elements.balanceAmount.textContent = this.formatSolBalance(this.balance.sol) + ' SOL'
     }
     if (this.elements.balanceUsd) {
       // Use real SOL price from CryptoCompare
       const usdValue = this.balance.sol * this.solPrice
       this.elements.balanceUsd.textContent = '≈ $' + usdValue.toFixed(2)
     }
+  },
+
+  // Format SOL balance without unnecessary trailing zeros and showing actual value
+  formatSolBalance: function (balance) {
+    if (balance === 0) return '0'
+    // Show up to 6 decimals for precision, then remove trailing zeros
+    const formatted = balance.toFixed(6)
+    // Remove trailing zeros but keep at least one decimal place for values < 1
+    return formatted.replace(/\.?0+$/, '') || '0'
   },
 
   async switchNetwork(network) {
@@ -963,7 +984,10 @@ const walletPanel = {
   // SEND MODAL METHODS
   // ================================
 
-  openSendModal: function (type, tokenData) {
+  openSendModal: async function (type, tokenData) {
+    // Refresh balance first to get latest on-chain balance (important after dApp transactions)
+    await this.refreshBalance()
+
     if (type === 'sol') {
       this.sendAsset = {
         type: 'sol',
@@ -987,7 +1011,10 @@ const walletPanel = {
       this.elements.sendAssetSymbol.textContent = this.sendAsset.symbol
     }
     if (this.elements.sendAssetBalance) {
-      this.elements.sendAssetBalance.textContent = `Balance: ${this.formatTokenBalance(this.sendAsset.balance, this.sendAsset.decimals)}`
+      const balanceStr = this.sendAsset.type === 'sol'
+        ? this.formatSolBalance(this.sendAsset.balance)
+        : this.formatTokenBalance(this.sendAsset.balance, this.sendAsset.decimals)
+      this.elements.sendAssetBalance.textContent = `Balance: ${balanceStr}`
     }
     if (this.elements.sendAssetIcon) {
       if (this.sendAsset.logo) {
@@ -1117,8 +1144,8 @@ const walletPanel = {
         maxAmount = this.sendAsset.balance
       }
 
-      // Compare with small epsilon to handle floating point comparison
-      if (amount > maxAmount + 0.000000001) {
+      // Compare with epsilon to handle floating point comparison (1 lamport tolerance)
+      if (amount > maxAmount + 0.000001) {
         if (this.elements.sendAmountError) this.elements.sendAmountError.textContent = 'Insufficient balance'
         if (this.elements.sendAmount) this.elements.sendAmount.classList.add('error')
         isValid = false
@@ -1191,62 +1218,40 @@ const walletPanel = {
       }
     } catch (error) {
       console.error('[WalletPanel] Send error:', error)
-      // Show error state
       if (this.elements.sendProcessing) this.elements.sendProcessing.style.display = 'none'
       if (this.elements.sendErrorState) this.elements.sendErrorState.style.display = 'flex'
       if (this.elements.sendErrorMessage) {
-        // Parse and display user-friendly error message like Phantom
         this.elements.sendErrorMessage.textContent = this.parseTransactionError(error.message)
       }
     }
   },
-
-  // Parse Solana transaction errors into user-friendly messages
   parseTransactionError: function (errorMessage) {
     if (!errorMessage) return 'Transaction failed'
-
     const msg = errorMessage.toLowerCase()
-
-    // Insufficient funds errors
     if (msg.includes('insufficient funds') || msg.includes('insufficient lamports')) {
       return 'Insufficient balance for this transaction'
     }
-
-    // Rent/account errors
     if (msg.includes('rent') || msg.includes('below rent-exempt minimum')) {
       return 'Amount would leave account below minimum balance'
     }
-
-    // Blockhash expired
     if (msg.includes('blockhash') && (msg.includes('expired') || msg.includes('not found'))) {
       return 'Transaction expired. Please try again'
     }
-
-    // Network errors
     if (msg.includes('timeout') || msg.includes('network') || msg.includes('connection')) {
       return 'Network error. Please check your connection'
     }
-
-    // Invalid address
     if (msg.includes('invalid') && msg.includes('address')) {
       return 'Invalid recipient address'
     }
-
-    // Transaction simulation failed
     if (msg.includes('simulation failed')) {
       return 'Transaction simulation failed'
     }
-
-    // Custom program errors - extract the readable part
     if (msg.includes('custom program error')) {
       return 'Transaction rejected by program'
     }
-
-    // Generic fallback - truncate long messages
     if (errorMessage.length > 100) {
       return 'Transaction failed. Please try again'
     }
-
     return errorMessage
   }
 }

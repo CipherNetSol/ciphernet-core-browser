@@ -57,7 +57,7 @@
 
 .bridge-panel-title i {
   font-size: 22px;
-  color: #9333ea;
+  color: #ffffff;
 }
 
 .bridge-panel-title h2 {
@@ -332,9 +332,9 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #9333ea;
+  background: #fff;
   border: 3px solid #ffffff;
-  color: #ffffff;
+  color: #000;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -344,7 +344,7 @@
 
 .bridge-swap-btn:hover {
   transform: rotate(180deg);
-  background: #7c22ce;
+  /* background: #fff; */
 }
 
 .dark-theme .bridge-swap-btn {
@@ -485,8 +485,8 @@
   padding: 14px 20px;
   border: none;
   border-radius: 10px;
-  background: linear-gradient(135deg, #9333ea 0%, #7c22ce 100%);
-  color: #ffffff;
+  background: #ffffff;
+  color: #000;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -550,13 +550,13 @@
 
 .bridge-order-id span {
   font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
-  color: #9333ea;
+  color: #ffffff;
 }
 
 .bridge-copy-order-id-btn {
   background: transparent;
-  border: 1px solid rgba(147, 51, 234, 0.3);
-  color: #9333ea;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #ffffff;
   padding: 4px 8px;
   border-radius: 4px;
   cursor: pointer;
@@ -570,8 +570,8 @@
 }
 
 .bridge-copy-order-id-btn:hover {
-  background: rgba(147, 51, 234, 0.1);
-  border-color: #9333ea;
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #ffffff;
 }
 
 .bridge-status-badge {
@@ -635,7 +635,7 @@
 .bridge-deposit-instruction {
   font-size: 14px;
   font-weight: 600;
-  color: #9333ea;
+  color: #ffffff;
   margin-bottom: 12px;
 }
 
@@ -668,9 +668,9 @@
 }
 
 .bridge-copy-btn {
-  background: #9333ea;
+  background: #ffffff;
   border: none;
-  color: #ffffff;
+  color: #000000;
   padding: 6px 10px;
   border-radius: 6px;
   cursor: pointer;
@@ -683,7 +683,7 @@
 }
 
 .bridge-copy-btn:hover {
-  background: #7c22ce;
+  background: #c9c6c6;
 }
 
 .bridge-copy-btn i {
@@ -763,8 +763,8 @@
 }
 
 .bridge-progress-step.active .bridge-step-icon {
-  background: #9333ea;
-  color: #ffffff;
+  background: #ffffff;
+  color: #000000;
 }
 
 .bridge-progress-step.completed .bridge-step-icon {
@@ -842,10 +842,10 @@
 .bridge-new-order-btn {
   width: 100%;
   padding: 12px 20px;
-  border: 2px solid #9333ea;
+  border: 2px solid #ffffff;
   border-radius: 10px;
-  background: transparent;
-  color: #9333ea;
+  background: #ffffff;
+  color: #000;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -853,7 +853,7 @@
 }
 
 .bridge-new-order-btn:hover {
-  background: rgba(147, 51, 234, 0.1);
+  /* background: rgba(255, 255, 255, 0.1); */
 }
 
 /* ============================================
@@ -897,7 +897,7 @@
   width: 20px;
   height: 20px;
   border: 2px solid #e5e5e5;
-  border-top-color: #9333ea;
+  border-top-color: #000000;
   border-radius: 50%;
   animation: bridge-spin 0.8s linear infinite;
 }

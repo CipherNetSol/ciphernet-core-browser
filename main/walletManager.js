@@ -637,7 +637,28 @@ class WalletManager {
 
     try {
       const recipientPubkey = new PublicKey(recipientAddress)
-      const lamports = Math.floor(amountSOL * LAMPORTS_PER_SOL)
+      let lamports = Math.floor(amountSOL * LAMPORTS_PER_SOL)
+
+      // Get current balance
+      const currentBalance = await this.connection.getBalance(this.keypair.publicKey)
+
+      // Get the fee for a simple transfer (typically 5000 lamports)
+      const { blockhash, lastValidBlockHeight } = await this.connection.getLatestBlockhash('confirmed')
+
+      // Rent-exempt minimum for a system account is ~890880 lamports
+      const RENT_EXEMPT_MINIMUM = 890880
+
+      // Calculate what would remain after transfer + estimated fee
+      const estimatedFee = 5000
+      const remainingAfterTransfer = currentBalance - lamports - estimatedFee
+
+      // If remaining balance would be below rent-exempt minimum but > 0,
+      // we need to send everything (close the account) to avoid rent error
+      if (remainingAfterTransfer > 0 && remainingAfterTransfer < RENT_EXEMPT_MINIMUM) {
+        // Send max possible: balance - fee
+        lamports = currentBalance - estimatedFee
+        console.log('[WalletManager] Adjusting to close account, sending:', lamports / LAMPORTS_PER_SOL, 'SOL')
+      }
 
       // Create transfer instruction
       const transaction = new Transaction().add(
@@ -648,8 +669,7 @@ class WalletManager {
         })
       )
 
-      // Get recent blockhash
-      const { blockhash } = await this.connection.getLatestBlockhash('confirmed')
+      // Set recent blockhash
       transaction.recentBlockhash = blockhash
       transaction.feePayer = this.keypair.publicKey
 
@@ -663,7 +683,11 @@ class WalletManager {
       )
 
       // Wait for confirmation
-      await this.connection.confirmTransaction(signature, 'confirmed')
+      await this.connection.confirmTransaction({
+        signature,
+        blockhash,
+        lastValidBlockHeight
+      }, 'confirmed')
 
       console.log('[WalletManager] SOL sent successfully:', signature)
       return signature

@@ -566,7 +566,7 @@ var webFrame = electron.webFrame
       const ciphernetWalletStandard = {
         // Required properties
         get version() { return WALLET_STANDARD_VERSION; },
-        get name() { return 'CipherNet Wallet'; },
+        get name() { return 'CipherNet'; },
         get icon() { return WALLET_ICON; },
 
         get chains() {
