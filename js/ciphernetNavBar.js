@@ -32,7 +32,6 @@ const ciphernetNavBar = {
       return
     }
 
-    // Logo click handler - navigate to welcome page
     if (logoContainer) {
       logoContainer.addEventListener('click', function () {
         if (!tabs) return

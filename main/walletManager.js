@@ -1,11 +1,74 @@
-// Solana Session Wallet Manager - Main Process
-// Ephemeral wallet that exists only in memory for the browser session
-
 const { Keypair, Connection, PublicKey, LAMPORTS_PER_SOL, Transaction, VersionedTransaction, SystemProgram } = require('@solana/web3.js')
-const { TOKEN_PROGRAM_ID, getAssociatedTokenAddress, createTransferInstruction, getAccount } = require('@solana/spl-token')
+const {
+  TOKEN_PROGRAM_ID,
+  TOKEN_2022_PROGRAM_ID,
+  getAssociatedTokenAddress,
+  createAssociatedTokenAccountInstruction,
+  createTransferInstruction,
+  getAccount
+} = require('@solana/spl-token')
+
 const bs58Module = require('bs58')
-// Handle both bs58 v4.x (default export) and v6.x (named export)
+const { getMint } = require('@solana/spl-token')
+const WELL_KNOWN_TOKENS = {
+  'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v': {
+    symbol: 'USDC',
+    name: 'USD Coin',
+    decimals: 6,
+    logo: 'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png'
+  },
+  'Es9vMFrzaCERZy4d9dzy5oXb5yK4wY6HG3pXj7uGz1z': {
+    symbol: 'USDT',
+    name: 'Tether USD',
+    decimals: 6,
+    logo: 'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/Es9vMFrzaCERZy4d9dzy5oXb5yK4wY6HG3pXj7uGz1z/logo.png'
+  },
+  'So11111111111111111111111111111111111111112': {
+    symbol: 'wSOL',
+    name: 'Wrapped SOL',
+    decimals: 9,
+    logo: 'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png'
+  },
+  '7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs': {
+    symbol: 'ETH',
+    name: 'Ether (Wormhole)',
+    decimals: 8,
+    logo: 'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs/logo.png'
+  },
+  '9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E': {
+    symbol: 'BTC',
+    name: 'Bitcoin (Wormhole)',
+    decimals: 8,
+    logo: 'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E/logo.png'
+  },
+  'orcaEKTdK7LKz57vaAYr9QeNsVEPfiu6QeMU1kektZE': {
+    symbol: 'ORCA',
+    name: 'Orca',
+    decimals: 6,
+    logo: 'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/orcaEKTdK7LKz57vaAYr9QeNsVEPfiu6QeMU1kektZE/logo.png'
+  },
+  '4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R': {
+    symbol: 'RAY',
+    name: 'Raydium',
+    decimals: 6,
+    logo: 'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R/logo.png'
+  },
+  'JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN': {
+    symbol: 'JUP',
+    name: 'Jupiter',
+    decimals: 6,
+    logo: 'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN/logo.png'
+  },  
+  '3qAR4mq5X8WTuyqDeie2Mj9wGrYVb83TiGdkEgYbpump': {
+    symbol: 'CiNET',
+    name: 'CipherNet',
+    decimals: 6,
+    logo: 'https://api.phantom.app/image-proxy/?image=https%3A%2F%2Fcoin-images.coingecko.com%2Fcoins%2Fimages%2F71078%2Flarge%2FIMG_3756.jpeg%3F1765615484&anim=false&fit=cover&width=128&height=128' // optional
+  }
+}
 const bs58 = bs58Module.default || bs58Module
+
+
 
 // RPC endpoints
 const MAINNET_RPC = 'https://api.mainnet-beta.solana.com'
@@ -26,28 +89,46 @@ class WalletManager {
     this.balanceCallbacks = new Set()
     this.lastKnownBalance = null
   }
+  async preloadTokenMetadata() {
+    if (TOKEN_METADATA_CACHE.size > 0) return
+
+    try {
+      const res = await fetch('https://token.jup.ag/strict')
+      const tokens = await res.json()
+
+      for (const t of tokens) {
+        TOKEN_METADATA_CACHE.set(t.address, {
+          symbol: t.symbol,
+          name: t.name,
+          logo: t.logoURI,
+          decimals: t.decimals
+        })
+      }
+    } catch (err) {
+      console.warn('[WalletManager] Token metadata preload failed')
+    }
+  }
 
   /**
    * Initialize the wallet - generates a new keypair on every browser launch
    */
-  initialize() {
-    // Generate new ephemeral keypair
-    this.keypair = Keypair.generate()
+ async initialize() {
+  // Generate new ephemeral keypair
+  this.keypair = Keypair.generate()
 
-    // Initialize connection
-    const rpcUrl = this.network === 'mainnet-beta' ? MAINNET_RPC : DEVNET_RPC
-    this.connection = new Connection(rpcUrl, 'confirmed')
+  // Initialize connection
+  const rpcUrl = this.network === 'mainnet-beta' ? MAINNET_RPC : DEVNET_RPC
+  this.connection = new Connection(rpcUrl, 'confirmed')
 
-    // console.log('[WalletManager] Session wallet initialized')
-    // console.log('[WalletManager] Public Key:', this.getPublicKey())
-    // console.log('[WalletManager] Private Key (Array):', JSON.stringify(this.getSecretKey()))
-    // console.log('[WalletManager] Private Key (Base58):', this.getSecretKeyBase58())
+  // ✅ async call now works
+  await this.preloadTokenMetadata()
 
-    return {
-      publicKey: this.getPublicKey(),
-      network: this.network
-    }
+  return {
+    publicKey: this.getPublicKey(),
+    network: this.network
   }
+}
+
 
   /**
    * Get the public key as base58 string
@@ -357,52 +438,52 @@ class WalletManager {
           }))
         }
 
-      // Decode each instruction
-      for (const instruction of transaction.instructions) {
-        const decodedInstruction = {
-          programId: instruction.programId.toBase58(),
-          keys: instruction.keys.map(key => ({
-            pubkey: key.pubkey.toBase58(),
-            isSigner: key.isSigner,
-            isWritable: key.isWritable
-          })),
-          data: bs58.encode(instruction.data)
-        }
+        // Decode each instruction
+        for (const instruction of transaction.instructions) {
+          const decodedInstruction = {
+            programId: instruction.programId.toBase58(),
+            keys: instruction.keys.map(key => ({
+              pubkey: key.pubkey.toBase58(),
+              isSigner: key.isSigner,
+              isWritable: key.isWritable
+            })),
+            data: bs58.encode(instruction.data)
+          }
 
-        // Try to identify common program types
-        const programId = instruction.programId.toBase58()
+          // Try to identify common program types
+          const programId = instruction.programId.toBase58()
 
-        // System Program
-        if (programId === '11111111111111111111111111111111') {
-          decodedInstruction.programName = 'System Program'
+          // System Program
+          if (programId === '11111111111111111111111111111111') {
+            decodedInstruction.programName = 'System Program'
 
-          // Try to decode transfer instruction
-          if (instruction.data.length >= 12) {
-            const instructionType = instruction.data.readUInt32LE(0)
-            if (instructionType === 2) { // Transfer
-              const lamports = instruction.data.readBigUInt64LE(4)
-              decodedInstruction.type = 'Transfer'
-              decodedInstruction.amount = Number(lamports)
-              decodedInstruction.amountSOL = Number(lamports) / LAMPORTS_PER_SOL
-              decodedInstruction.from = instruction.keys[0]?.pubkey.toBase58()
-              decodedInstruction.to = instruction.keys[1]?.pubkey.toBase58()
+            // Try to decode transfer instruction
+            if (instruction.data.length >= 12) {
+              const instructionType = instruction.data.readUInt32LE(0)
+              if (instructionType === 2) { // Transfer
+                const lamports = instruction.data.readBigUInt64LE(4)
+                decodedInstruction.type = 'Transfer'
+                decodedInstruction.amount = Number(lamports)
+                decodedInstruction.amountSOL = Number(lamports) / LAMPORTS_PER_SOL
+                decodedInstruction.from = instruction.keys[0]?.pubkey.toBase58()
+                decodedInstruction.to = instruction.keys[1]?.pubkey.toBase58()
+              }
             }
           }
-        }
-        // Token Program
-        else if (programId === 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA') {
-          decodedInstruction.programName = 'Token Program'
-        }
-        // Associated Token Account Program
-        else if (programId === 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL') {
-          decodedInstruction.programName = 'Associated Token Account Program'
-        }
-        else {
-          decodedInstruction.programName = 'Unknown Program'
-        }
+          // Token Program
+          else if (programId === 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA') {
+            decodedInstruction.programName = 'Token Program'
+          }
+          // Associated Token Account Program
+          else if (programId === 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL') {
+            decodedInstruction.programName = 'Associated Token Account Program'
+          }
+          else {
+            decodedInstruction.programName = 'Unknown Program'
+          }
 
-        details.instructions.push(decodedInstruction)
-      }
+          details.instructions.push(decodedInstruction)
+        }
       }
 
       // Calculate warnings (applies to both versioned and legacy transactions)
@@ -545,51 +626,58 @@ class WalletManager {
    * Get all SPL token accounts and balances for this wallet
    * @returns {Array} - Array of token objects with mint, balance, decimals, etc.
    */
-  async getTokenAccounts() {
-    if (!this.keypair || !this.connection) {
-      throw new Error('Wallet not initialized')
-    }
-
-    try {
-      const tokenAccounts = await this.connection.getParsedTokenAccountsByOwner(
-        this.keypair.publicKey,
-        { programId: TOKEN_PROGRAM_ID }
-      )
-
-      const tokens = []
-
-      for (const { account, pubkey } of tokenAccounts.value) {
-        const parsedInfo = account.data.parsed.info
-        const mint = parsedInfo.mint
-        const balance = parsedInfo.tokenAmount.uiAmount
-        const decimals = parsedInfo.tokenAmount.decimals
-        const rawBalance = parsedInfo.tokenAmount.amount
-
-        // Only include tokens with balance > 0
-        if (balance > 0) {
-          // Try to get token metadata
-          const metadata = await this._getTokenMetadata(mint)
-
-          tokens.push({
-            mint,
-            tokenAccount: pubkey.toBase58(),
-            balance,
-            rawBalance,
-            decimals,
-            symbol: metadata?.symbol || mint.substring(0, 4) + '...',
-            name: metadata?.name || 'Unknown Token',
-            logo: metadata?.logo || null,
-            usdValue: metadata?.price ? balance * metadata.price : null
-          })
-        }
-      }
-
-      return tokens
-    } catch (error) {
-      console.error('[WalletManager] Error getting token accounts:', error)
-      throw error
-    }
+async getTokenAccounts() {
+  if (!this.keypair || !this.connection) {
+    throw new Error('Wallet not initialized')
   }
+
+  // 🔥 Query BOTH token programs
+  const [classicRes, token2022Res] = await Promise.all([
+    this.connection.getParsedTokenAccountsByOwner(
+      this.keypair.publicKey,
+      { programId: TOKEN_PROGRAM_ID }
+    ),
+    this.connection.getParsedTokenAccountsByOwner(
+      this.keypair.publicKey,
+      { programId: TOKEN_2022_PROGRAM_ID }
+    )
+  ])
+
+  const allAccounts = [...classicRes.value, ...token2022Res.value]
+  const tokens = []
+
+  for (const { account, pubkey } of allAccounts) {
+    const info = account.data.parsed.info
+    const mint = info.mint
+
+    const rawAmount = info.tokenAmount.amount // STRING
+    const decimals = info.tokenAmount.decimals
+
+    if (rawAmount === '0') continue
+
+    const balance = Number(rawAmount) / Math.pow(10, decimals)
+
+    const metadata = await this._getTokenMetadata(mint)
+
+    tokens.push({
+      mint,
+      tokenAccount: pubkey.toBase58(),
+      rawBalance: rawAmount,
+      balance,
+      decimals,
+
+      symbol: metadata?.symbol ?? 'Unknown',
+      name: metadata?.name ?? 'Unknown Token',
+      logo: metadata?.logo ?? null,
+
+      isUnknown: !metadata
+    })
+  }
+
+  return tokens
+}
+
+
 
   /**
    * Get token metadata from Jupiter API
@@ -597,29 +685,26 @@ class WalletManager {
    * @returns {Object} - Token metadata
    */
   async _getTokenMetadata(mint) {
-    // Check cache first
+    // 1️⃣ Well-known tokens (USDC etc.)
+    if (WELL_KNOWN_TOKENS[mint]) {
+      return WELL_KNOWN_TOKENS[mint]
+    }
+
+    // 2️⃣ Jupiter token list
     if (TOKEN_METADATA_CACHE.has(mint)) {
       return TOKEN_METADATA_CACHE.get(mint)
     }
 
+    // 3️⃣ On-chain fallback (decimals only)
     try {
-      // Use Jupiter's token list API for metadata
-      const response = await fetch(`https://token.jup.ag/strict`)
-      const tokens = await response.json()
-
-      // Cache all tokens for future lookups
-      for (const token of tokens) {
-        TOKEN_METADATA_CACHE.set(token.address, {
-          symbol: token.symbol,
-          name: token.name,
-          logo: token.logoURI,
-          decimals: token.decimals
-        })
+      const mintInfo = await getMint(this.connection, new PublicKey(mint))
+      return {
+        symbol: 'Unknown',
+        name: 'Unknown Token',
+        decimals: mintInfo.decimals,
+        logo: null
       }
-
-      return TOKEN_METADATA_CACHE.get(mint) || null
-    } catch (error) {
-      console.error('[WalletManager] Error fetching token metadata:', error)
+    } catch {
       return null
     }
   }
@@ -635,67 +720,74 @@ class WalletManager {
       throw new Error('Wallet not initialized')
     }
 
-    try {
-      const recipientPubkey = new PublicKey(recipientAddress)
-      let lamports = Math.floor(amountSOL * LAMPORTS_PER_SOL)
+    const recipientPubkey = new PublicKey(recipientAddress)
 
-      // Get current balance
-      const currentBalance = await this.connection.getBalance(this.keypair.publicKey)
+    // 1. Get balance
+    const balanceLamports = await this.connection.getBalance(this.keypair.publicKey)
 
-      // Get the fee for a simple transfer (typically 5000 lamports)
-      const { blockhash, lastValidBlockHeight } = await this.connection.getLatestBlockhash('confirmed')
+    // 2. Get blockhash
+    const { blockhash, lastValidBlockHeight } =
+      await this.connection.getLatestBlockhash('confirmed')
 
-      // Rent-exempt minimum for a system account is ~890880 lamports
-      const RENT_EXEMPT_MINIMUM = 890880
+    // 3. Build a dummy tx to estimate fee
+    const feeTx = new Transaction().add(
+      SystemProgram.transfer({
+        fromPubkey: this.keypair.publicKey,
+        toPubkey: recipientPubkey,
+        lamports: 1
+      })
+    )
+    feeTx.recentBlockhash = blockhash
+    feeTx.feePayer = this.keypair.publicKey
 
-      // Calculate what would remain after transfer + estimated fee
-      const estimatedFee = 5000
-      const remainingAfterTransfer = currentBalance - lamports - estimatedFee
+    const feeResp = await this.connection.getFeeForMessage(
+      feeTx.compileMessage(),
+      'confirmed'
+    )
 
-      // If remaining balance would be below rent-exempt minimum but > 0,
-      // we need to send everything (close the account) to avoid rent error
-      if (remainingAfterTransfer > 0 && remainingAfterTransfer < RENT_EXEMPT_MINIMUM) {
-        // Send max possible: balance - fee
-        lamports = currentBalance - estimatedFee
-        console.log('[WalletManager] Adjusting to close account, sending:', lamports / LAMPORTS_PER_SOL, 'SOL')
-      }
+    const feeLamports = feeResp.value ?? 5000
 
-      // Create transfer instruction
-      const transaction = new Transaction().add(
-        SystemProgram.transfer({
-          fromPubkey: this.keypair.publicKey,
-          toPubkey: recipientPubkey,
-          lamports
-        })
-      )
+    // 4. Convert requested SOL → lamports (SAFE rounding)
+    let requestedLamports = Math.round(amountSOL * LAMPORTS_PER_SOL)
 
-      // Set recent blockhash
-      transaction.recentBlockhash = blockhash
-      transaction.feePayer = this.keypair.publicKey
+    // 5. HARD SAFETY CHECK
+    const maxSendable = balanceLamports - feeLamports
 
-      // Sign transaction
-      transaction.sign(this.keypair)
-
-      // Send transaction
-      const signature = await this.connection.sendRawTransaction(
-        transaction.serialize(),
-        { skipPreflight: false, preflightCommitment: 'confirmed' }
-      )
-
-      // Wait for confirmation
-      await this.connection.confirmTransaction({
-        signature,
-        blockhash,
-        lastValidBlockHeight
-      }, 'confirmed')
-
-      console.log('[WalletManager] SOL sent successfully:', signature)
-      return signature
-    } catch (error) {
-      console.error('[WalletManager] Error sending SOL:', error)
-      throw error
+    if (maxSendable <= 0) {
+      throw new Error('Insufficient balance for fee')
     }
+
+    // Clamp amount if user tries to send too much
+    if (requestedLamports > maxSendable) {
+      requestedLamports = maxSendable
+    }
+
+    // 6. Final transaction
+    const tx = new Transaction().add(
+      SystemProgram.transfer({
+        fromPubkey: this.keypair.publicKey,
+        toPubkey: recipientPubkey,
+        lamports: requestedLamports
+      })
+    )
+
+    tx.recentBlockhash = blockhash
+    tx.feePayer = this.keypair.publicKey
+    tx.sign(this.keypair)
+
+    const signature = await this.connection.sendRawTransaction(
+      tx.serialize(),
+      { skipPreflight: false, preflightCommitment: 'confirmed' }
+    )
+
+    await this.connection.confirmTransaction(
+      { signature, blockhash, lastValidBlockHeight },
+      'confirmed'
+    )
+
+    return signature
   }
+
 
   /**
    * Send SPL token to a recipient
@@ -706,85 +798,87 @@ class WalletManager {
    * @returns {string} - Transaction signature
    */
   async sendToken(mintAddress, recipientAddress, amount, decimals) {
-    if (!this.keypair || !this.connection) {
-      throw new Error('Wallet not initialized')
-    }
-
-    try {
-      const mintPubkey = new PublicKey(mintAddress)
-      const recipientPubkey = new PublicKey(recipientAddress)
-      const rawAmount = BigInt(Math.floor(amount * Math.pow(10, decimals)))
-
-      // Get source token account (sender's ATA)
-      const sourceATA = await getAssociatedTokenAddress(
-        mintPubkey,
-        this.keypair.publicKey
-      )
-
-      // Get destination token account (recipient's ATA)
-      const destinationATA = await getAssociatedTokenAddress(
-        mintPubkey,
-        recipientPubkey
-      )
-
-      // Check if destination ATA exists
-      let destinationAccountExists = false
-      try {
-        await getAccount(this.connection, destinationATA)
-        destinationAccountExists = true
-      } catch (e) {
-        destinationAccountExists = false
-      }
-
-      const transaction = new Transaction()
-
-      // If destination ATA doesn't exist, create it
-      if (!destinationAccountExists) {
-        const { createAssociatedTokenAccountInstruction } = require('@solana/spl-token')
-        transaction.add(
-          createAssociatedTokenAccountInstruction(
-            this.keypair.publicKey, // payer
-            destinationATA, // associated token account
-            recipientPubkey, // owner
-            mintPubkey // mint
-          )
-        )
-      }
-
-      // Add transfer instruction
-      transaction.add(
-        createTransferInstruction(
-          sourceATA, // source
-          destinationATA, // destination
-          this.keypair.publicKey, // owner
-          rawAmount // amount
-        )
-      )
-
-      // Get recent blockhash
-      const { blockhash } = await this.connection.getLatestBlockhash('confirmed')
-      transaction.recentBlockhash = blockhash
-      transaction.feePayer = this.keypair.publicKey
-
-      // Sign transaction
-      transaction.sign(this.keypair)
-
-      // Send transaction
-      const signature = await this.connection.sendRawTransaction(
-        transaction.serialize(),
-        { skipPreflight: false, preflightCommitment: 'confirmed' }
-      )
-
-      // Wait for confirmation
-      await this.connection.confirmTransaction(signature, 'confirmed')
-
-      console.log('[WalletManager] Token sent successfully:', signature)
-      return signature
-    } catch (error) {
-      console.error('[WalletManager] Error sending token:', error)
-      throw error
-    }
+  if (!this.keypair || !this.connection) {
+    throw new Error('Wallet not initialized')
   }
+
+  const mintPubkey = new PublicKey(mintAddress)
+  const recipientPubkey = new PublicKey(recipientAddress)
+
+  // 🔍 Detect token program (classic vs Token-2022)
+  const mintInfo = await this.connection.getAccountInfo(mintPubkey)
+  if (!mintInfo) throw new Error('Mint not found')
+
+  const tokenProgramId = mintInfo.owner.equals(TOKEN_2022_PROGRAM_ID)
+    ? TOKEN_2022_PROGRAM_ID
+    : TOKEN_PROGRAM_ID
+
+  const rawAmount = BigInt(Math.floor(amount * Math.pow(10, decimals)))
+
+  // ✅ Get ATAs using correct program
+  const sourceATA = await getAssociatedTokenAddress(
+    mintPubkey,
+    this.keypair.publicKey,
+    false,
+    tokenProgramId
+  )
+
+  const destinationATA = await getAssociatedTokenAddress(
+    mintPubkey,
+    recipientPubkey,
+    false,
+    tokenProgramId
+  )
+
+  const tx = new Transaction()
+
+  // 🧠 Create destination ATA if missing
+  try {
+    await getAccount(this.connection, destinationATA, 'confirmed', tokenProgramId)
+  } catch {
+    tx.add(
+      createAssociatedTokenAccountInstruction(
+        this.keypair.publicKey,     // payer
+        destinationATA,             // ATA
+        recipientPubkey,            // owner
+        mintPubkey,                 // mint
+        tokenProgramId
+      )
+    )
+  }
+
+  // 🔁 Transfer using correct program
+  tx.add(
+    createTransferInstruction(
+      sourceATA,
+      destinationATA,
+      this.keypair.publicKey,
+      rawAmount,
+      [],
+      tokenProgramId
+    )
+  )
+
+  const { blockhash, lastValidBlockHeight } =
+    await this.connection.getLatestBlockhash('confirmed')
+
+  tx.recentBlockhash = blockhash
+  tx.feePayer = this.keypair.publicKey
+  tx.sign(this.keypair)
+
+  const sig = await this.connection.sendRawTransaction(tx.serialize(), {
+    skipPreflight: false,
+    preflightCommitment: 'confirmed'
+  })
+
+  await this.connection.confirmTransaction(
+    { signature: sig, blockhash, lastValidBlockHeight },
+    'confirmed'
+  )
+
+  return sig
+}
+
 
   /**
    * Estimate transaction fee for SOL transfer

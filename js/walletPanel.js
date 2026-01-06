@@ -1170,6 +1170,7 @@ const walletPanel = {
       this.elements.sendConfirmBtn.disabled = !isValid
     }
 
+    
     return isValid
   },
 
