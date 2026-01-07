@@ -1,7 +1,3 @@
-/* Wallet Panel - Sliding from right side */
-/* BLACK & WHITE theme - No colors */
-
-/* Wallet Panel Container */
 .wallet-panel {
   position: fixed;
   top: calc(36px + var(--control-space-top) + 52px);

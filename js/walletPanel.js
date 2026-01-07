@@ -1165,12 +1165,11 @@ const walletPanel = {
       this.elements.sendSummary.style.display = 'none'
     }
 
-    // Enable/disable confirm button
     if (this.elements.sendConfirmBtn) {
       this.elements.sendConfirmBtn.disabled = !isValid
     }
 
-    
+
     return isValid
   },
 

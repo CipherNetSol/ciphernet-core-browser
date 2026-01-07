@@ -59,15 +59,15 @@ function buildAppMenu (options = {}) {
   ]
 
   var personalDataItems = [
-    {
-      label: l('appMenuBookmarks'),
-      accelerator: getFormattedKeyMapEntry('showBookmarks'),
-      click: function (item, window, event) {
-        if (!event.triggeredByAccelerator) {
-          sendIPCToWindow(window, 'showBookmarks')
-        }
-      }
-    },
+    // {
+    //   label: l('appMenuBookmarks'),
+    //   accelerator: getFormattedKeyMapEntry('showBookmarks'),
+    //   click: function (item, window, event) {
+    //     if (!event.triggeredByAccelerator) {
+    //       sendIPCToWindow(window, 'showBookmarks')
+    //     }
+    //   }
+    // },
     {
       label: l('appMenuHistory'),
       accelerator: getFormattedKeyMapEntry('showHistory'),
@@ -90,15 +90,15 @@ function buildAppMenu (options = {}) {
   }
 
   // HIDDEN: Uncomment to show Preferences in menu
-  var preferencesAction = {
-    label: l('appMenuPreferences'),
-    accelerator: 'CmdOrCtrl+,',
-    click: function (item, window) {
-      sendIPCToWindow(window, 'addTab', {
-        url: 'ciphernet://app/pages/settings/index.html'
-      })
-    }
-  }
+  // var preferencesAction = {
+  //   label: l('appMenuPreferences'),
+  //   accelerator: 'CmdOrCtrl+,',
+  //   click: function (item, window) {
+  //     sendIPCToWindow(window, 'addTab', {
+  //       url: 'ciphernet://app/pages/settings/index.html'
+  //     })
+  //   }
+  // }
 
   var template = [
     ...(options.secondary ? tabTaskActions : []),
@@ -106,7 +106,7 @@ function buildAppMenu (options = {}) {
     ...(options.secondary ? personalDataItems : []),
     // HIDDEN: Preferences menu item commented out
     ...(options.secondary ? [{ type: 'separator' }] : []),
-    ...(options.secondary ? [preferencesAction] : []),
+    // ...(options.secondary ? [preferencesAction] : []),
     ...(options.secondary ? [{ type: 'separator' }] : []),
     ...(process.platform === 'darwin'
       ? [

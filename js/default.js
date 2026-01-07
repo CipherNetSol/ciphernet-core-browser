@@ -30,7 +30,6 @@ if (navigator.maxTouchPoints > 0) {
   document.body.classList.add('touch')
 }
 
-/* add classes so that the window state can be used in CSS */
 ipc.on('enter-full-screen', function () {
   document.body.classList.add('fullscreen')
 })
@@ -103,7 +102,6 @@ window.empty = function (node) {
   }
 }
 
-/* prevent a click event from firing after dragging the window */
 
 window.addEventListener('load', function () {
   var isMouseDown = false

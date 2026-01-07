@@ -15,7 +15,6 @@ const ciphernetNavBar = {
   barHeight: 52,
 
   initialize: function () {
-    // console.log('CipherNet NavBar: Initializing...')
 
     // Get DOM elements
     ciphernetNavBar.bar = document.getElementById('ciphernet-nav-bar')
