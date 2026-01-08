@@ -170,3 +170,21 @@ body.dark-mode.task-overlay-is-shown #linux-control-buttons {
   fill-opacity: 0.45;
   stroke-opacity: 0.7;
 }
+
+/* ================================
+   FORCE DARK THEME ON WINDOW CONTROLS
+   (Ignore system light mode)
+   ================================ */
+.windows-caption-buttons .element {
+  stroke: #fff;
+}
+
+#linux-control-buttons g:hover .button-background {
+  fill-opacity: 0.2;
+  stroke-opacity: 0.35;
+}
+
+#linux-control-buttons g:active .button-background {
+  fill-opacity: 0.45;
+  stroke-opacity: 0.7;
+}

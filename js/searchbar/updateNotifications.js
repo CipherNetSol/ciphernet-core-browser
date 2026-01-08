@@ -43,37 +43,37 @@ function getAvailableUpdates () {
   }
 }
 
-function showUpdateNotification (text, input, inputFlags) {
-  function displayUpdateNotification () {
-    searchbarPlugins.reset('updateNotifications')
-    searchbarPlugins.addResult('updateNotifications', {
-      title: l('updateNotificationTitle'),
-      descriptionBlock: update.releaseHeadline || 'View release notes',
-      url: update.releaseNotes,
-      icon: 'carbon:renew'
-    }, { allowDuplicates: true })
-  }
-  // is there an update?
-  var update = JSON.parse(localStorage.getItem('availableUpdate'))
-  if (update) {
-    // was the update already installed?
-    if (compareVersions(window.globalArgs['app-version'], update.version) <= 0) {
-      return
-    }
-    var updateAge = Date.now() - update.releaseTime
-    /* initially, only show an update notification when no tabs are open, in order to minimize disruption */
-    if (updateAge < (3 * 7 * 24 * 60 * 60 * 1000)) {
-      if (tabs.isEmpty()) {
-        displayUpdateNotification()
-      }
-    } else {
-      /* after 3 weeks, start showing a notification on all new tabs */
-      if (!tabs.get(tabs.getSelected()).url) {
-        displayUpdateNotification()
-      }
-    }
-  }
-}
+// function showUpdateNotification (text, input, inputFlags) {
+//   function displayUpdateNotification () {
+//     searchbarPlugins.reset('updateNotifications')
+//     searchbarPlugins.addResult('updateNotifications', {
+//       title: l('updateNotificationTitle'),
+//       descriptionBlock: update.releaseHeadline || 'View release notes',
+//       url: update.releaseNotes,
+//       icon: 'carbon:renew'
+//     }, { allowDuplicates: true })
+//   }
+//   // is there an update?
+//   var update = JSON.parse(localStorage.getItem('availableUpdate'))
+//   if (update) {
+//     // was the update already installed?
+//     if (compareVersions(window.globalArgs['app-version'], update.version) <= 0) {
+//       return
+//     }
+//     var updateAge = Date.now() - update.releaseTime
+//     /* initially, only show an update notification when no tabs are open, in order to minimize disruption */
+//     if (updateAge < (3 * 7 * 24 * 60 * 60 * 1000)) {
+//       if (tabs.isEmpty()) {
+//         displayUpdateNotification()
+//       }
+//     } else {
+//       /* after 3 weeks, start showing a notification on all new tabs */
+//       if (!tabs.get(tabs.getSelected()).url) {
+//         displayUpdateNotification()
+//       }
+//     }
+//   }
+// }
 
 setTimeout(getAvailableUpdates, 30000)
 setInterval(getAvailableUpdates, 24 * 60 * 60 * 1000)
@@ -84,7 +84,7 @@ function initialize () {
     trigger: function (text) {
       return !text && performance.now() > 5000
     },
-    showResults: showUpdateNotification
+    // showResults: showUpdateNotification
   })
 }
 

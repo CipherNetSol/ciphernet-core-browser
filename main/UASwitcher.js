@@ -42,22 +42,38 @@ function getFirefoxUA () {
   return rootUA.replace(/FXVERSION/g, fxVersion)
 }
 
+function getChromeUA () {
+  const chromiumVersion = process.versions.chrome
+  const rootUAs = {
+    mac: `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromiumVersion} Safari/537.36`,
+    windows: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromiumVersion} Safari/537.36`,
+    linux: `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromiumVersion} Safari/537.36`
+  }
+
+  if (process.platform === 'win32') return rootUAs.windows
+  if (process.platform === 'darwin') return rootUAs.mac
+  return rootUAs.linux
+}
+
 /*
 Google blocks signin in some cases unless a custom UA is used
 see https://github.com/minbrowser/min/issues/868
 */
 function enableGoogleUASwitcher (ses) {
   ses.webRequest.onBeforeSendHeaders((details, callback) => {
-    if (!hasCustomUserAgent && details.url.includes('accounts.google.com')) {
-      const url = new URL(details.url)
+    const url = new URL(details.url)
 
-      if (url.hostname === 'accounts.google.com') {
-        details.requestHeaders['User-Agent'] = getFirefoxUA()
-      }
+    if (!hasCustomUserAgent && url.hostname === 'accounts.google.com') {
+      details.requestHeaders['User-Agent'] = getFirefoxUA()
+    }
+
+    // WhatsApp Web requires standard Chrome UA
+    if (!hasCustomUserAgent && url.hostname.includes('whatsapp.com')) {
+      details.requestHeaders['User-Agent'] = getChromeUA()
     }
 
     const chromiumVersion = process.versions.chrome.split('.')[0]
-    details.requestHeaders['SEC-CH-UA'] = `"Chromium";v="${chromiumVersion}", " Not A;Brand";v="99"`
+    details.requestHeaders['SEC-CH-UA'] = `"Chromium";v="${chromiumVersion}", "Google Chrome";v="${chromiumVersion}", " Not A;Brand";v="99"`
     details.requestHeaders['SEC-CH-UA-MOBILE'] = '?0'
 
     callback({ cancel: false, requestHeaders: details.requestHeaders })
