@@ -539,3 +539,151 @@
     right: 0 !important;
   }
 }
+
+/* ================================
+   FORCE DARK THEME ON MIXER PANEL
+   (Ignore system light mode)
+   ================================ */
+.mixer-panel {
+  background: #0a0a0a;
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.6);
+}
+
+.mixer-panel-header {
+  background: #111111;
+  border-bottom-color: #2a2a2a;
+}
+
+.mixer-panel-title h2 {
+  color: #e8eaed;
+}
+
+.mixer-panel-title .i {
+  color: #fff;
+}
+
+.mixer-close-btn {
+  color: #9aa0a6;
+}
+
+.mixer-close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e8eaed;
+}
+
+.mixer-panel-content::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+.mixer-panel-content::-webkit-scrollbar-thumb {
+  background: #555;
+}
+
+.mixer-info-section {
+  background: #151515;
+  border-color: #2a2a2a;
+}
+
+.mixer-info-header .i {
+  color: #fff;
+}
+
+.mixer-info-header h3 {
+  color: #ffffff;
+}
+
+.mixer-info-content p {
+  color: #999999;
+}
+
+.mixer-info-content ul {
+  color: #999999;
+}
+
+.mixer-form-group label {
+  color: #e8eaed;
+}
+
+.mixer-select {
+  background: #151515;
+  border-color: #2a2a2a;
+  color: #ffffff;
+}
+
+.mixer-select:hover,
+.mixer-select:focus {
+  border-color: #fff;
+}
+
+.mixer-swap-icon {
+  color: #9aa0a6;
+}
+
+.mixer-input {
+  background: #151515;
+  border-color: #2a2a2a;
+  color: #ffffff;
+}
+
+.mixer-input:hover,
+.mixer-input:focus {
+  border-color: #fff;
+}
+
+.mixer-max-btn {
+  background: #fff;
+  color: #202124;
+}
+
+.mixer-max-btn:hover {
+  background: #aecbfa;
+}
+
+.mixer-error-text {
+  color: #f28b82;
+}
+
+.mixer-estimate-section {
+  background: #151515;
+  border-color: #2a2a2a;
+}
+
+.mixer-estimate-label {
+  color: #9aa0a6;
+}
+
+.mixer-estimate-amount {
+  color: #fff;
+}
+
+.mixer-status-section {
+  background: #151515;
+  border-color: #2a2a2a;
+}
+
+.mixer-status-header h3 {
+  color: #e8eaed;
+}
+
+.mixer-status-details {
+  color: #9aa0a6;
+}
+
+.mixer-create-btn {
+  background: #fff;
+  color: #202124;
+}
+
+.mixer-create-btn:hover {
+  background: #aecbfa;
+  box-shadow: 0 2px 8px rgba(138, 180, 248, 0.3);
+}
+
+.mixer-create-btn:active {
+  background: #c2dafc;
+}
+
+.mixer-create-btn:disabled {
+  background: #3c4043;
+  color: #5f6368;
+}

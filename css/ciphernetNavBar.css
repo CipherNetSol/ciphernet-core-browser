@@ -70,7 +70,7 @@
   font-size: 16px;
   font-weight: 600;
   letter-spacing: 0.5px;
-  color: #1a73e8;
+  color: #000;
   user-select: none;
 }
 
@@ -166,7 +166,7 @@
   border: 1px solid #dadce0;
   border-radius: 9px;
   background: #fff;
-  color: #1a73e8;
+  color: #000;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
@@ -289,4 +289,83 @@
   #ciphernet-search-container {
     margin: 0 8px;
   }
+}
+
+/* ================================
+   FORCE DARK THEME ON NAVBAR
+   (Ignore system light mode)
+   ================================ */
+#ciphernet-nav-bar {
+  background: rgb(0, 0, 0) !important;
+  border-bottom-color: #555;
+}
+
+#ciphernet-suggestions {
+  background: #2d2d2d;
+  border-color: #555;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+#ciphernet-suggestions .searchbar-item:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+#ciphernet-brand {
+  color: #ffffff;
+}
+
+#ciphernet-search-container {
+  background: #303134;
+  border-color: #5f6368;
+}
+
+#ciphernet-search-container:hover,
+#ciphernet-search-container:focus-within {
+  background: #303134;
+  border-color: #353535;
+}
+
+#ciphernet-search-container .i {
+  color: #9aa0a6;
+}
+
+#ciphernet-search-input {
+  color: #e8eaed;
+}
+
+#ciphernet-search-input::placeholder {
+  color: #9aa0a6;
+}
+
+.ciphernet-nav-btn {
+  background: #303134;
+  border-color: #ffffff88;
+  color: #ffffff;
+}
+
+.ciphernet-nav-btn:hover {
+  background: #3c4043;
+  border-color: #ffffff;
+}
+
+.ciphernet-nav-btn:active {
+  background: #4d5156;
+}
+
+#mixer-button {
+  border-color: #ffffff88;
+}
+
+#mixer-button:hover {
+  background: #383a39;
+  border-color: #ffffff;
+}
+
+#vpn-button {
+  border-color: #ffffff88;
+  color: #fff;
+}
+
+#vpn-button:hover {
+  background: #383a39;
 }

@@ -30,8 +30,9 @@ button {
 }
 body,
 html {
-  background-color: #fff;
-  color: #000;
+  /* Force dark mode always */
+  background-color: rgb(33, 37, 43);
+  color: lightgrey;
   height: 100%;
   overflow: hidden;
   -webkit-user-select: none;
@@ -84,6 +85,14 @@ a {
 
 .dark-mode a {
   color: dodgerblue;
+}
+
+/* Force dark mode inputs always */
+input,
+textarea {
+  background-color: rgb(52, 58, 68);
+  color: white;
+  border-color: transparent;
 }
 
 .dark-mode input,

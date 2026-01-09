@@ -929,3 +929,161 @@
     flex-direction: column;
   }
 }
+
+/* ================================
+   FORCE DARK THEME ON BRIDGE PANEL
+   (Ignore system light mode)
+   ================================ */
+.bridge-panel {
+  background: #0a0a0a;
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.6);
+}
+
+.bridge-panel-header {
+  background: #111111;
+  border-bottom-color: #222222;
+}
+
+.bridge-panel-title h2 {
+  color: #ffffff;
+}
+
+.bridge-close-btn {
+  color: #888888;
+}
+
+.bridge-close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.bridge-panel-content::-webkit-scrollbar-thumb {
+  background: #333333;
+}
+
+.bridge-section-label {
+  color: #666666;
+}
+
+.bridge-privacy-mode {
+  border-color: #333333;
+}
+
+.bridge-privacy-mode:hover {
+  border-color: #9333ea;
+  background: rgba(147, 51, 234, 0.15);
+}
+
+.bridge-privacy-mode-name {
+  color: #ffffff;
+}
+
+.bridge-input-group {
+  background: #1a1a1a;
+}
+
+.bridge-select {
+  background-color: #0a0a0a;
+  border-color: #333333;
+  color: #ffffff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+}
+
+.bridge-amount-input {
+  background: #0a0a0a;
+  border-color: #333333;
+  color: #ffffff;
+}
+
+.bridge-amount-input::placeholder {
+  color: #555555;
+}
+
+.bridge-swap-btn {
+  border-color: #0a0a0a;
+}
+
+.bridge-address-input {
+  background: #1a1a1a;
+  border-color: #333333;
+  color: #ffffff;
+}
+
+.bridge-address-input:focus {
+  background: #0a0a0a;
+}
+
+.bridge-simulation-section {
+  background: #1a1a1a;
+}
+
+.bridge-simulation-row {
+  border-bottom-color: #333333;
+}
+
+.bridge-simulation-label {
+  color: #888888;
+}
+
+.bridge-simulation-value {
+  color: #ffffff;
+}
+
+.bridge-warning-message {
+  background: rgba(234, 179, 8, 0.1);
+  color: #fbbf24;
+}
+
+.bridge-deposit-section {
+  background: #1a1a1a;
+}
+
+.bridge-deposit-label {
+  color: #888888;
+}
+
+.bridge-deposit-address-box {
+  background: #0a0a0a;
+  border-color: #333333;
+}
+
+.bridge-deposit-address {
+  color: #ffffff;
+}
+
+.bridge-deposit-amount {
+  color: #888888;
+}
+
+.bridge-deposit-amount strong {
+  color: #ffffff;
+}
+
+.bridge-progress-steps::before {
+  background: #333333;
+}
+
+.bridge-step-icon {
+  background: #333333;
+}
+
+.bridge-progress-step.active .bridge-step-label,
+.bridge-progress-step.completed .bridge-step-label {
+  color: #ffffff;
+}
+
+.bridge-order-details {
+  background: #1a1a1a;
+}
+
+.bridge-order-row:not(:last-child) {
+  border-bottom-color: #333333;
+}
+
+.bridge-order-label {
+  color: #888888;
+}
+
+.bridge-order-value {
+  color: #ffffff;
+}
