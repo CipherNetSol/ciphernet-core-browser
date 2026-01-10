@@ -102,7 +102,6 @@ window.empty = function (node) {
   }
 }
 
-
 window.addEventListener('load', function () {
   var isMouseDown = false
   var isDragging = false

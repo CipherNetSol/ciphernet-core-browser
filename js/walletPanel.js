@@ -1153,6 +1153,7 @@ const walletPanel = {
     }
 
     
+
     // Update summary
     if (isValid && this.elements.sendSummary) {
       this.elements.sendSummary.style.display = 'block'

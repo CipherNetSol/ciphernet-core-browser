@@ -16,7 +16,6 @@ const ciphernetNavBar = {
 
   initialize: function () {
 
-    // Get DOM elements
     ciphernetNavBar.bar = document.getElementById('ciphernet-nav-bar')
     ciphernetNavBar.searchInput = document.getElementById('ciphernet-search-input')
     ciphernetNavBar.walletButton = document.getElementById('wallet-button')

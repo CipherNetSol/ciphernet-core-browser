@@ -33,6 +33,149 @@ const statusTextMap = {
 
 const finalStatuses = ['completed', 'failed', 'refunded', 'expired']
 
+/**
+ * Address validation functions for different networks
+ */
+const addressValidators = {
+  /**
+   * Validate Solana address (base58, 32-44 characters)
+   */
+  sol: function (address) {
+    if (!address || typeof address !== 'string') return false
+    // Solana addresses are base58 encoded, typically 32-44 characters
+    // Base58 alphabet: 123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz
+    const base58Regex = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/
+    return base58Regex.test(address)
+  },
+
+  /**
+   * Validate Ethereum address (0x + 40 hex characters)
+   */
+  eth: function (address) {
+    if (!address || typeof address !== 'string') return false
+    // Ethereum addresses are 0x followed by 40 hexadecimal characters
+    const ethRegex = /^0x[a-fA-F0-9]{40}$/
+    return ethRegex.test(address)
+  },
+
+  /**
+   * Validate Bitcoin address (various formats)
+   */
+  btc: function (address) {
+    if (!address || typeof address !== 'string') return false
+    // Legacy (P2PKH): starts with 1, 25-34 chars
+    // Legacy (P2SH): starts with 3, 25-34 chars
+    // Bech32 (SegWit): starts with bc1, 42-62 chars
+    const legacyRegex = /^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$/
+    const bech32Regex = /^bc1[a-z0-9]{39,59}$/i
+    return legacyRegex.test(address) || bech32Regex.test(address)
+  },
+
+  /**
+   * Validate Litecoin address
+   */
+  ltc: function (address) {
+    if (!address || typeof address !== 'string') return false
+    // Legacy: starts with L or M, 26-35 chars
+    // Bech32: starts with ltc1
+    const legacyRegex = /^[LM][a-km-zA-HJ-NP-Z1-9]{26,34}$/
+    const bech32Regex = /^ltc1[a-z0-9]{39,59}$/i
+    return legacyRegex.test(address) || bech32Regex.test(address)
+  },
+
+  /**
+   * Validate Tron address (starts with T, 34 characters)
+   */
+  trx: function (address) {
+    if (!address || typeof address !== 'string') return false
+    const tronRegex = /^T[a-km-zA-HJ-NP-Z1-9]{33}$/
+    return tronRegex.test(address)
+  },
+
+  /**
+   * Validate BSC/BNB address (same as Ethereum)
+   */
+  bsc: function (address) {
+    return addressValidators.eth(address)
+  },
+
+  /**
+   * Validate Polygon address (same as Ethereum)
+   */
+  matic: function (address) {
+    return addressValidators.eth(address)
+  },
+
+  /**
+   * Validate Avalanche C-Chain address (same as Ethereum)
+   */
+  avax: function (address) {
+    return addressValidators.eth(address)
+  },
+
+  /**
+   * Validate Arbitrum address (same as Ethereum)
+   */
+  arb: function (address) {
+    return addressValidators.eth(address)
+  },
+
+  /**
+   * Validate Optimism address (same as Ethereum)
+   */
+  op: function (address) {
+    return addressValidators.eth(address)
+  },
+
+  /**
+   * Validate Monero address
+   */
+  xmr: function (address) {
+    if (!address || typeof address !== 'string') return false
+    // Standard address: 95 chars starting with 4
+    // Integrated address: 106 chars starting with 4
+    // Subaddress: 95 chars starting with 8
+    const xmrRegex = /^[48][0-9AB][1-9A-HJ-NP-Za-km-z]{93,104}$/
+    return xmrRegex.test(address)
+  },
+
+  /**
+   * Generic fallback - just check if address is non-empty and reasonable length
+   */
+  default: function (address) {
+    if (!address || typeof address !== 'string') return false
+    return address.length >= 20 && address.length <= 120
+  }
+}
+
+/**
+ * Get appropriate validator for a network
+ */
+function getAddressValidator(network) {
+  const networkLower = (network || '').toLowerCase()
+  return addressValidators[networkLower] || addressValidators.default
+}
+
+/**
+ * Get user-friendly network name for error messages
+ */
+function getNetworkDisplayName(network) {
+  const names = {
+    'sol': 'Solana',
+    'eth': 'Ethereum',
+    'btc': 'Bitcoin',
+    'ltc': 'Litecoin',
+    'trx': 'Tron',
+    'bsc': 'BNB Smart Chain',
+    'matic': 'Polygon',
+    'avax': 'Avalanche',
+    'arb': 'Arbitrum',
+    'op': 'Optimism',
+    'xmr': 'Monero'
+  }
+  return names[network?.toLowerCase()] || network?.toUpperCase() || 'Unknown'
+}
+
 const bridgePanel = {
   panel: null,
   isOpen: false,
@@ -162,6 +305,8 @@ const bridgePanel = {
         this.toNetwork = e.target.value
         this.updateCurrencyOptions('to')
         this.runSimulation()
+        // Re-validate address when destination network changes
+        this.validateForm()
       })
     }
 
@@ -496,6 +641,25 @@ const bridgePanel = {
       }
     }
 
+    // Validate recipient address based on destination network
+    let isAddressValid = false
+    let addressError = ''
+
+    if (this.recipientAddress && this.toNetwork) {
+      const validator = getAddressValidator(this.toNetwork)
+      isAddressValid = validator(this.recipientAddress)
+
+      if (!isAddressValid) {
+        const networkName = getNetworkDisplayName(this.toNetwork)
+        addressError = `Invalid ${networkName} address`
+      }
+    } else if (this.recipientAddress && !this.toNetwork) {
+      // If address is entered but no network selected yet, show generic validation
+      addressError = 'Select destination network first'
+    } else if (!this.recipientAddress) {
+      addressError = 'Enter recipient address'
+    }
+
     const isValid = this.fromNetwork &&
       this.fromCurrency &&
       this.toNetwork &&
@@ -503,6 +667,7 @@ const bridgePanel = {
       this.amount &&
       amountNum > 0 &&
       this.recipientAddress &&
+      isAddressValid &&
       this.simulation &&
       !isBelowMinimum
 
@@ -512,8 +677,23 @@ const bridgePanel = {
       // Update button text to show why disabled
       if (isBelowMinimum) {
         this.elements.createBtn.innerHTML = '<i class="i carbon:warning"></i> Amount below minimum'
+      } else if (this.recipientAddress && !isAddressValid) {
+        this.elements.createBtn.innerHTML = '<i class="i carbon:warning"></i> ' + addressError
       } else {
         this.elements.createBtn.innerHTML = '<i class="i carbon:arrow-right"></i> Create Bridge'
+      }
+    }
+
+    // Update recipient input styling to show validation state
+    if (this.elements.recipientInput) {
+      if (this.recipientAddress && !isAddressValid) {
+        this.elements.recipientInput.classList.add('invalid-address')
+        this.elements.recipientInput.classList.remove('valid-address')
+      } else if (this.recipientAddress && isAddressValid) {
+        this.elements.recipientInput.classList.remove('invalid-address')
+        this.elements.recipientInput.classList.add('valid-address')
+      } else {
+        this.elements.recipientInput.classList.remove('invalid-address', 'valid-address')
       }
     }
   },
