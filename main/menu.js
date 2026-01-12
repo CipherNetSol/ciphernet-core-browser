@@ -6,7 +6,6 @@ function buildAppMenu (options = {}) {
 
     if (value) {
       if (Array.isArray(value)) {
-        // value is array if multiple entries are set
         return value[0].replace('mod', 'CmdOrCtrl')
       } else {
         return value.replace('mod', 'CmdOrCtrl')
@@ -21,7 +20,6 @@ function buildAppMenu (options = {}) {
       label: l('appMenuNewTab'),
       accelerator: getFormattedKeyMapEntry('addTab'),
       click: function (item, window, event) {
-        // keyboard shortcuts for these items are handled in the renderer
         if (!event.triggeredByAccelerator) {
           sendIPCToWindow(window, 'addTab')
         }

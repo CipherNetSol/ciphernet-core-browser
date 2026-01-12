@@ -24,7 +24,6 @@ const ciphernetNavBar = {
     ciphernetNavBar.vpnButton = document.getElementById('vpn-button')
     var logoContainer = document.getElementById('ciphernet-logo-container')
 
-    // Check if elements exist
     if (!ciphernetNavBar.bar || !ciphernetNavBar.searchInput) {
       console.error('CipherNet NavBar: Required elements not found!')
       return

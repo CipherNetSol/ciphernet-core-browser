@@ -1129,11 +1129,9 @@ const walletPanel = {
       isValid = false
     }
 
-    // Validate amount
     if (!amountStr || isNaN(amount) || amount <= 0) {
       isValid = false
     } else if (this.sendAsset) {
-      // Use lamports-based calculation for SOL to match setMaxAmount precision
       let maxAmount
       if (this.sendAsset.type === 'sol') {
         const balanceLamports = Math.floor(this.sendAsset.balance * 1e9)

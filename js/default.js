@@ -94,7 +94,6 @@ window.debounce = function (fn, delay) {
     }, delay)
   }
 }
-
 window.empty = function (node) {
   var n
   while (n = node.firstElementChild) {
