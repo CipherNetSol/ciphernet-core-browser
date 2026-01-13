@@ -65,6 +65,7 @@ body.windows:not(.separate-titlebar) {
   display: none;
 }
 
+
 body.windows:not(.separate-titlebar) .windows-caption-buttons {
   display: flex;
   position: absolute;
@@ -115,6 +116,27 @@ body:not(.task-overlay-is-shown).dark-theme .windows-caption-buttons .element {
 .windows-caption-buttons .element.caption-close:active {
   background-color: rgba(232, 17, 35, 0.6);
 }
+/* .windows-caption-buttons .element {
+  transition: background-color 0.1s linear, color 0.1s linear;
+}
+.windows-caption-buttons .element:hover {
+  background-color: rgba(196, 196, 196, 0.4);
+  transition: none;
+}
+.windows-caption-buttons .element:active {
+  background-color: rgba(168, 168, 168, 0.5);
+}
+.windows-caption-buttons .element.caption-close:hover {
+  background-color: #e81123;
+}
+.windows-caption-buttons .element.caption-close:hover > svg,
+.windows-caption-buttons .element.caption-close:active > svg {
+  stroke: #fff;
+  stroke-width: 1.1px;
+}
+.windows-caption-buttons .element.caption-close:active {
+  background-color: rgba(232, 17, 35, 0.6);
+} */
 
 /* Linux buttons */
 

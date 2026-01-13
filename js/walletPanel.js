@@ -900,10 +900,6 @@ const walletPanel = {
     }
   },
 
-  // ================================
-  // TOKEN LIST METHODS
-  // ================================
-
   async refreshTokens() {
     if (this.isTokensLoading) return
 

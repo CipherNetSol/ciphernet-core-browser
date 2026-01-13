@@ -1,8 +1,3 @@
-// Wallet IPC Handlers - Bridge between main process and renderer/webviews
-// Note: ipc (ipc), BaseWindow are available from electron require in main.js
-// walletManager is loaded before this file in buildMain.js
-
-// Store pending approval requests
 const pendingApprovals = new Map()
 
 function setupWalletIPC() {
@@ -17,6 +12,14 @@ function setupWalletIPC() {
       return { success: false, error: error.message }
     }
   })
+  // ipc.handle('wallet:initialize', async () => {
+  //   try {
+  //     const result = walletManager.initialize()
+  //     return { success: true, data: result }
+  //   } catch (error) {
+  //     return { success: false, error: error.message }
+  //   }
+  // })
 
   // Get public key
   ipc.handle('wallet:getPublicKey', async () => {

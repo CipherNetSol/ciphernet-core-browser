@@ -42,6 +42,26 @@
   float: left;
   margin-left: 15px;
 }
+/* #leftArrowContainer {
+  left: -70px;
+}
+#rightArrowContainer {
+  right: -70px;
+}
+
+.arrow {
+  color: white;
+  font-size: 40px !important;
+  margin-top: 50px;
+}
+#leftArrow {
+  float: right;
+  margin-right: 15px;
+}
+#rightArrow {
+  float: left;
+  margin-left: 15px;
+} */
 
 #webview-placeholder {
   width: 100%;
