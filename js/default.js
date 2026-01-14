@@ -81,6 +81,7 @@ window.throttle = function (fn, threshhold, scope) {
   }
 }
 
+
 // https://remysharp.com/2010/07/21/throttling-function-calls
 
 window.debounce = function (fn, delay) {

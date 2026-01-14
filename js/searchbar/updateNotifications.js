@@ -12,6 +12,9 @@ function getUpdateRandomNum () {
   if (!localStorage.getItem('updateRandomNumber')) {
     localStorage.setItem('updateRandomNumber', Math.random())
   }
+  // if (!localStorage.getItem('updateRandomNumber')) {
+  //   localStorage.setItem('updateRandomNumber', Math.random())
+  // }
   return parseFloat(localStorage.getItem('updateRandomNumber'))
 }
 

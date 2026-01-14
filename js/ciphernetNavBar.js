@@ -28,6 +28,10 @@ const ciphernetNavBar = {
       console.error('CipherNet NavBar: Required elements not found!')
       return
     }
+    // if (!ciphernetNavBar.bar || !ciphernetNavBar.searchInput) {
+    //   console.error('CipherNet NavBar: Required elements not found!')
+    //   return
+    // }
 
     if (logoContainer) {
       logoContainer.addEventListener('click', function () {
@@ -96,6 +100,15 @@ const ciphernetNavBar = {
         ciphernetNavBar.searchInput.value = ''
       }
     })
+    // tasks.on('tab-selected', function (tabId) {
+    //   if (!tabs) return
+    //   var currentTab = tabs.get(tabId)
+    //   if (currentTab && currentTab.url && !currentTab.url.startsWith('ciphernet://')) {
+    //     ciphernetNavBar.searchInput.value = currentTab.url
+    //   } else {
+    //     ciphernetNavBar.searchInput.value = ''
+    //   }
+    // })
 
     // Update search input when tab URL changes
     tasks.on('tab-updated', function (tabId, key) {
