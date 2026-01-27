@@ -384,9 +384,21 @@ app.on('ready', function () {
   // setupBridgeIPC is available globally from bridgeIPC.js (loaded via buildMain.js)
   setupBridgeIPC();
 
+  // Initialize Adblock IPC handlers
+  // setupAdblockIPC is available globally from adblockIPC.js (loaded via buildMain.js)
+  setupAdblockIPC();
+
   // Initialize wallet on startup (session-based ephemeral wallet)
   // walletManager is available globally from walletManager.js (loaded via buildMain.js)
   walletManager.initialize();
+
+  // Initialize adblock system
+  const adblockManager = getAdblockManager()
+  adblockManager.initialize(session.defaultSession).then(() => {
+    console.log('[CipherNet] Adblock system initialized')
+  }).catch(err => {
+    console.error('[CipherNet] Adblock initialization failed:', err)
+  })
 
   registerBundleProtocol(session.defaultSession)
 
