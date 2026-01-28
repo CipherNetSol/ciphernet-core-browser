@@ -312,6 +312,85 @@ function buildAppMenu (options = {}) {
             if (process.platform == 'darwin') { return 'Ctrl+Command+F' } else { return 'F11' }
           })(),
           role: 'togglefullscreen'
+        },
+        {
+          type: 'separator'
+        },
+        {
+          label: 'Adblock',
+          submenu: [
+            {
+              label: 'Enable Adblock',
+              type: 'checkbox',
+              checked: true,
+              click: async function (item, window) {
+                try {
+                  const adblockManager = getAdblockManager()
+                  const newState = adblockManager.toggleGlobal()
+                  item.checked = newState
+                } catch (error) {
+                  console.error('[Menu] Adblock toggle error:', error)
+                }
+              }
+            },
+            {
+              label: 'Disable for This Site',
+              click: async function (item, window) {
+                try {
+                  const adblockManager = getAdblockManager()
+
+                  // Get current page URL from focused window
+                  if (window) {
+                    const webContents = getWindowWebContents(window)
+                    if (webContents) {
+                      webContents.send('adblock-toggle-site')
+                    }
+                  }
+                } catch (error) {
+                  console.error('[Menu] Adblock site toggle error:', error)
+                }
+              }
+            },
+            {
+              type: 'separator'
+            },
+            {
+              label: 'Update Filter Lists',
+              click: async function (item, window) {
+                try {
+                  const adblockManager = getAdblockManager()
+
+                  const result = await adblockManager.updateFilterLists(true)
+
+                  if (result.success) {
+                    dialog.showMessageBox({
+                      type: 'info',
+                      title: 'Adblock',
+                      message: result.updated
+                        ? `Filter lists updated successfully. ${result.listsCount} lists downloaded.`
+                        : 'Filter lists are already up to date.',
+                      buttons: ['OK']
+                    })
+                  } else {
+                    dialog.showMessageBox({
+                      type: 'error',
+                      title: 'Adblock',
+                      message: 'Failed to update filter lists: ' + (result.error || 'Unknown error'),
+                      buttons: ['OK']
+                    })
+                  }
+                } catch (error) {
+                  console.error('[Menu] Adblock update error:', error)
+                  dialog.showMessageBox({
+                    type: 'error',
+                    title: 'Adblock',
+                    message: 'Failed to update filter lists: ' + error.message,
+                    buttons: ['OK']
+                  })
+                }
+              }
+            }
+          ]
         }
       ]
     },
