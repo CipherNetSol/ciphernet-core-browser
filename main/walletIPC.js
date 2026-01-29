@@ -1,3 +1,4 @@
+// main\walletIPC.js
 const pendingApprovals = new Map()
 
 function setupWalletIPC() {
