@@ -248,14 +248,17 @@ function setFilteringSettings (settings) {
 }
 
 function registerFiltering (ses) {
-  ses.webRequest.onBeforeRequest(handleRequest)
+  // DISABLED: Conflicts with new unified adblock handler
+  // ses.webRequest.onBeforeRequest(handleRequest)
+  console.log('[Old Filtering] DISABLED - using unified adblock handler instead')
 }
 
-app.once('ready', function () {
-  registerFiltering(session.defaultSession)
-})
+// DISABLED: Let adblock manager handle webRequest
+// app.once('ready', function () {
+//   registerFiltering(session.defaultSession)
+// })
 
-app.on('session-created', registerFiltering)
+// app.on('session-created', registerFiltering)
 
 settings.listen('filtering', function (value) {
   // migrate from old settings (<v1.9.0)
