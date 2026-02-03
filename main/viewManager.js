@@ -6,6 +6,96 @@ var temporaryPopupViews = {} // id: view
 // rate limit on "open in app" requests
 var globalLaunchRequests = 0
 
+// Ad popup domains - streaming sites redirect clicks to these
+var adPopupDomains = [
+  'adsbygoogle', 'doubleclick.net', 'googlesyndication.com', 'googleadservices.com',
+  'taboola.com', 'outbrain.com', 'advertising.com', 'smartadserver.com',
+  'pubmatic.com', 'casalemedia.com', 'serving-sys.com', 'appnexus.com',
+  'adnimbus.com', 'adcolony.com', 'admob.com', 'adreactor.com',
+  'adtelligent.com', 'adtarget.com', 'adknowledge.com', 'adnetik.com',
+  'clickbooth.com', 'clickdealer.com', 'clickbooth.net', 'clicktale.net',
+  'popads.net', 'popcash.net', 'popunder.com', 'trafficjunky.com',
+  'adcash.com', 'adclick.com', 'adcolony.com', 'adconion.com',
+  'adify.com', 'adfonic.com', 'adknowledge.com', 'adlifetech.com',
+  'admeld.com', 'admix.in', 'adknowledge.com', 'adnimbus.com',
+  'adserve.me', 'adware.com', 'exoclick.com', 'exoclick.net',
+  'trafficleader.com', 'widgetbucks.com', 'adMedia.com', 'inmobi.com',
+  'mobovida.com', 'bidtellect.com', 'hotstar.com', 'adspush.com',
+  'adsterra.com', 'propellerads.com', 'propellerads.net', 'popunder.net',
+  'adultadworld.com', 'adspop.com', 'adsense.com', 'iclick.com',
+  'leadflash.com', 'zumobi.com', 'yieldmo.com', 'yieldlab.de',
+  'cdn.gametrailers.com', 'vserv.com', 'videofactory.com',
+  'castorsperron.top', 'v2006.com', 'felspartreen.shop', 'gekkoforehew.shop',
+  'sexselector.com', 'adpopup.com', 'trafficstar.net', 'adnow.com', 'mgid.com',
+  'revcontent.com', 'criteo.com', '33across.com', 'conversant.com'
+]
+
+// Safe domains — new tabs to these are always allowed
+var safeDomains = [
+  'youtube.com', 'google.com', 'googleapis.com', 'facebook.com',
+  'twitter.com', 'x.com', 'reddit.com', 'wikipedia.org', 'github.com',
+  'discord.com', 'instagram.com', 'twitch.tv', 'patreon.com',
+  'ko-fi.com', 'paypal.com', 'amazon.com', 'netflix.com',
+  'spotify.com', 'apple.com', 'microsoft.com', 'linkedin.com',
+  'stackoverflow.com', 'medium.com', 'telegram.org', 'whatsapp.com',
+  'gmail.com', 'mail.google.com', 'drive.google.com', 'docs.google.com',
+  'store.google.com', 'play.google.com', 'maps.google.com'
+]
+
+function isAdPopupUrl (url) {
+  try {
+    var hostname = new URL(url).hostname.toLowerCase()
+    for (var i = 0; i < adPopupDomains.length; i++) {
+      if (hostname === adPopupDomains[i] || hostname.endsWith('.' + adPopupDomains[i])) {
+        return true
+      }
+    }
+    if (url.includes('aff_id=') || url.includes('affiliate=') || url.includes('clickid=') || url.includes('pbref=')) {
+      return true
+    }
+  } catch (e) {}
+  return false
+}
+
+function isSafeDomain (hostname) {
+  for (var i = 0; i < safeDomains.length; i++) {
+    if (hostname === safeDomains[i] || hostname.endsWith('.' + safeDomains[i])) {
+      return true
+    }
+  }
+  return false
+}
+
+// Block new tab if source is an unknown site and target is also unknown
+// This catches ad redirects from streaming/piracy sites where ads use random generated domains
+// Safe sites (youtube, reddit, etc.) are excluded as sources so their links work normally
+function isAdRedirectFromStreamingSite (sourceUrl, targetUrl) {
+  try {
+    var sourceHost = new URL(sourceUrl).hostname.toLowerCase()
+    var targetHost = new URL(targetUrl).hostname.toLowerCase()
+
+    // Same domain or subdomain = real navigation, allow
+    if (sourceHost === targetHost || sourceHost.endsWith('.' + targetHost) || targetHost.endsWith('.' + sourceHost)) {
+      return false
+    }
+
+    // If the source is a known safe domain, allow the new tab — user is navigating normally
+    if (isSafeDomain(sourceHost)) {
+      return false
+    }
+
+    // Target is a known safe domain — allow
+    if (isSafeDomain(targetHost)) {
+      return false
+    }
+
+    // Source is unknown, target is unknown, different domains = block (ad redirect pattern)
+    console.log('[CipherNet] Blocked ad redirect from', sourceHost, '->', targetHost)
+    return true
+  } catch (e) {}
+  return false
+}
+
 function getDefaultViewWebPreferences () {
   return (
     {
@@ -78,6 +168,32 @@ function createView (existingViewId, id, webPreferences, boundsString, events) {
   })
 
   view.webContents.setWindowOpenHandler(function (details) {
+    // Block ad popups from streaming sites and ad networks
+    if (details.url && isAdPopupUrl(details.url)) {
+      return { action: 'deny' }
+    }
+
+    // Also check via adblock engine if available
+    if (details.url) {
+      try {
+        var adblockMgr = getAdblockManager()
+        if (adblockMgr && adblockMgr.engine && adblockMgr.engine.blocker) {
+          var match = adblockMgr.engine.blocker.match({
+            url: details.url,
+            hostname: new URL(details.url).hostname,
+            domain: new URL(details.url).hostname,
+            sourceUrl: view.webContents.getURL(),
+            sourceHostname: new URL(view.webContents.getURL()).hostname,
+            sourceDomain: new URL(view.webContents.getURL()).hostname,
+            type: 'document'
+          })
+          if (match.networkFilter) {
+            return { action: 'deny' }
+          }
+        }
+      } catch (e) {}
+    }
+
     if (details.url && !filterPopups(details.url)) {
       return {
         action: 'deny'
@@ -92,6 +208,20 @@ function createView (existingViewId, id, webPreferences, boundsString, events) {
       (https://github.com/minbrowser/min/issues/1835)
     */
     if (!details.features) {
+      // Block ad popups before the new tab is even created
+      if (details.url && isAdPopupUrl(details.url)) {
+        return { action: 'deny' }
+      }
+      // Block cross-domain redirects from streaming sites (ad pattern)
+      if (details.url) {
+        try {
+          var sourceUrl = view.webContents.getURL()
+          if (sourceUrl && isAdRedirectFromStreamingSite(sourceUrl, details.url)) {
+            return { action: 'deny' }
+          }
+        } catch (e) {}
+      }
+
       const eventTarget = getWindowFromViewContents(view.webContents) || windows.getCurrent()
 
       getWindowWebContents(eventTarget).send('view-event', {
@@ -237,6 +367,73 @@ function createView (existingViewId, id, webPreferences, boundsString, events) {
   view.setBounds(JSON.parse(boundsString))
 
   viewMap[id] = view
+
+  // FIX: Increase max listeners to prevent warnings
+  view.webContents.setMaxListeners(20);
+
+  // FIX 1: Attach adblock to the ACTUAL session used by this webContents
+  // Each view may use a different session partition - we must initialize adblock for that session
+  try {
+    const viewSession = view.webContents.session
+    const adblockManager = getAdblockManager()
+
+    // Initialize adblock for this specific session (will be cached per session)
+    adblockManager.initializeForSession(viewSession).catch((err) => {
+      if ((process.env.ADBLOCK_DEBUG === '1')) {
+        console.error('[ViewManager] Failed to init adblock for session:', viewSession.getPartition(), err)
+      }
+    })
+
+    if ((process.env.ADBLOCK_DEBUG === '1')) {
+      console.log('[ViewManager] Initialized adblock for session:', viewSession.getPartition())
+    }
+  } catch (error) {
+    console.error('[ViewManager] Error setting up adblock:', error)
+  }
+
+  // FIX 4: Block popups and click-redirects for streaming sites
+  // Already has setWindowOpenHandler above, but ensure it denies aggressive popups
+  // The existing handler at line 80 already does this via filterPopups
+
+  // Track injection to avoid duplicates
+  let injectedForNavigation = null
+  let navigationHandler = null
+  let domReadyHandler = null
+
+  // Inject on navigation start (earliest possible)
+  navigationHandler = function (event) {
+    if (event.isMainFrame && !event.isSameDocument) {
+      injectedForNavigation = event.url
+      try {
+        const adblockManager = getAdblockManager()
+        adblockManager.injectIntoWebContents(view.webContents).catch(() => {})
+      } catch (error) {}
+    }
+  }
+  view.webContents.on('did-start-navigation', navigationHandler)
+
+  // Inject when DOM is ready (if not already injected for this URL)
+  domReadyHandler = function () {
+    try {
+      const currentURL = view.webContents.getURL()
+      if (injectedForNavigation !== currentURL) {
+        const adblockManager = getAdblockManager()
+        adblockManager.injectIntoWebContents(view.webContents).catch(() => {})
+        injectedForNavigation = currentURL
+      }
+    } catch (error) {}
+  }
+  view.webContents.on('dom-ready', domReadyHandler)
+
+  // Clean up listeners on destroy to prevent MaxListenersExceededWarning
+  view.webContents.once('destroyed', function () {
+    if (navigationHandler) {
+      view.webContents.removeListener('did-start-navigation', navigationHandler)
+    }
+    if (domReadyHandler) {
+      view.webContents.removeListener('dom-ready', domReadyHandler)
+    }
+  })
 
   return view
 }
