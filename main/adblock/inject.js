@@ -6,7 +6,10 @@ const UNIVERSAL_AD_BLOCKING_CSS = `
 ytd-display-ad-renderer,
 ytd-promoted-video-renderer,
 ytd-ad-slot-renderer,
-#panels.ytd-watch-flexy { display: none !important; }
+#panels.ytd-watch-flexy,
+ytd-companion-slot-renderer,
+ytd-player-legacy-desktop-watch-ads-renderer,
+.ytwTopBannerImageTextIconButtonedLayoutViewModelHost { display: none !important; }
 `;
 
 const GENERIC_COSMETIC_SCRIPT = `
@@ -19,7 +22,10 @@ const GENERIC_COSMETIC_SCRIPT = `
     'ytd-display-ad-renderer',
     'ytd-promoted-video-renderer',
     'ytd-ad-slot-renderer',
-    '#panels.ytd-watch-flexy'
+    '#panels.ytd-watch-flexy',
+    'ytd-companion-slot-renderer',
+    'ytd-player-legacy-desktop-watch-ads-renderer',
+    '.ytwTopBannerImageTextIconButtonedLayoutViewModelHost'
   ];
 
   function hideAds() {
@@ -35,6 +41,130 @@ const GENERIC_COSMETIC_SCRIPT = `
   setInterval(hideAds, 2000);
   if (document.readyState !== 'loading') hideAds();
 
+  // === POPUP AD BLOCKER (all sites) ===
+  if (!window.__ciphernetPopupBlocker) {
+    window.__ciphernetPopupBlocker = true;
+
+    var currentHost = window.location.hostname.toLowerCase();
+
+    // Helper: check if a URL is an ad
+    function isAdUrl(url) {
+      if (!url) return false;
+      var urlStr = String(url);
+      // Tracking params = ad
+      if (/aff_id=|affiliate=|clickid=|pbref=|tracking=|clid=|click_id=/i.test(urlStr)) return true;
+      try {
+        var host = new URL(urlStr).hostname.toLowerCase();
+        // Same domain = not an ad (real navigation)
+        if (host === currentHost || host.endsWith('.' + currentHost) || currentHost.endsWith('.' + host)) return false;
+        // Known ad domains
+        var adDomains = [
+          'adcash.com','adcolony.com','admeld.com','adnetik.com','adpop.com',
+          'adpopup.com','adserve.me','adsterra.com','adtelligent.com','adtarget.com',
+          'clickbooth.com','clickdealer.com','doubleclick.net','exoclick.com',
+          'exoclick.net','googlesyndication.com','googleadservices.com',
+          'inmobi.com','leadflash.com','mobovida.com','popads.net','popcash.net',
+          'propellerads.com','propellerads.net','pubmatic.com','smartadserver.com',
+          'taboola.com','trafficjunky.com','trafficleader.com','widgetbucks.com',
+          'yieldmo.com','appnexus.com','casalemedia.com','outbrain.com',
+          'advertising.com','serving-sys.com','vserv.com','bidtellect.com',
+          'adspush.com','iclick.com','zumobi.com','videofactory.com',
+          'admob.com','adreactor.com','adknowledge.com','adlifetech.com',
+          'admix.in','adware.com','adMedia.com','trafficstar.net',
+          'adnow.com','adnow.ru','mgid.com','revcontent.com',
+          'criteo.com','33across.com','somoaudience.com','conversant.com'
+        ];
+        for (var i = 0; i < adDomains.length; i++) {
+          if (host === adDomains[i] || host.endsWith('.' + adDomains[i])) return true;
+        }
+      } catch (e) {}
+      return false;
+    }
+
+    // 1. Override window.open - catches window.open() calls
+    var _origOpen = window.open;
+    window.open = function (url, target, features) {
+      if (url && isAdUrl(String(url))) {
+        console.log('[CipherNet-PopupBlock] Blocked window.open:', String(url).substring(0, 100));
+        return null;
+      }
+      return _origOpen.apply(this, arguments);
+    };
+
+    // 2. Click interceptor - catches <a target="_blank"> and click-handler redirects
+    // This runs at capture phase so it fires BEFORE the site's own handlers
+    document.addEventListener('click', function (e) {
+      // Walk up from the clicked element to find an <a> tag
+      var el = e.target;
+      var link = null;
+      for (var i = 0; i < 5; i++) {
+        if (!el) break;
+        if (el.tagName === 'A' && el.href) { link = el; break; }
+        el = el.parentElement;
+      }
+      if (link && link.href) {
+        var href = link.href;
+        // Block if it's a target="_blank" link to an ad domain
+        if (link.target === '_blank' && isAdUrl(href)) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          console.log('[CipherNet-PopupBlock] Blocked <a target=_blank>:', href.substring(0, 100));
+          return false;
+        }
+      }
+    }, true); // capture phase
+
+    // 3. Remove fake overlay popups (Download buttons, close-X popups, etc.)
+    // Only active on non-YouTube pages — YouTube's own UI uses overlays legitimately
+    function removePopupOverlays() {
+      if (window.location.hostname.includes('youtube.com')) return;
+
+      var allEls = document.querySelectorAll('*');
+      for (var i = 0; i < allEls.length; i++) {
+        var el = allEls[i];
+        if (!el || !el.style) continue;
+        var style = window.getComputedStyle(el);
+        var pos = style.position;
+        // Target fixed/absolute overlays that are not part of the page layout
+        if (pos !== 'fixed' && pos !== 'absolute') continue;
+        // Must be high z-index or cover a large area
+        var zIndex = parseInt(style.zIndex) || 0;
+        var rect = el.getBoundingClientRect();
+        var isLargeOverlay = rect.width > window.innerWidth * 0.3 && rect.height > 50;
+        if (zIndex < 100 && !isLargeOverlay) continue;
+        // Skip known legit elements
+        if (el.id === 'movie_player' || el.id === 'yt-ad-overlay') continue;
+        var tag = el.tagName.toLowerCase();
+        if (tag === 'video' || tag === 'canvas' || tag === 'iframe') continue;
+        // Check if it looks like an ad popup: has Download text or ad-specific keywords
+        var text = (el.textContent || '').toLowerCase();
+        var cls = (el.className || '').toLowerCase();
+        var hasAdKeyword = /\bdownload\b|\bclick here\b|\badblock\b|\badpopup\b|\bbanner ad\b|\bsponsored\b/i.test(text + ' ' + cls);
+        // Has a close button (X) and looks like an ad overlay (not a normal UI element)
+        var hasCloseBtn = el.querySelector('.fa-times, [aria-label*="close"], [class*="closeBtn"], [class*="close-btn"]');
+        if (hasAdKeyword || (hasCloseBtn && zIndex >= 100 && isLargeOverlay)) {
+          el.style.setProperty('display', 'none', 'important');
+          console.log('[CipherNet-PopupBlock] Removed overlay:', el.tagName, el.className ? el.className.substring(0, 60) : '');
+        }
+      }
+
+      // Also remove ad iframes directly
+      document.querySelectorAll('iframe').forEach(function (iframe) {
+        try {
+          var src = iframe.src || '';
+          if (isAdUrl(src)) {
+            iframe.style.setProperty('display', 'none', 'important');
+            console.log('[CipherNet-PopupBlock] Hidden ad iframe:', src.substring(0, 100));
+          }
+        } catch (e) {}
+      });
+    }
+
+    // Run overlay removal on load and periodically
+    if (document.readyState !== 'loading') removePopupOverlays();
+    setInterval(removePopupOverlays, 1500);
+  }
+
   // === YOUTUBE AD HANDLER ===
   if (!window.location.hostname.includes('youtube.com')) return;
   if (window.__ytAdHandler) return;
@@ -47,6 +177,7 @@ const GENERIC_COSMETIC_SCRIPT = `
   let checkInterval = null;
   let video = null;
   let originalMuted = false;
+  let originalPlaybackRate = 1;
   let skipClicked = false;
   let skipAttempts = 0;
   let adStartTime = 0;
@@ -89,20 +220,14 @@ const GENERIC_COSMETIC_SCRIPT = `
     const video = player.querySelector('video');
     if (!video) return false;
 
-    // CRITICAL: Wait at least 5 seconds into the ad before trying to skip
-    // YouTube has server-side skip timer that must expire first
+    // Skip very early frames - give player a moment to initialize
     const adElapsed = (Date.now() - adStartTime) / 1000;
-    if (adElapsed < 5.0) {
-      return false; // Too early - server-side timer hasn't expired
-    }
-
-    // Check video is actually playing (player readiness)
-    if (video.paused || video.seeking || video.readyState < 3) {
+    if (adElapsed < 0.5) {
       return false;
     }
 
-    // Check video has progressed (not frozen at 0:00)
-    if (video.currentTime < 0.5) {
+    // Check video is actually playing (player readiness)
+    if (video.paused || video.seeking || video.readyState < 2) {
       return false;
     }
 
@@ -130,7 +255,7 @@ const GENERIC_COSMETIC_SCRIPT = `
       }
     }
 
-    console.log('[YT-AdBlock] Attempting skip at', adElapsed.toFixed(1), 'seconds');
+    console.log('[YT-AdBlock] Attempting skip at', adElapsed.toFixed(2), 'seconds (real time)');
 
     // Get button position for system-level click
     const rect = btn.getBoundingClientRect();
@@ -167,19 +292,26 @@ const GENERIC_COSMETIC_SCRIPT = `
       console.log('[YT-AdBlock] Ad detected');
       adActive = true;
 
-      // Mute video - ALWAYS mute during ads
+      // Mute and speed up video during ads
       if (video) {
         originalMuted = video.muted;
+        originalPlaybackRate = video.playbackRate;
         video.muted = true;
-        console.log('[YT-AdBlock] Video muted (was:', originalMuted, ')');
+        video.playbackRate = 16;
+        console.log('[YT-AdBlock] Video muted (was:', originalMuted, ') and sped up to 16x');
       }
     }
-    // Ad is still active - ENFORCE mute continuously
+    // Ad is still active - ENFORCE mute and speed continuously
     else if (nowAdActive && adActive) {
-      // Continuously enforce mute state during ad playback
-      if (video && !video.muted) {
-        video.muted = true;
-        console.log('[YT-AdBlock] Re-muting video (YouTube tried to unmute)');
+      if (video) {
+        if (!video.muted) {
+          video.muted = true;
+          console.log('[YT-AdBlock] Re-muting video (YouTube tried to unmute)');
+        }
+        if (video.playbackRate !== 16) {
+          video.playbackRate = 16;
+          console.log('[YT-AdBlock] Re-applying 16x speed (YouTube tried to reset)');
+        }
       }
 
       // Show overlay
@@ -232,10 +364,11 @@ const GENERIC_COSMETIC_SCRIPT = `
         checkInterval = null;
       }
 
-      // Restore video state - unmute if it wasn't muted before
+      // Restore video state - unmute and reset speed
       if (video) {
         video.muted = originalMuted;
-        console.log('[YT-AdBlock] Video unmuted (restored to:', originalMuted, ')');
+        video.playbackRate = originalPlaybackRate;
+        console.log('[YT-AdBlock] Restored: muted=' + originalMuted + ', speed=' + originalPlaybackRate + 'x');
       }
 
       // Hide overlay

@@ -1,5 +1,5 @@
 // main/adblock/engine.js
-// Ghostery/Cliqz ad blocking engine
+// Core ad blocking engine using @ghostery/adblocker-electron (Brave-inspired, actively maintained)
 
 const { ElectronBlocker } = require('@ghostery/adblocker-electron')
 
@@ -9,27 +9,21 @@ class AdblockEngine {
     this.listManager = listManager
     this.blocker = null
     this.session = null
-    this.blockedCounts = new Map()
+    this.blockedCounts = new Map() // webContentsId -> count
     this.isAttached = false
   }
 
   async initialize() {
     try {
-      console.log('[Adblock Engine] Initializing Ghostery blocker...')
+      if ((process.env.ADBLOCK_DEBUG === '1')) console.log('[Adblock Engine] Initializing...')
 
-      // Get combined filter lists
-      const filterLists = this.listManager.getCombinedLists()
+      // Ensure filter lists exist
+      await this.listManager.ensureListsExist()
 
-      if (!filterLists) {
-        throw new Error('No filter lists available')
-      }
+      // Build engine from local lists
+      await this.buildEngine()
 
-      // Create Ghostery blocker
-      this.blocker = ElectronBlocker.parse(filterLists, {
-        enableCompression: true
-      })
-
-      console.log('[Adblock Engine] Ghostery blocker initialized')
+      if ((process.env.ADBLOCK_DEBUG === '1')) console.log('[Adblock Engine] Initialized successfully')
       return true
     } catch (error) {
       console.error('[Adblock Engine] Initialization failed:', error)
@@ -38,7 +32,45 @@ class AdblockEngine {
   }
 
   async buildEngine() {
-    return this.initialize()
+    try {
+      if ((process.env.ADBLOCK_DEBUG === '1')) console.log('[Adblock Engine] Building blocker from filter lists...')
+
+      // Get combined filter lists
+      const filterLists = this.listManager.getCombinedLists()
+
+      if (!filterLists) {
+        throw new Error('No filter lists available')
+      }
+
+      // Parse and create blocker with AGGRESSIVE settings (Brave-like)
+      this.blocker = await ElectronBlocker.parse(filterLists, {
+        enableCompression: true,
+        enableHtmlFiltering: true, // Enable for better ad removal (cosmetic filtering)
+        enableMutationObserver: true, // Watch for dynamically added ads
+        loadCosmeticFilters: true, // Load element hiding rules
+        loadGenericCosmeticsFilters: true, // More aggressive cosmetic blocking
+        loadNetworkFilters: true // Network-level blocking
+      })
+
+      if ((process.env.ADBLOCK_DEBUG === '1')) {
+        const stats = this.blocker.getFilters()
+        console.log('[Adblock Engine] Blocker built:', {
+          networkFilters: stats.networkFilters?.length || 0,
+          cosmeticFilters: stats.cosmeticFilters?.length || 0
+        })
+      }
+
+      // Re-attach if we had a session
+      if (this.session && this.isAttached) {
+        await this.detachFromSession()
+        await this.attachToSession(this.session)
+      }
+
+      return true
+    } catch (error) {
+      console.error('[Adblock Engine] Build failed:', error)
+      return false
+    }
   }
 
   async attachToSession(session) {
@@ -50,47 +82,49 @@ class AdblockEngine {
     try {
       this.session = session
 
-      // Enable Ghostery blocking
+      // Enable blocking in session
       this.blocker.enableBlockingInSession(session)
 
+      // Track blocked requests
       this.blocker.on('request-blocked', (details) => {
         this.incrementBlockedCount(details.webContentsId)
-        console.log('[Adblock Engine] ✓ BLOCKED:', details.url.substring(0, 80))
+        if ((process.env.ADBLOCK_DEBUG === '1')) console.log('[Adblock] Blocked:', details.url)
       })
 
       this.blocker.on('request-redirected', (details) => {
-        console.log('[Adblock Engine] Redirected:', details.url)
+        if ((process.env.ADBLOCK_DEBUG === '1')) console.log('[Adblock] Redirected:', details.url)
       })
 
-      // UNIVERSAL AD BLOCKER: Add additional webRequest handler to catch anything Ghostery misses
-      session.webRequest.onBeforeRequest({ urls: ['<all_urls>'] }, (details, callback) => {
-        const url = details.url.toLowerCase();
-
-        // Block if URL contains ad-related patterns
-        const adPatterns = [
-          '/ads/', '/ad/', '/advert/', '/advertising/', '/banner/', '/banners/',
-          '/sponsor/', '/sponsored/', '/promo/', '/promotional/',
-          '/popunder/', '/popup/', '/tracking/', '/tracker/', '/analytics/',
-          '/clicktracker/', '/adclick/', '/adserver/', '/adservice/', '/adsystem/',
-          'doubleclick', 'googlesyndication', 'googleadservices', 'google-analytics',
-          'ad.', 'ads.', 'adserver.', 'banner.', 'click.', 'tracker.', 'analytics.',
-          '360yield', 'gammaplatform', 'imrworldwide', 'moatads', 'scorecardresearch',
-          'criteo', 'adnxs', 'adsafeprotected', 'outbrain', 'taboola'
-        ];
-
-        const isAdUrl = adPatterns.some(pattern => url.includes(pattern));
-
-        if (isAdUrl) {
-          this.incrementBlockedCount(details.webContentsId);
-          console.log('[Adblock Engine] ✓ UNIVERSAL BLOCK:', details.url.substring(0, 80));
-          callback({ cancel: true });
-        } else {
-          callback({});
+      // Custom filtering logic to respect allowlist
+      const originalMatch = this.blocker.match.bind(this.blocker)
+      this.blocker.match = (request) => {
+        // Check if adblock is globally disabled
+        if (!this.storage.isEnabled()) {
+          return { match: false }
         }
-      });
+
+        // Check if site is allowlisted
+        const url = request.url || request.sourceUrl || ''
+        const hostname = this.extractHostname(url)
+
+        if (hostname && this.storage.isSiteAllowlisted(hostname)) {
+          return { match: false }
+        }
+
+        // Check source URL for allowlist too
+        const sourceUrl = request.sourceUrl || request.documentURL || ''
+        const sourceHostname = this.extractHostname(sourceUrl)
+
+        if (sourceHostname && this.storage.isSiteAllowlisted(sourceHostname)) {
+          return { match: false }
+        }
+
+        // Use original matching logic
+        return originalMatch(request)
+      }
 
       this.isAttached = true
-      console.log('[Adblock Engine] Attached to session with Ghostery + Universal Blocker')
+      if ((process.env.ADBLOCK_DEBUG === '1')) console.log('[Adblock Engine] Attached to session')
       return true
     } catch (error) {
       console.error('[Adblock Engine] Error attaching to session:', error)
@@ -101,14 +135,12 @@ class AdblockEngine {
   async detachFromSession() {
     if (this.blocker && this.session) {
       try {
-        this.blocker.disableBlockingInSession(this.session)
-        // Ghostery blocker doesn't have removeAllListeners, skip it
-        if (typeof this.blocker.removeAllListeners === 'function') {
-          this.blocker.removeAllListeners('request-blocked')
-          this.blocker.removeAllListeners('request-redirected')
-        }
+        // Remove all listeners
+        this.blocker.removeAllListeners('request-blocked')
+        this.blocker.removeAllListeners('request-redirected')
+
         this.isAttached = false
-        console.log('[Adblock Engine] Detached from session')
+        if ((process.env.ADBLOCK_DEBUG === '1')) console.log('[Adblock Engine] Detached from session')
       } catch (error) {
         console.error('[Adblock Engine] Error detaching:', error)
       }
@@ -126,6 +158,7 @@ class AdblockEngine {
 
   incrementBlockedCount(webContentsId) {
     if (!webContentsId) return
+
     const current = this.blockedCounts.get(webContentsId) || 0
     this.blockedCounts.set(webContentsId, current + 1)
   }
@@ -143,7 +176,7 @@ class AdblockEngine {
   }
 
   async rebuild() {
-    console.log('[Adblock Engine] Rebuilding engine...')
+    if ((process.env.ADBLOCK_DEBUG === '1')) console.log('[Adblock Engine] Rebuilding engine...')
     await this.detachFromSession()
     await this.buildEngine()
     if (this.session) {
@@ -170,7 +203,7 @@ class AdblockEngine {
 
       return { styles, scripts }
     } catch (error) {
-      console.error('[Adblock Engine] Error getting cosmetic filters:', error)
+      if ((process.env.ADBLOCK_DEBUG === '1')) console.error('[Adblock Engine] Error getting cosmetic filters:', error)
       return { styles: '', scripts: [] }
     }
   }

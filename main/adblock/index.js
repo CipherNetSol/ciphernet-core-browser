@@ -41,8 +41,8 @@ class AdblockManager {
       const targetSession = sessionParam || electronSession.defaultSession
       await this.engine.attachToSession(targetSession)
 
-      // Initialize YouTube neutralizer
-      this.youtubeNeutralizer = new YouTubeAdNeutralizer(this.storage)
+      // DISABLED: YouTube neutralizer (now handled by inject.js to avoid conflicts)
+      // this.youtubeNeutralizer = new YouTubeAdNeutralizer(this.storage)
 
       // Initialize cosmetic injector
       this.cosmeticInjector = new CosmeticInjector(this.storage, this.engine)
@@ -85,10 +85,10 @@ class AdblockManager {
       try {
         await this.engine.attachToSession(session)
 
-        // Register YouTube preload script for this session
-        if (this.youtubeNeutralizer) {
-          await this.youtubeNeutralizer.registerPreloadScript(session)
-        }
+        // DISABLED: YouTube preload (now handled by inject.js)
+        // if (this.youtubeNeutralizer) {
+        //   await this.youtubeNeutralizer.registerPreloadScript(session)
+        // }
 
         // Register popup blocker script for this session
         await this.registerPopupBlocker(session)
@@ -580,10 +580,10 @@ class AdblockManager {
       const url = webContents.getURL()
       console.log('[Adblock] injectIntoWebContents called for:', url)
 
-      // Inject YouTube neutralizer if applicable
-      if (this.youtubeNeutralizer && this.youtubeNeutralizer.isYouTubeSite(url)) {
-        await this.youtubeNeutralizer.injectIntoWebContents(webContents)
-      }
+      // DISABLED: YouTube neutralizer injection (now handled by inject.js)
+      // if (this.youtubeNeutralizer && this.youtubeNeutralizer.isYouTubeSite(url)) {
+      //   await this.youtubeNeutralizer.injectIntoWebContents(webContents)
+      // }
 
       // Inject cosmetic filters
       if (this.cosmeticInjector) {
@@ -696,9 +696,10 @@ class AdblockManager {
       this.engine.detachFromSession()
     }
 
-    if (this.youtubeNeutralizer) {
-      this.youtubeNeutralizer.clearAllTracking()
-    }
+    // DISABLED: YouTube neutralizer cleanup
+    // if (this.youtubeNeutralizer) {
+    //   this.youtubeNeutralizer.clearAllTracking()
+    // }
 
     if (this.cosmeticInjector) {
       this.cosmeticInjector.clearAllTracking()

@@ -91,3 +91,16 @@ contextBridge.exposeInMainWorld('ciphernetAdblock', {
     }
   }
 })
+
+// Expose IPC bridge for YouTube ad skip functionality
+contextBridge.exposeInMainWorld('ipc', {
+  send: function (channel, data) {
+    // Whitelist specific channels for security
+    const validChannels = ['youtube-skip-click']
+    if (validChannels.includes(channel)) {
+      ipcRenderer.send(channel, data)
+    } else {
+      console.error('[IPC Bridge] Invalid channel:', channel)
+    }
+  }
+})
