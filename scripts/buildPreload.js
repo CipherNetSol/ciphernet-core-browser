@@ -12,6 +12,7 @@ const modules = [
   'js/preload/passwordFill.js',
   'js/preload/translate.js',
   'js/preload/solanaProvider.js',
+  'js/preload/adblock.js',
 ]
 
 function buildPreload() {

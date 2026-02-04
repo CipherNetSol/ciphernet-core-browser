@@ -27,7 +27,8 @@ var adPopupDomains = [
   'cdn.gametrailers.com', 'vserv.com', 'videofactory.com',
   'castorsperron.top', 'v2006.com', 'felspartreen.shop', 'gekkoforehew.shop',
   'sexselector.com', 'adpopup.com', 'trafficstar.net', 'adnow.com', 'mgid.com',
-  'revcontent.com', 'criteo.com', '33across.com', 'conversant.com'
+  'revcontent.com', 'criteo.com', '33across.com', 'conversant.com',
+  'maxpcgaming.com', 'market-qx.trade', 'playerhq.co'
 ]
 
 // Safe domains — new tabs to these are always allowed
@@ -50,7 +51,7 @@ function isAdPopupUrl (url) {
         return true
       }
     }
-    if (url.includes('aff_id=') || url.includes('affiliate=') || url.includes('clickid=') || url.includes('pbref=')) {
+    if (/aff_id=|affiliate=|clickid=|click_id=|pbref=|campaignid=|adformat=|SUBID=|clickunder|imp=\d/i.test(url)) {
       return true
     }
   } catch (e) {}
@@ -232,6 +233,19 @@ function createView (existingViewId, id, webPreferences, boundsString, events) {
       return {
         action: 'deny'
       }
+    }
+
+    // Features are set = window.open() with popup dimensions — still check for ads
+    if (details.url) {
+      if (isAdPopupUrl(details.url)) {
+        return { action: 'deny' }
+      }
+      try {
+        var sourceUrl = view.webContents.getURL()
+        if (sourceUrl && isAdRedirectFromStreamingSite(sourceUrl, details.url)) {
+          return { action: 'deny' }
+        }
+      } catch (e) {}
     }
 
     return {

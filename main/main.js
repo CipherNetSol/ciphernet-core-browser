@@ -26,8 +26,8 @@ crashReporter.start({
 })
 
 if (process.argv.some(arg => arg === '-v' || arg === '--version')) {
-  console.log('Min: ' + app.getVersion())
-  console.log('Chromium: ' + process.versions.chrome)
+  // console.log('Min: ' + app.getVersion())
+  // console.log('Chromium: ' + process.versions.chrome)
   process.exit()
 }
 
@@ -190,20 +190,29 @@ function createWindow(customArgs = {}) {
 }
 
 function createWindowWithBounds(bounds, customArgs) {
-  const newWin = new BaseWindow({
+  const useSeparateTitlebar = settings.get('useSeparateTitlebar')
+  const windowOptions = {
     width: bounds.width,
     height: bounds.height,
     x: bounds.x,
     y: bounds.y,
     minWidth: (process.platform === 'win32' ? 400 : 320), // controls take up more horizontal space on Windows
     minHeight: 350,
-    titleBarStyle: settings.get('useSeparateTitlebar') ? 'default' : 'hidden',
+    titleBarStyle: useSeparateTitlebar ? 'default' : 'hidden',
     trafficLightPosition: { x: 12, y: 10 },
     icon: __dirname + '/icons/icon256.png',
-    frame: settings.get('useSeparateTitlebar'),
+    frame: useSeparateTitlebar,
     alwaysOnTop: settings.get('windowAlwaysOnTop'),
     backgroundColor: '#fff', // the value of this is ignored, but setting it seems to work around https://github.com/electron/electron/issues/10559
-  })
+  }
+
+  // On Windows frameless windows, disable the invisible shadow border that causes
+  // ~8px of content to be clipped on each side when the window is not maximized.
+  if (process.platform === 'win32' && !useSeparateTitlebar) {
+    windowOptions.hasShadow = false
+  }
+
+  const newWin = new BaseWindow(windowOptions)
 
   // windows and linux always use a menu button in the upper-left corner instead
   // if frame: false is set, this won't have any effect, but it does apply on Linux if "use separate titlebar" is enabled

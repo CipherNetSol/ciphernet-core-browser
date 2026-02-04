@@ -9,7 +9,11 @@ ytd-ad-slot-renderer,
 #panels.ytd-watch-flexy,
 ytd-companion-slot-renderer,
 ytd-player-legacy-desktop-watch-ads-renderer,
-.ytwTopBannerImageTextIconButtonedLayoutViewModelHost { display: none !important; }
+.ytwTopBannerImageTextIconButtonedLayoutViewModelHost,
+tp-yt-paper-dialog[modern],
+yt-mealbar-promo-renderer,
+#mealbar-promo-renderer,
+#masthead-ad { display: none !important; }
 `;
 
 const GENERIC_COSMETIC_SCRIPT = `
@@ -25,7 +29,11 @@ const GENERIC_COSMETIC_SCRIPT = `
     '#panels.ytd-watch-flexy',
     'ytd-companion-slot-renderer',
     'ytd-player-legacy-desktop-watch-ads-renderer',
-    '.ytwTopBannerImageTextIconButtonedLayoutViewModelHost'
+    '.ytwTopBannerImageTextIconButtonedLayoutViewModelHost',
+    'tp-yt-paper-dialog[modern]',
+    'yt-mealbar-promo-renderer',
+    '#mealbar-promo-renderer',
+    '#masthead-ad'
   ];
 
   function hideAds() {
@@ -38,8 +46,73 @@ const GENERIC_COSMETIC_SCRIPT = `
     });
   }
 
+  // Hide empty ad containers and ad-label elements left behind after blocking
+  var AD_CONTAINER_SELECTORS = [
+    '[class*="ad-container"]', '[class*="adcontainer"]', '[class*="ad_container"]',
+    '[class*="ad-wrapper"]', '[class*="adwrapper"]', '[class*="ad_wrapper"]',
+    '[class*="ad-slot"]', '[class*="adslot"]', '[class*="ad_slot"]',
+    '[class*="ad-banner"]', '[class*="adbanner"]', '[class*="ad_banner"]',
+    '[class*="ad-block"]', '[class*="adblock"]', '[class*="ad_block"]',
+    '[class*="ad-space"]', '[class*="adspace"]', '[class*="ad_space"]',
+    '[class*="ad-holder"]', '[class*="adholder"]', '[class*="ad_holder"]',
+    '[class*="ad-wrap"]', '[class*="adwrap"]',
+    '[id*="ad-container"]', '[id*="adcontainer"]', '[id*="ad_container"]',
+    '[id*="ad-wrapper"]', '[id*="adwrapper"]', '[id*="ad_wrapper"]',
+    '[id*="ad-slot"]', '[id*="adslot"]', '[id*="ad_slot"]',
+    '[id*="ad-banner"]', '[id*="adbanner"]', '[id*="ad_banner"]',
+    '[id*="ad-space"]', '[id*="adspace"]', '[id*="ad_space"]',
+    '.adsense', '.ads', '.ad', '#ads', '#ad',
+    '[data-ad]', '[data-ads]', '[data-ad-type]'
+  ];
+
+  function hideEmptyAdContainers() {
+    // Skip YouTube — its ad elements are handled by hideAds() with specific ytd-* selectors.
+    // The broad ad-container selectors here would match YouTube's own UI elements.
+    if (window.location.hostname.includes('youtube.com')) return;
+
+    // 1. Hide elements whose only text is an ad label like "Advertisement"
+    var all = document.querySelectorAll('div, span, p, section, aside, article, header, footer');
+    for (var i = 0; i < all.length; i++) {
+      var el = all[i];
+      if (!el || el.style.display === 'none') continue;
+      // Only check elements that have no child elements (leaf nodes) or only hidden children
+      var text = el.textContent.trim();
+      if (/^(Advertisement|Ad|Ads|Sponsored)$/i.test(text)) {
+        // Check it has no meaningful child elements with other content
+        var children = el.children;
+        var hasVisibleChild = false;
+        for (var j = 0; j < children.length; j++) {
+          if (children[j].offsetParent !== null && children[j].textContent.trim() && !/^(Advertisement|Ad|Ads|Sponsored)$/i.test(children[j].textContent.trim())) {
+            hasVisibleChild = true;
+            break;
+          }
+        }
+        if (!hasVisibleChild) {
+          el.style.setProperty('display', 'none', 'important');
+        }
+      }
+    }
+
+    // 2. Hide known ad container selectors that are empty or contain only blocked content
+    AD_CONTAINER_SELECTORS.forEach(function (sel) {
+      document.querySelectorAll(sel).forEach(function (el) {
+        if (!el || el.style.display === 'none') return;
+        // Hide if empty, or contains only hidden children, or only an ad label
+        var visibleText = el.innerText ? el.innerText.trim() : '';
+        var hasVisibleIframe = false;
+        el.querySelectorAll('iframe').forEach(function (f) {
+          if (f.offsetParent !== null) hasVisibleIframe = true;
+        });
+        if (!hasVisibleIframe && (!visibleText || /^(Advertisement|Ad|Ads|Sponsored)?$/i.test(visibleText))) {
+          el.style.setProperty('display', 'none', 'important');
+        }
+      });
+    });
+  }
+
   setInterval(hideAds, 2000);
-  if (document.readyState !== 'loading') hideAds();
+  setInterval(hideEmptyAdContainers, 2000);
+  if (document.readyState !== 'loading') { hideAds(); hideEmptyAdContainers(); }
 
   // === POPUP AD BLOCKER (all sites) ===
   if (!window.__ciphernetPopupBlocker) {
@@ -85,7 +158,7 @@ const GENERIC_COSMETIC_SCRIPT = `
     var _origOpen = window.open;
     window.open = function (url, target, features) {
       if (url && isAdUrl(String(url))) {
-        console.log('[CipherNet-PopupBlock] Blocked window.open:', String(url).substring(0, 100));
+        // console.log('[CipherNet-PopupBlock] Blocked window.open:', String(url).substring(0, 100));
         return null;
       }
       return _origOpen.apply(this, arguments);
@@ -108,13 +181,13 @@ const GENERIC_COSMETIC_SCRIPT = `
         if (link.target === '_blank' && isAdUrl(href)) {
           e.preventDefault();
           e.stopImmediatePropagation();
-          console.log('[CipherNet-PopupBlock] Blocked <a target=_blank>:', href.substring(0, 100));
+          // console.log('[CipherNet-PopupBlock] Blocked <a target=_blank>:', href.substring(0, 100));
           return false;
         }
       }
     }, true); // capture phase
 
-    // 3. Remove fake overlay popups (Download buttons, close-X popups, etc.)
+    // 3. Remove interstitial/overlay ads
     // Only active on non-YouTube pages — YouTube's own UI uses overlays legitimately
     function removePopupOverlays() {
       if (window.location.hostname.includes('youtube.com')) return;
@@ -122,29 +195,61 @@ const GENERIC_COSMETIC_SCRIPT = `
       var allEls = document.querySelectorAll('*');
       for (var i = 0; i < allEls.length; i++) {
         var el = allEls[i];
-        if (!el || !el.style) continue;
-        var style = window.getComputedStyle(el);
-        var pos = style.position;
-        // Target fixed/absolute overlays that are not part of the page layout
-        if (pos !== 'fixed' && pos !== 'absolute') continue;
-        // Must be high z-index or cover a large area
-        var zIndex = parseInt(style.zIndex) || 0;
-        var rect = el.getBoundingClientRect();
-        var isLargeOverlay = rect.width > window.innerWidth * 0.3 && rect.height > 50;
-        if (zIndex < 100 && !isLargeOverlay) continue;
-        // Skip known legit elements
-        if (el.id === 'movie_player' || el.id === 'yt-ad-overlay') continue;
+        if (!el || !el.style || el.style.display === 'none') continue;
         var tag = el.tagName.toLowerCase();
-        if (tag === 'video' || tag === 'canvas' || tag === 'iframe') continue;
-        // Check if it looks like an ad popup: has Download text or ad-specific keywords
+        if (tag === 'video' || tag === 'canvas' || tag === 'html' || tag === 'head' || tag === 'script' || tag === 'style') continue;
+        if (el.id === 'movie_player' || el.id === 'yt-ad-overlay') continue;
+
+        var style = window.getComputedStyle(el);
+        var rect = el.getBoundingClientRect();
+        var pos = style.position;
+        var zIndex = parseInt(style.zIndex) || 0;
+
+        // Two detection modes:
+        // A) Positioned overlay: fixed/absolute with high z-index or large area
+        // B) Full-viewport interstitial: covers viewport width and most of height (regardless of position)
+        var isPositionedOverlay = (pos === 'fixed' || pos === 'absolute') && (zIndex >= 100 || (rect.width > window.innerWidth * 0.3 && rect.height > 50));
+        var isFullViewportInterstitial = rect.width >= window.innerWidth * 0.9 && rect.height >= window.innerHeight * 0.5 && tag !== 'body';
+
+        if (!isPositionedOverlay && !isFullViewportInterstitial) continue;
+
         var text = (el.textContent || '').toLowerCase();
         var cls = (el.className || '').toLowerCase();
-        var hasAdKeyword = /\bdownload\b|\bclick here\b|\badblock\b|\badpopup\b|\bbanner ad\b|\bsponsored\b/i.test(text + ' ' + cls);
-        // Has a close button (X) and looks like an ad overlay (not a normal UI element)
-        var hasCloseBtn = el.querySelector('.fa-times, [aria-label*="close"], [class*="closeBtn"], [class*="close-btn"]');
-        if (hasAdKeyword || (hasCloseBtn && zIndex >= 100 && isLargeOverlay)) {
+        var combined = text + ' ' + cls;
+
+        // Ad-specific keywords
+        var hasAdKeyword = /\bdownload\b|\bclick here\b|\badblock\b|\badpopup\b|\bbanner ad\b|\bsponsored\b|\binterstitial\b/i.test(combined);
+
+        // Countdown pattern: "Wait XX" or "Wait 0X" — interstitial timer
+        var hasCountdown = /wait\s*\d/i.test(combined);
+
+        // Close button: X symbol as text content in a small element, or class-based
+        var hasCloseBtn = el.querySelector('.fa-times, [aria-label*="close"], [class*="closeBtn"], [class*="close-btn"], [class*="close_btn"]');
+        if (!hasCloseBtn) {
+          // Look for a child element that is just "×", "✕", "X", or "close" text
+          var spans = el.querySelectorAll('div, span, button, a');
+          for (var j = 0; j < spans.length; j++) {
+            var child = spans[j];
+            var childText = (child.textContent || '').trim();
+            if (/^[×✕✖✗X]$/i.test(childText) || childText.toLowerCase() === 'close') {
+              hasCloseBtn = child;
+              break;
+            }
+          }
+        }
+
+        // For positioned overlays: ad keyword OR (close btn + large area)
+        // For full-viewport interstitials: need stronger signal — countdown OR ad keyword OR close btn
+        var shouldBlock = false;
+        if (isPositionedOverlay) {
+          shouldBlock = hasAdKeyword || (hasCloseBtn && rect.width > window.innerWidth * 0.3 && rect.height > 50);
+        }
+        if (isFullViewportInterstitial) {
+          shouldBlock = shouldBlock || hasAdKeyword || hasCountdown || (hasCloseBtn && hasCountdown);
+        }
+
+        if (shouldBlock) {
           el.style.setProperty('display', 'none', 'important');
-          console.log('[CipherNet-PopupBlock] Removed overlay:', el.tagName, el.className ? el.className.substring(0, 60) : '');
         }
       }
 
@@ -154,7 +259,6 @@ const GENERIC_COSMETIC_SCRIPT = `
           var src = iframe.src || '';
           if (isAdUrl(src)) {
             iframe.style.setProperty('display', 'none', 'important');
-            console.log('[CipherNet-PopupBlock] Hidden ad iframe:', src.substring(0, 100));
           }
         } catch (e) {}
       });
@@ -170,7 +274,7 @@ const GENERIC_COSMETIC_SCRIPT = `
   if (window.__ytAdHandler) return;
   window.__ytAdHandler = true;
 
-  console.log('[YT-AdBlock] Initializing...');
+  // console.log('[YT-AdBlock] Initializing...');
 
   let adActive = false;
   let overlay = null;
@@ -181,6 +285,22 @@ const GENERIC_COSMETIC_SCRIPT = `
   let skipClicked = false;
   let skipAttempts = 0;
   let adStartTime = 0;
+
+  // Continuously track the user's playback rate while no ad is active.
+  // YouTube swaps the video element during ads, so reading it at ad-start
+  // gives the ad's rate (1x), not the user's setting.
+  let lastKnownRate = 1;
+  let lastKnownMuted = false;
+  setInterval(function () {
+    if (adActive) return;
+    var p = document.querySelector('#movie_player');
+    if (!p) return;
+    var v = p.querySelector('video');
+    if (v) {
+      lastKnownRate = v.playbackRate;
+      lastKnownMuted = v.muted;
+    }
+  }, 500);
 
   // Create overlay (appended to #movie_player)
   function createOverlay() {
@@ -250,12 +370,12 @@ const GENERIC_COSMETIC_SCRIPT = `
       const text = skipText.textContent.trim().toLowerCase();
       // Must say "skip" not "skip in X"
       if (!text.includes('skip') || text.includes('in ') || /\d/.test(text)) {
-        console.log('[YT-AdBlock] Skip timer still counting:', text);
+        // console.log('[YT-AdBlock] Skip timer still counting:', text);
         return false;
       }
     }
 
-    console.log('[YT-AdBlock] Attempting skip at', adElapsed.toFixed(2), 'seconds (real time)');
+    // console.log('[YT-AdBlock] Attempting skip at', adElapsed.toFixed(2), 'seconds (real time)');
 
     // Get button position for system-level click
     const rect = btn.getBoundingClientRect();
@@ -264,11 +384,11 @@ const GENERIC_COSMETIC_SCRIPT = `
 
     // Send request to main process for system-level click
     if (window.ipc && window.ipc.send) {
-      console.log('[YT-AdBlock] Requesting system click at', x, y);
+      // console.log('[YT-AdBlock] Requesting system click at', x, y);
       window.ipc.send('youtube-skip-click', { x, y });
     } else {
       // Fallback: try programmatic click (likely won't work)
-      console.log('[YT-AdBlock] IPC not available, trying fallback click');
+      // console.log('[YT-AdBlock] IPC not available, trying fallback click');
       btn.click();
       btn.focus();
       btn.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', keyCode: 13, bubbles: true }));
@@ -289,16 +409,19 @@ const GENERIC_COSMETIC_SCRIPT = `
     // Ad started
     if (nowAdActive && !adActive) {
       adStartTime = Date.now();
-      console.log('[YT-AdBlock] Ad detected');
+      // console.log('[YT-AdBlock] Ad detected');
       adActive = true;
+
+      // Use the last known values from before the ad, not the current video element
+      // (YouTube may have already swapped it to the ad's video)
+      originalMuted = lastKnownMuted;
+      originalPlaybackRate = lastKnownRate;
 
       // Mute and speed up video during ads
       if (video) {
-        originalMuted = video.muted;
-        originalPlaybackRate = video.playbackRate;
         video.muted = true;
         video.playbackRate = 16;
-        console.log('[YT-AdBlock] Video muted (was:', originalMuted, ') and sped up to 16x');
+        // console.log('[YT-AdBlock] Video muted, sped up to 16x. Will restore to', originalPlaybackRate, 'x');
       }
     }
     // Ad is still active - ENFORCE mute and speed continuously
@@ -306,11 +429,11 @@ const GENERIC_COSMETIC_SCRIPT = `
       if (video) {
         if (!video.muted) {
           video.muted = true;
-          console.log('[YT-AdBlock] Re-muting video (YouTube tried to unmute)');
+          // console.log('[YT-AdBlock] Re-muting video (YouTube tried to unmute)');
         }
         if (video.playbackRate !== 16) {
           video.playbackRate = 16;
-          console.log('[YT-AdBlock] Re-applying 16x speed (YouTube tried to reset)');
+          // console.log('[YT-AdBlock] Re-applying 16x speed (YouTube tried to reset)');
         }
       }
 
@@ -340,7 +463,7 @@ const GENERIC_COSMETIC_SCRIPT = `
 
         // Timeout after 30 seconds (150 attempts at 200ms)
         if (skipAttempts >= 150) {
-          console.log('[YT-AdBlock] Skip timeout (30s)');
+          // console.log('[YT-AdBlock] Skip timeout (30s)');
           clearInterval(checkInterval);
           checkInterval = null;
           return;
@@ -355,7 +478,7 @@ const GENERIC_COSMETIC_SCRIPT = `
     }
     // Ad ended
     else if (!nowAdActive && adActive) {
-      console.log('[YT-AdBlock] Ad ended');
+      // console.log('[YT-AdBlock] Ad ended');
       adActive = false;
 
       // Stop checking
@@ -368,7 +491,7 @@ const GENERIC_COSMETIC_SCRIPT = `
       if (video) {
         video.muted = originalMuted;
         video.playbackRate = originalPlaybackRate;
-        console.log('[YT-AdBlock] Restored: muted=' + originalMuted + ', speed=' + originalPlaybackRate + 'x');
+        // console.log('[YT-AdBlock] Restored: muted=' + originalMuted + ', speed=' + originalPlaybackRate + 'x');
       }
 
       // Hide overlay
@@ -391,7 +514,7 @@ const GENERIC_COSMETIC_SCRIPT = `
     observer.observe(player, { attributes: true, attributeFilter: ['class'] });
   }
 
-  console.log('[YT-AdBlock] Ready');
+  // console.log('[YT-AdBlock] Ready');
 })();
 `;
 
