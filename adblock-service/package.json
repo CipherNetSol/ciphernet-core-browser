@@ -1,0 +1,19 @@
+{
+  "name": "ciphernet-adblock-service",
+  "version": "1.0.0",
+  "description": "Brave adblock-rs backend service for CipherNet browser",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "adblock-rs": "^0.12.1",
+    "express": "^4.21.2",
+    "cors": "^2.8.5",
+    "cross-fetch": "^4.1.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

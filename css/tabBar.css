@@ -10,7 +10,7 @@
   padding-top: var(--control-space-top);
   padding-left: var(--control-space-left);
   padding-right: var(--control-space-right);
-  /* -webkit-app-region: drag; */
+  -webkit-app-region: drag;
 }
 
 /* when the tab-group is white, we need a line to separate it from the webviews */

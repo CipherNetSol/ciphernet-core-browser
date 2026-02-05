@@ -9,22 +9,37 @@ body {
   display: none;
 }
 
-body.windows:not(.maximized):not(.fullscreen):not(.separate-titlebar),
-body.linux:not(.maximized):not(.fullscreen):not(.separate-titlebar) {
+body.windows:not(.fullscreen):not(.separate-titlebar),
+body.linux:not(.fullscreen):not(.separate-titlebar) {
   --control-space-top: 12px;
 }
 
-/* On Windows, draggable regions aren't clickable, so the drag region is a separate area above the tabstrip */
-body.windows:not(.maximized):not(.fullscreen):not(.separate-titlebar) .window-drag-area,
-body.linux:not(.maximized):not(.fullscreen):not(.separate-titlebar) .window-drag-area {
+/* On Windows, #navbar itself has -webkit-app-region: drag covering the titlebar area.
+   No separate drag strip needed. */
+body.windows:not(.fullscreen):not(.separate-titlebar) .window-drag-area {
+  display: none;
+}
+
+body.linux:not(.fullscreen):not(.separate-titlebar) .window-drag-area {
   display: block;
   position: fixed;
-  /* leave an empty space around the edges of the drag area so that the window can be resized */
   top: 3px;
   left: 3px;
-  width: calc(100% - 6px);
+  /* Leave 96px on right for linux control buttons */
+  width: calc(100% - 6px - 96px);
   height: 12px;
   -webkit-app-region: drag;
+  z-index: 1;
+}
+
+body.windows.maximized:not(.fullscreen):not(.separate-titlebar) .window-drag-area {
+  display: none;
+}
+
+body.linux.maximized:not(.fullscreen):not(.separate-titlebar) .window-drag-area {
+  top: 0;
+  left: 0;
+  width: calc(100% - 96px);
 }
 
 body.mac:not(.separate-titlebar):not(.fullscreen) .window-drag-area {
@@ -60,24 +75,25 @@ body.rtl.mac:not(.fullscreen):not(.separate-titlebar) {
   --control-space-right: 75px;
 } */
 
-/* Windows caption buttions */
-
-body.windows:not(.separate-titlebar) {
-  --control-space-right: 138px;
-}
+/* Windows caption buttons */
+/* Buttons live inside #navbar (which has -webkit-app-region: drag).
+   As children of the drag element, their no-drag correctly overrides the parent's drag hit area. */
 
 .windows-caption-buttons {
   display: none;
 }
 
+body.windows:not(.separate-titlebar) {
+  --control-space-right: 138px;
+}
 
 body.windows:not(.separate-titlebar) .windows-caption-buttons {
   display: flex;
   position: absolute;
-  /* top: var(--control-space-top); */
   top: 0;
   right: 0;
-  z-index: 9999;
+  height: 100%;
+  z-index: 10000;
   -webkit-app-region: no-drag;
 }
 
@@ -89,6 +105,8 @@ body.windows:not(.separate-titlebar) .windows-caption-buttons {
   box-sizing: content-box;
   fill: transparent;
   text-align: center;
+  cursor: pointer;
+  -webkit-app-region: no-drag;
 }
 
 body:not(.task-overlay-is-shown).dark-theme .windows-caption-buttons .element {

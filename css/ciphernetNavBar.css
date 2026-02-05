@@ -13,6 +13,7 @@
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   z-index: 10001;
   background: #f8f9fa;
+  -webkit-app-region: drag;
 }
 
 /* Suggestions Container */
