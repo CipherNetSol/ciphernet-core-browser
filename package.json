@@ -41,10 +41,12 @@
   "dependencies": {
     "@browsermt/bergamot-translator": "^0.4.9",
     "@electron/fuses": "^1.7.0",
+    "@ghostery/adblocker-electron": "^2.13.4",
     "@solana/spl-token": "^0.4.14",
     "@solana/web3.js": "^1.98.4",
     "bs58": "^6.0.0",
     "chokidar": "^3.6.0",
+    "cross-fetch": "^4.1.0",
     "dexie": "^3.0.3",
     "dragula": "github:minbrowser/dragula",
     "electron-squirrel-startup": "^1.0.0",
