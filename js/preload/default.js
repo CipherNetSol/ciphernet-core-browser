@@ -20,6 +20,7 @@ setTimeout(function () {
   window.addEventListener('wheel', function (e) {
     ipc.send('wheel-event', cloneEvent(e))
   })
+  
 
   var scrollTimeout = null
 
