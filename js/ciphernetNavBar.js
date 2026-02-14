@@ -4,6 +4,7 @@ const tabState = require('tabState.js')
 const mixerPanel = require('mixerPanel.js')
 const walletPanel = require('walletPanel.js')
 const bridgePanel = require('bridgePanel.js')
+const agentPanel = require('agentPanel.js')
 
 const ciphernetNavBar = {
   bar: null,
@@ -12,6 +13,7 @@ const ciphernetNavBar = {
   mixerButton: null,
   bridgeButton: null,
   vpnButton: null,
+  agentButton: null,
   barHeight: 52,
 
   initialize: function () {
@@ -22,16 +24,13 @@ const ciphernetNavBar = {
     ciphernetNavBar.mixerButton = document.getElementById('mixer-button')
     ciphernetNavBar.bridgeButton = document.getElementById('bridge-button')
     ciphernetNavBar.vpnButton = document.getElementById('vpn-button')
+    ciphernetNavBar.agentButton = document.getElementById('agent-button')
     var logoContainer = document.getElementById('ciphernet-logo-container')
 
     if (!ciphernetNavBar.bar || !ciphernetNavBar.searchInput) {
       console.error('CipherNet NavBar: Required elements not found!')
       return
     }
-    // if (!ciphernetNavBar.bar || !ciphernetNavBar.searchInput) {
-    //   console.error('CipherNet NavBar: Required elements not found!')
-    //   return
-    // }
 
     if (logoContainer) {
       logoContainer.addEventListener('click', function () {
@@ -87,6 +86,13 @@ const ciphernetNavBar = {
       })
     }
 
+    // Agent button click handler
+    if (ciphernetNavBar.agentButton) {
+      ciphernetNavBar.agentButton.addEventListener('click', function () {
+        ciphernetNavBar.handleAgentClick()
+      })
+    }
+
     // Adjust webview margin to account for the nav bar
     webviews.adjustMargin([ciphernetNavBar.barHeight, 0, 0, 0])
 
@@ -100,15 +106,6 @@ const ciphernetNavBar = {
         ciphernetNavBar.searchInput.value = ''
       }
     })
-    // tasks.on('tab-selected', function (tabId) {
-    //   if (!tabs) return
-    //   var currentTab = tabs.get(tabId)
-    //   if (currentTab && currentTab.url && !currentTab.url.startsWith('ciphernet://')) {
-    //     ciphernetNavBar.searchInput.value = currentTab.url
-    //   } else {
-    //     ciphernetNavBar.searchInput.value = ''
-    //   }
-    // })
 
     // Update search input when tab URL changes
     tasks.on('tab-updated', function (tabId, key) {
@@ -186,9 +183,10 @@ const ciphernetNavBar = {
   },
 
   handleWalletClick: function () {
-    // Close other panels first
+    // Close other side panels first
     if (mixerPanel && mixerPanel.isOpen) mixerPanel.close()
     if (bridgePanel && bridgePanel.isOpen) bridgePanel.close()
+    if (agentPanel && agentPanel.isOpen) agentPanel.close()
     // Toggle wallet panel
     if (walletPanel && walletPanel.toggle) {
       walletPanel.toggle()
@@ -198,9 +196,10 @@ const ciphernetNavBar = {
   },
 
   handleMixerClick: function () {
-    // Close other panels first
+    // Close other side panels first
     if (walletPanel && walletPanel.isOpen) walletPanel.close()
     if (bridgePanel && bridgePanel.isOpen) bridgePanel.close()
+    if (agentPanel && agentPanel.isOpen) agentPanel.close()
     // Toggle mixer panel
     if (mixerPanel && mixerPanel.toggle) {
       mixerPanel.toggle()
@@ -210,14 +209,26 @@ const ciphernetNavBar = {
   },
 
   handleBridgeClick: function () {
-    // Close other panels first
+    // Close other side panels first
     if (walletPanel && walletPanel.isOpen) walletPanel.close()
     if (mixerPanel && mixerPanel.isOpen) mixerPanel.close()
+    if (agentPanel && agentPanel.isOpen) agentPanel.close()
     // Toggle bridge panel
     if (bridgePanel && bridgePanel.toggle) {
       bridgePanel.toggle()
     } else {
       console.error('Bridge panel not available')
+    }
+  },
+
+  handleAgentClick: function () {
+    // Close other side panels first
+    if (walletPanel && walletPanel.isOpen) walletPanel.close()
+    if (mixerPanel && mixerPanel.isOpen) mixerPanel.close()
+    if (bridgePanel && bridgePanel.isOpen) bridgePanel.close()
+    // Toggle agent panel
+    if (agentPanel && agentPanel.toggle) {
+      agentPanel.toggle()
     }
   },
 
