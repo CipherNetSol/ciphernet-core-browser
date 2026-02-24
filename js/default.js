@@ -171,6 +171,7 @@ require('ciphernetNavBar.js').initialize()
 require('mixerPanel.js').initialize()
 require('walletPanel.js').initialize()
 require('bridgePanel.js').initialize()
+require('agentPanel.js').initialize()
 
 // default searchbar plugins
 

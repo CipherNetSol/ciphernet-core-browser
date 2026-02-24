@@ -7,6 +7,7 @@ var tabEditor = require('navbar/tabEditor.js')
 var urlParser = require('util/urlParser.js')
 var keyMapModule = require('util/keyMap.js')
 var settings = require('util/settings/settings.js')
+var agentPanel = require('agentPanel.js')
 
 var keyMap = keyMapModule.userKeyMap(settings.get('keyMap'))
 
@@ -284,6 +285,11 @@ const defaultKeybindings = {
           html: anchorTag.outerHTML
         })
       }
+    })
+
+    // CipherNet Agent - Ctrl+Shift+A / Cmd+Shift+A
+    keybindings.defineShortcut({ keys: 'mod+shift+a' }, function () {
+      agentPanel.toggle()
     })
   }
 }
