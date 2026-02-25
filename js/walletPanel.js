@@ -298,6 +298,19 @@ const walletPanel = {
       this.showMessageModal(data)
     })
 
+    // Wallet address changed (after burn/regenerate)
+    ipc.on('wallet:addressChanged', (event, data) => {
+      if (data && data.publicKey) {
+        this.publicKey = data.publicKey
+        this.updateAddressDisplay()
+        this.generateQRCode()
+        // Reset token list
+        if (this.elements.tokensList) {
+          this.elements.tokensList.innerHTML = '<div class="wallet-tokens-empty">No tokens found</div>'
+        }
+      }
+    })
+
     // Real-time balance updates
     ipc.on('wallet:balanceChanged', (event, balance) => {
       // console.log('[WalletPanel] Balance changed:', balance.sol, 'SOL')
