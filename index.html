@@ -146,6 +146,10 @@
         <i class="i carbon:locked"></i>
         <!-- <span>VPN</span> -->
       </button>
+      <button id="agent-button" class="ciphernet-nav-btn" title="Agent - AI Assistant (Ctrl+Shift+A)">
+        <img class="agent-btn-avatar" src="https://ciphernetsol.xyz/cinetcharacter.png" alt="Agent" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+        <i class="i carbon:bot" style="display:none"></i>
+      </button>
     </div>
   </div>
 
@@ -696,6 +700,88 @@
           style="width: 100%; padding: 12px; background: #ff555520; border: 1px solid #ff5555; border-radius: 8px; color: #ff5555; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.2s;">
           Cancel Order
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Agent Chat Panel -->
+  <div id="agent-panel">
+    <div class="agent-panel-header">
+      <div class="agent-panel-title">
+        <img src="https://ciphernetsol.xyz/cinetcharacter.png" alt="Agent" onerror="this.style.display='none'">
+        <span>CipherNet Agent</span>
+      </div>
+      <div class="agent-panel-actions">
+        <button id="agent-clear-btn" class="agent-header-btn" title="Clear chat">
+          <i class="i carbon:trash-can"></i>
+        </button>
+        <button id="agent-settings-btn" class="agent-header-btn" title="Settings">
+          <i class="i carbon:settings"></i>
+        </button>
+        <button id="agent-panel-close" class="agent-header-btn" title="Close">
+          <i class="i carbon:close"></i>
+        </button>
+      </div>
+    </div>
+
+    <div id="agent-chat-messages"></div>
+
+    <div id="agent-suggestions">
+      <div class="agent-suggestion-chip" data-query="Play lofi beats on YouTube">Play lofi</div>
+      <div class="agent-suggestion-chip" data-query="What's my SOL balance?">Wallet balance</div>
+      <div class="agent-suggestion-chip" data-query="Summarize this page">Summarize page</div>
+      <div class="agent-suggestion-chip" data-query="Find me the best deals on laptops">Find deals</div>
+      <div class="agent-suggestion-chip" data-query="Suggest trending meme token ideas that could go viral right now based on current internet culture and crypto trends. Give me 3 fresh concepts with name, ticker, narrative, and viral potential.">Meme tokens</div>
+    </div>
+
+    <div id="agent-image-preview" style="display:none">
+      <img id="agent-image-preview-img" src="" alt="Attached">
+      <span id="agent-image-preview-name"></span>
+      <button id="agent-image-remove" title="Remove image">&times;</button>
+    </div>
+    <div class="agent-input-area">
+      <button id="agent-attach-btn" class="agent-header-btn" title="Attach image">
+        <i class="i carbon:image"></i>
+      </button>
+      <input type="file" id="agent-file-input" accept="image/png,image/jpeg,image/jpg,image/gif,image/webp,image/svg+xml" style="display:none">
+      <textarea id="agent-chat-input" rows="1" placeholder="Ask me anything..."></textarea>
+      <button id="agent-send-btn" title="Send">
+        <i class="i carbon:send"></i>
+      </button>
+    </div>
+
+    <!-- Settings Overlay -->
+    <div id="agent-settings-overlay">
+      <div class="agent-settings-title">Agent Info</div>
+      <div class="agent-settings-group">
+        <label class="agent-settings-label">API Key</label>
+        <div class="agent-settings-info">Loaded from .env file</div>
+      </div>
+      <div class="agent-settings-group">
+        <label class="agent-settings-label">Model</label>
+        <div class="agent-settings-info">Configured via AGENT_MODEL in .env</div>
+      </div>
+      <div class="agent-settings-group">
+        <label class="agent-settings-label">Available Tools</label>
+        <div class="agent-settings-info">Navigation, Tabs, Wallet, Mixer, Bridge, YouTube, Search, Page Extraction, Bookmarks</div>
+      </div>
+      <div class="agent-settings-buttons">
+        <button id="agent-settings-cancel" class="agent-settings-btn agent-settings-btn-primary">Close</button>
+      </div>
+    </div>
+
+    <!-- Confirmation Overlay -->
+    <div id="agent-confirmation-overlay">
+      <div class="agent-confirmation-box">
+        <div class="agent-confirmation-title">
+          <i class="i carbon:warning"></i>
+          Confirm Action
+        </div>
+        <div id="agent-confirmation-message">Are you sure?</div>
+        <div class="agent-confirmation-buttons">
+          <button id="agent-confirm-cancel">Cancel</button>
+          <button id="agent-confirm-approve">Confirm</button>
+        </div>
       </div>
     </div>
   </div>

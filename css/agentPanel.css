@@ -272,16 +272,69 @@
 }
 
 /* ============================================
+   IMAGE PREVIEW
+   ============================================ */
+#agent-image-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: #111111;
+  border-top: 1px solid #2a2a2a;
+  flex-shrink: 0;
+}
+
+#agent-image-preview-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  object-fit: cover;
+  border: 1px solid #2a2a2a;
+}
+
+#agent-image-preview-name {
+  flex: 1;
+  color: #888888;
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#agent-image-remove {
+  background: transparent;
+  border: none;
+  color: #666666;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+#agent-image-remove:hover {
+  background: #ff444430;
+  color: #ff4444;
+}
+
+/* ============================================
    INPUT AREA
    ============================================ */
 .agent-input-area {
   display: flex;
   align-items: flex-end;
-  gap: 8px;
-  padding: 12px 14px;
+  gap: 6px;
+  padding: 10px 14px;
   background: #111111;
   border-top: 1px solid #2a2a2a;
   flex-shrink: 0;
+}
+
+#agent-attach-btn {
+  flex-shrink: 0;
+  width: 34px;
+  height: 38px;
+  font-size: 15px;
 }
 
 #agent-chat-input {
@@ -562,8 +615,8 @@
    NAVBAR AGENT BUTTON WITH CHARACTER
    ============================================ */
 #agent-button .agent-btn-avatar {
-  width: 22px;
-  height: 22px;
+  width: 16px;
+  height: 18px;
   border-radius: 50%;
   object-fit: cover;
   display: block;
