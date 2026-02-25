@@ -568,6 +568,29 @@ var agentTools = {
           description: 'Permanently destroy the current wallet and generate a new one. REQUIRES USER CONFIRMATION. If the wallet has any SOL or tokens, warns about permanent fund loss before proceeding.',
           parameters: { type: 'object', properties: {} }
         }
+      },
+      {
+        type: 'function',
+        function: {
+          name: 'fetch_trending_narratives',
+          description: 'Fetch live trending narratives from Crypto Twitter (X) right now. Returns clusters of tweets grouped by shared themes, with engagement scores, velocity, and representative tweets. Use this FIRST when user asks for token ideas, meme concepts, or launch suggestions. No parameters needed.',
+          parameters: { type: 'object', properties: {} }
+        }
+      },
+      {
+        type: 'function',
+        function: {
+          name: 'check_token_collision',
+          description: 'Check if a token name or ticker already exists on Solana via DexScreener. Returns whether collisions exist and details of matching tokens. Use this for EVERY concept before finalizing to ensure uniqueness.',
+          parameters: {
+            type: 'object',
+            properties: {
+              ticker: { type: 'string', description: 'Token ticker/symbol to check (e.g. "PEPE", "WIF")' },
+              name: { type: 'string', description: 'Token name to check (e.g. "Pepe", "Dogwifhat")' }
+            },
+            required: ['ticker']
+          }
+        }
       }
     ]
   },
@@ -661,6 +684,10 @@ var agentTools = {
         return agentTools.getUserRegion()
       case 'burn_wallet':
         return agentTools.burnWallet()
+      case 'fetch_trending_narratives':
+        return agentTools.fetchTrendingNarratives()
+      case 'check_token_collision':
+        return agentTools.checkTokenCollision(args.ticker, args.name)
       default:
         return { error: 'Unknown tool: ' + toolName }
     }
@@ -2180,6 +2207,34 @@ var agentTools = {
       return { success: true, raw: result.text, note: 'Parse the SOL price from this data' }
     } catch (e) {
       return { error: e.message || 'Failed to get SOL price' }
+    }
+  },
+
+  fetchTrendingNarratives: async function () {
+    try {
+      var result = await ipc.invoke('agent:fetchTrendingNarratives')
+      if (result.error) return { error: result.error }
+      return {
+        success: true,
+        narratives: result.narratives,
+        tweet_count: result.tweet_count,
+        cached: result.cached || false,
+        fetched_at: result.fetched_at || new Date().toISOString(),
+        instruction: 'Use these narrative clusters to generate viral token concepts. Each cluster represents a trending theme on Crypto Twitter right now.'
+      }
+    } catch (e) {
+      return { error: e.message || 'Failed to fetch trending narratives' }
+    }
+  },
+
+  checkTokenCollision: async function (ticker, name) {
+    if (!ticker && !name) return { error: 'Provide at least a ticker or name to check' }
+    try {
+      var result = await ipc.invoke('agent:checkTokenCollision', { ticker: ticker || '', name: name || '' })
+      if (result.error) return { error: result.error }
+      return result
+    } catch (e) {
+      return { error: e.message || 'Failed to check token collision' }
     }
   }
 }
