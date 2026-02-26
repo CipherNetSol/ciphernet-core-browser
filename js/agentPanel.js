@@ -313,19 +313,19 @@ var agentPanel = {
     // Clear input
     input.value = ''
 
-    // If image is attached, append image info to the message for the agent
+    // If image is attached, capture its dataUrl for vision API
     var imageInfo = null
+    var imageDataUrl = null
     if (agentPanel.attachedImage) {
       imageInfo = agentPanel.attachedImage
-      message += '\n[ATTACHED IMAGE: ' + imageInfo.name + ' at path: ' + imageInfo.path + ' (type: ' + imageInfo.type + ', size: ' + imageInfo.size + ' bytes)]'
+      imageDataUrl = imageInfo.dataUrl || null
       // Store in agentTools so it can be used by select_file
       agentTools.lastAttachedImage = imageInfo
       agentPanel.removeAttachedImage()
     }
 
-    // Add user message to UI (show clean version without image metadata)
-    var displayMessage = input.value ? message.split('\n[ATTACHED IMAGE:')[0] : message.split('\n[ATTACHED IMAGE:')[0]
-    agentPanel.addMessage('user', displayMessage + (imageInfo ? '\n📎 ' + imageInfo.name : ''))
+    // Add user message to UI
+    agentPanel.addMessage('user', message + (imageInfo ? '\n📎 ' + imageInfo.name : ''))
 
     // Show typing indicator
     agentPanel.addTypingIndicator()
@@ -343,7 +343,8 @@ var agentPanel = {
       message,
       tools,
       agentTools.executeTool,
-      agentPanel.addToolActivity
+      agentPanel.addToolActivity,
+      imageDataUrl
     )
 
     // Remove typing indicator
