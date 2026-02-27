@@ -46,8 +46,9 @@
 }
 
 .agent-panel-title img {
-  width: 28px;
-  height: 28px;
+ width: 100%;
+    height: auto;
+    max-width: 30px;
   border-radius: 50%;
   object-fit: cover;
 }
