@@ -176,6 +176,84 @@
 }
 
 /* ============================================
+   MESSAGE IMAGE THUMBNAIL
+   ============================================ */
+.agent-msg-img-wrap {
+  margin-top: 6px;
+}
+
+.agent-msg-img {
+  max-width: 80px;
+  max-height: 60px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: block;
+  object-fit: cover;
+  transition: opacity 0.15s;
+}
+
+.agent-msg-img:hover {
+  opacity: 0.8;
+}
+
+/* ============================================
+   IMAGE OVERLAY (contained in agent panel)
+   ============================================ */
+.agent-image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+}
+
+.agent-image-overlay-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: #fff;
+  font-size: 22px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  z-index: 1000;
+}
+
+.agent-image-overlay-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.agent-image-overlay-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  max-width: 100%;
+  max-height: 100%;
+  box-sizing: border-box;
+}
+
+.agent-image-overlay-img {
+  max-width: 100%;
+  max-height: calc(100% - 32px);
+  border-radius: 8px;
+  object-fit: contain;
+}
+
+/* ============================================
    TOOL ACTIVITY INDICATOR
    ============================================ */
 .agent-tool-activity {
