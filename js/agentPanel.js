@@ -22,7 +22,6 @@ var agentPanel = {
 
     agentPanel.elements = {
       closeBtn: document.getElementById('agent-panel-close'),
-      settingsBtn: document.getElementById('agent-settings-btn'),
       clearBtn: document.getElementById('agent-clear-btn'),
       chatMessages: document.getElementById('agent-chat-messages'),
       chatInput: document.getElementById('agent-chat-input'),
@@ -34,9 +33,6 @@ var agentPanel = {
       imagePreviewName: document.getElementById('agent-image-preview-name'),
       imageRemove: document.getElementById('agent-image-remove'),
       suggestions: document.getElementById('agent-suggestions'),
-      settingsOverlay: document.getElementById('agent-settings-overlay'),
-      settingsSaveBtn: document.getElementById('agent-settings-save'),
-      settingsCancelBtn: document.getElementById('agent-settings-cancel'),
       confirmationOverlay: document.getElementById('agent-confirmation-overlay'),
       confirmationMessage: document.getElementById('agent-confirmation-message'),
       confirmApproveBtn: document.getElementById('agent-confirm-approve'),
@@ -54,13 +50,6 @@ var agentPanel = {
     if (agentPanel.elements.closeBtn) {
       agentPanel.elements.closeBtn.addEventListener('click', function () {
         agentPanel.close()
-      })
-    }
-
-    // Settings button
-    if (agentPanel.elements.settingsBtn) {
-      agentPanel.elements.settingsBtn.addEventListener('click', function () {
-        agentPanel.showSettings()
       })
     }
 
@@ -235,7 +224,7 @@ var agentPanel = {
     agentPanel.elements.suggestions.style.display = hasMessages ? 'none' : 'flex'
   },
 
-  addMessage: function (role, content) {
+  addMessage: function (role, content, imageDataUrl) {
     if (!agentPanel.elements.chatMessages) return
 
     var msgDiv = document.createElement('div')
@@ -243,7 +232,28 @@ var agentPanel = {
 
     var contentDiv = document.createElement('div')
     contentDiv.className = 'agent-message-content'
-    contentDiv.textContent = content
+
+    // Add text content first (if any)
+    if (content && content.trim()) {
+      var textNode = document.createElement('div')
+      textNode.textContent = content
+      contentDiv.appendChild(textNode)
+    }
+
+    // Add image thumbnail if provided (after text)
+    if (imageDataUrl) {
+      var imgContainer = document.createElement('div')
+      imgContainer.className = 'agent-msg-img-wrap'
+      var img = document.createElement('img')
+      img.src = imageDataUrl
+      img.alt = 'Attached'
+      img.className = 'agent-msg-img'
+      img.addEventListener('click', function () {
+        agentPanel.openImageOverlay(imageDataUrl)
+      })
+      imgContainer.appendChild(img)
+      contentDiv.appendChild(imgContainer)
+    }
 
     msgDiv.appendChild(contentDiv)
     agentPanel.elements.chatMessages.appendChild(msgDiv)
@@ -324,8 +334,8 @@ var agentPanel = {
       agentPanel.removeAttachedImage()
     }
 
-    // Add user message to UI
-    agentPanel.addMessage('user', message + (imageInfo ? '\n📎 ' + imageInfo.name : ''))
+    // Add user message to UI (with image thumbnail if attached)
+    agentPanel.addMessage('user', message, imageDataUrl)
 
     // Show typing indicator
     agentPanel.addTypingIndicator()
@@ -368,21 +378,6 @@ var agentPanel = {
     }
   },
 
-  showSettings: function () {
-    if (!agentPanel.elements.settingsOverlay) return
-    agentPanel.elements.settingsOverlay.classList.add('active')
-  },
-
-  hideSettings: function () {
-    if (agentPanel.elements.settingsOverlay) {
-      agentPanel.elements.settingsOverlay.classList.remove('active')
-    }
-  },
-
-  saveSettings: function () {
-    agentPanel.hideSettings()
-  },
-
   showConfirmation: function (data) {
     if (!agentPanel.elements.confirmationOverlay) return
 
@@ -403,6 +398,58 @@ var agentPanel = {
     var div = document.createElement('div')
     div.textContent = text
     return div.innerHTML
+  },
+
+  openImageOverlay: function (dataUrl) {
+    // Remove existing overlay if any
+    var existing = document.getElementById('agent-image-overlay')
+    if (existing) existing.remove()
+
+    // Find the agent panel container to scope the overlay within it
+    var panelContainer = document.getElementById('agent-panel')
+
+    var overlay = document.createElement('div')
+    overlay.id = 'agent-image-overlay'
+    overlay.className = 'agent-image-overlay'
+
+    var closeBtn = document.createElement('button')
+    closeBtn.className = 'agent-image-overlay-close'
+    closeBtn.innerHTML = '&times;'
+    closeBtn.addEventListener('click', function (e) {
+      e.stopPropagation()
+      overlay.remove()
+    })
+
+    var imgWrap = document.createElement('div')
+    imgWrap.className = 'agent-image-overlay-content'
+    var fullImg = document.createElement('img')
+    fullImg.src = dataUrl
+    fullImg.className = 'agent-image-overlay-img'
+    imgWrap.appendChild(fullImg)
+
+    overlay.appendChild(closeBtn)
+    overlay.appendChild(imgWrap)
+
+    // Close on backdrop click
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) overlay.remove()
+    })
+
+    // Close on Escape key
+    var escHandler = function (e) {
+      if (e.key === 'Escape') {
+        overlay.remove()
+        document.removeEventListener('keydown', escHandler)
+      }
+    }
+    document.addEventListener('keydown', escHandler)
+
+    // Append to agent panel so it stays within the panel bounds
+    if (panelContainer) {
+      panelContainer.appendChild(overlay)
+    } else {
+      document.body.appendChild(overlay)
+    }
   }
 }
 
