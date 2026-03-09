@@ -22,6 +22,29 @@ const GENERIC_COSMETIC_SCRIPT = `
   if (window.__ciphernetCosmeticFilter) return;
   window.__ciphernetCosmeticFilter = true;
 
+  // Web3/DeFi sites that should NOT get aggressive cosmetic filtering
+  // (popup overlay removal, broad ad-container selectors)
+  // These sites use modals, overlays, and class names that conflict with ad detection
+  var WEB3_DOMAINS = [
+    'raydium.io', 'jup.ag', 'jupiter.ag', 'marinade.finance', 'orca.so',
+    'tensor.trade', 'magiceden.io', 'phantom.app', 'solflare.com',
+    'birdeye.so', 'dexscreener.com', 'solscan.io', 'solana.com',
+    'meteora.ag', 'drift.trade', 'mango.markets', 'marginfi.com',
+    'kamino.finance', 'sanctum.so', 'helium.com', 'tiplink.io',
+    'backpack.exchange', 'step.finance', 'hawksight.co', 'parcl.co',
+    'save.finance', 'aldrin.com', 'saber.so', 'tulip.garden',
+    'francium.io', 'hubbleprotocol.io', 'lido.fi', 'aave.com',
+    'uniswap.org', 'pancakeswap.finance', 'curve.fi', 'compound.finance',
+    'opensea.io', 'blur.io', 'nftx.io', 'zapper.fi', 'zerion.io',
+    'rainbow.me', 'metamask.io', 'coinbase.com', 'kraken.com',
+    'pump.fun', 'dextools.io', 'defined.fi', 'gecko.finance',
+    'coingecko.com', 'coinmarketcap.com'
+  ];
+  var currentHost = window.location.hostname.toLowerCase();
+  var isWeb3Site = WEB3_DOMAINS.some(function(d) {
+    return currentHost === d || currentHost.endsWith('.' + d);
+  });
+
   const AD_SELECTORS = [
     'ytd-display-ad-renderer',
     'ytd-promoted-video-renderer',
@@ -69,6 +92,9 @@ const GENERIC_COSMETIC_SCRIPT = `
     // Skip YouTube — its ad elements are handled by hideAds() with specific ytd-* selectors.
     // The broad ad-container selectors here would match YouTube's own UI elements.
     if (window.location.hostname.includes('youtube.com')) return;
+    // Skip Web3/DeFi sites — their wallet adapter classes contain "ad" in "adapter"
+    // and their modals/overlays would be falsely flagged as ad containers.
+    if (isWeb3Site) return;
 
     // 1. Hide elements whose only text is an ad label like "Advertisement"
     var all = document.querySelectorAll('div, span, p, section, aside, article, header, footer');
@@ -191,6 +217,9 @@ const GENERIC_COSMETIC_SCRIPT = `
     // Only active on non-YouTube pages — YouTube's own UI uses overlays legitimately
     function removePopupOverlays() {
       if (window.location.hostname.includes('youtube.com')) return;
+      // Skip Web3/DeFi sites — their wallet connection modals, swap confirmations,
+      // and approval dialogs are fixed-position overlays that look like ad popups
+      if (isWeb3Site) return;
 
       var allEls = document.querySelectorAll('*');
       for (var i = 0; i < allEls.length; i++) {
