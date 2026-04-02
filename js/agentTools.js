@@ -280,6 +280,14 @@ var agentTools = {
       {
         type: 'function',
         function: {
+          name: 'get_network',
+          description: 'Get the current wallet network (mainnet-beta or devnet). Call this BEFORE deploying tokens to know which network the user is on.',
+          parameters: { type: 'object', properties: {} }
+        }
+      },
+      {
+        type: 'function',
+        function: {
           name: 'send_sol',
           description: 'Send SOL to an address. REQUIRES USER CONFIRMATION before executing. Always confirm with the user first.',
           parameters: {
@@ -292,12 +300,12 @@ var agentTools = {
           }
         }
       },
-      // Token Deployment (Devnet)
+      // Token Deployment
       {
         type: 'function',
         function: {
           name: 'deploy_token',
-          description: 'Deploy a new SPL token on Solana Devnet with full metadata (logo, socials, security options). Creates a mint, metadata account, ATA, and mints initial supply. If liquidity_sol > 0, also creates a Raydium CPMM pool. REQUIRES USER CONFIRMATION. The user must have devnet SOL (use airdrop_devnet_sol if needed).',
+          description: 'Deploy a new SPL token on Solana with full metadata (logo, socials, security options). Works on both mainnet and devnet — deploys to whichever network the wallet is currently on. Call get_network first to check. Creates a mint, metadata account, ATA, and mints initial supply. If liquidity_sol > 0, also creates a Raydium CPMM pool. REQUIRES USER CONFIRMATION. LOGO IS MANDATORY — user must attach an image in chat or provide a logo_url. On mainnet the user must have real SOL.',
           parameters: {
             type: 'object',
             properties: {
@@ -306,7 +314,7 @@ var agentTools = {
               description: { type: 'string', description: 'Token description (optional — generate a creative one if not provided)' },
               decimals: { type: 'number', description: 'Token decimals (default 9, range 0-18)' },
               initial_supply: { type: 'string', description: 'Initial supply in human-readable units (e.g. "1000000")' },
-              logo_url: { type: 'string', description: 'URL to the token logo image. Can be a web URL (https://...) or will auto-use the image attached in chat if available. Optional.' },
+              logo_url: { type: 'string', description: 'URL to the token logo image. Can be a web URL (https://...) or will auto-use the image attached in chat if available. REQUIRED — deployment will fail without a logo.' },
               revoke_mint_authority: { type: 'boolean', description: 'Revoke mint authority — no one can mint more tokens (default true, recommended)' },
               revoke_freeze_authority: { type: 'boolean', description: 'Revoke freeze authority — no one can freeze token accounts (default true, recommended)' },
               make_metadata_immutable: { type: 'boolean', description: 'Make metadata immutable — name, symbol and image cannot be changed (default true, recommended)' },
@@ -321,16 +329,27 @@ var agentTools = {
           }
         }
       },
+      // Pump.fun Token Deployment
       {
         type: 'function',
         function: {
-          name: 'airdrop_devnet_sol',
-          description: 'Request free devnet SOL airdrop to the wallet. Use this before deploying tokens on devnet if the wallet has insufficient balance. Max 2 SOL per request.',
+          name: 'deploy_pumpfun_token',
+          description: 'Deploy a token on pump.fun (Solana bonding curve platform). Uploads metadata to IPFS, uses PumpDev API to build the transaction, signs locally, and sends. Pump.fun tokens have fixed 1B supply and 6 decimals. Optional dev buy lets you buy your own token at launch. Create + dev buy are combined into a single atomic transaction. REQUIRES USER CONFIRMATION. LOGO IS MANDATORY — user must attach an image in chat or provide an image URL. Only works on mainnet.',
           parameters: {
             type: 'object',
             properties: {
-              amount: { type: 'number', description: 'Amount of SOL to airdrop (default 1, max 2)' }
-            }
+              name: { type: 'string', description: 'Token name' },
+              symbol: { type: 'string', description: 'Token ticker/symbol' },
+              description: { type: 'string', description: 'Token description' },
+              image: { type: 'string', description: 'Image URL or will auto-use the image attached in chat. REQUIRED.' },
+              dev_buy: { type: 'number', description: 'Amount of SOL for dev buy at launch (0 for no dev buy, e.g. 0.1 or 0.5)' },
+              slippage: { type: 'number', description: 'Slippage tolerance percent (default 10)' },
+              priority_fee: { type: 'number', description: 'Priority fee in SOL (default 0.0005)' },
+              twitter: { type: 'string', description: 'Twitter/X handle (optional)' },
+              telegram: { type: 'string', description: 'Telegram link (optional)' },
+              website: { type: 'string', description: 'Website URL (optional)' }
+            },
+            required: ['name', 'symbol']
           }
         }
       },
@@ -560,6 +579,20 @@ var agentTools = {
           parameters: { type: 'object', properties: {} }
         }
       },
+      // Image Analysis
+      {
+        type: 'function',
+        function: {
+          name: 'describe_image',
+          description: 'Analyze and describe the image that the user attached in chat. Use this when the user asks "what is this image", "describe this", "what do you see", or similar questions about an attached image. Only works if the user has attached an image.',
+          parameters: {
+            type: 'object',
+            properties: {
+              question: { type: 'string', description: 'What to analyze about the image (e.g. "describe this image", "what is in this image")' }
+            }
+          }
+        }
+      },
       // Wallet Burn
       {
         type: 'function',
@@ -589,6 +622,20 @@ var agentTools = {
               name: { type: 'string', description: 'Token name to check (e.g. "Pepe", "Dogwifhat")' }
             },
             required: ['ticker']
+          }
+        }
+      },
+      {
+        type: 'function',
+        function: {
+          name: 'fetch_user_tweets',
+          description: 'Fetch recent tweets from a specific X/Twitter user. Returns their top tweets sorted by engagement, plus extracted keywords and themes. Use when user mentions a specific person (e.g. "what is Elon tweeting about", "check @punk6529 timeline").',
+          parameters: {
+            type: 'object',
+            properties: {
+              username: { type: 'string', description: 'Twitter/X username or handle (with or without @). e.g. "elonmusk", "@punk6529"' }
+            },
+            required: ['username']
           }
         }
       }
@@ -640,6 +687,8 @@ var agentTools = {
         return agentTools.getWalletBalance()
       case 'get_wallet_address':
         return agentTools.getWalletAddress()
+      case 'get_network':
+        return agentTools.getNetwork()
       case 'send_sol':
         return agentTools.sendSol(args.recipient, args.amount)
       case 'mixer_get_currencies':
@@ -676,18 +725,22 @@ var agentTools = {
         return agentTools.getSolPrice()
       case 'deploy_token':
         return agentTools.deployToken(args)
-      case 'airdrop_devnet_sol':
-        return agentTools.airdropDevnetSol(args.amount)
+      case 'deploy_pumpfun_token':
+        return agentTools.deployPumpfunToken(args)
       case 'check_website_safety':
         return agentTools.checkWebsiteSafety(args.url)
       case 'get_user_region':
         return agentTools.getUserRegion()
+      case 'describe_image':
+        return agentTools.describeImage(args.question)
       case 'burn_wallet':
         return agentTools.burnWallet()
       case 'fetch_trending_narratives':
         return agentTools.fetchTrendingNarratives()
       case 'check_token_collision':
         return agentTools.checkTokenCollision(args.ticker, args.name)
+      case 'fetch_user_tweets':
+        return agentTools.fetchUserTweets(args.username)
       default:
         return { error: 'Unknown tool: ' + toolName }
     }
@@ -1324,9 +1377,10 @@ var agentTools = {
         var deployResult = await ipc.invoke(ipcChannel, pending.params)
         if (deployResult.success) {
           var d = deployResult.data
+          var networkLabel = d.network === 'devnet' ? 'Devnet' : 'Mainnet'
           var result = {
             success: true,
-            message: 'Token "' + d.name + '" (' + d.symbol + ') deployed on Devnet with metadata!',
+            message: 'Token "' + d.name + '" (' + d.symbol + ') deployed on ' + networkLabel + ' with metadata!',
             mint_address: d.mint,
             ata_address: d.ata,
             metadata_address: d.metadataAddress || null,
@@ -1337,7 +1391,7 @@ var agentTools = {
             metadata_immutable: d.makeMetadataImmutable,
             signatures: d.signatures,
             explorer_links: d.explorerLinks,
-            network: 'devnet'
+            network: d.network || 'mainnet-beta'
           }
           if (d.pool) {
             result.message += ' Raydium CPMM pool created — token is now tradeable!'
@@ -1350,6 +1404,23 @@ var agentTools = {
           pending.resolve(result)
         } else {
           pending.resolve({ error: deployResult.error || 'Token deployment failed' })
+        }
+      } else if (pending.action === 'deploy_pumpfun_token') {
+        var pumpResult = await ipc.invoke('wallet:deployPumpfunToken', pending.params)
+        if (pumpResult.success) {
+          var p = pumpResult.data
+          pending.resolve({
+            success: true,
+            message: 'Token "' + p.name + '" (' + p.symbol + ') deployed on pump.fun!',
+            mint: p.mint,
+            tx: p.tx,
+            pump_url: p.pumpUrl,
+            metadata_uri: p.metadataUri,
+            dev_buy: p.devBuy,
+            network: p.network
+          })
+        } else {
+          pending.resolve({ error: pumpResult.error || 'Pump.fun deployment failed' })
         }
       } else {
         pending.resolve({ error: 'Unknown confirmation action' })
@@ -1364,7 +1435,21 @@ var agentTools = {
 
   // --- Token Deployment tools ---
 
-  deployToken: function (args) {
+  getNetwork: async function () {
+    try {
+      var result = await ipc.invoke('wallet:getNetwork')
+      var network = (result.data && result.data.network) || result.network || 'mainnet-beta'
+      return {
+        success: true,
+        network: network,
+        label: network === 'devnet' ? 'Devnet' : 'Mainnet'
+      }
+    } catch (e) {
+      return { error: e.message || 'Failed to get network' }
+    }
+  },
+
+  deployToken: async function (args) {
     var name = (args.name || '').trim()
     var symbol = (args.symbol || '').trim()
     var initialSupply = args.initial_supply || '0'
@@ -1373,6 +1458,14 @@ var agentTools = {
     var lpPercent = typeof args.lp_percent === 'number' ? args.lp_percent : 20
     var hasLiquidity = liquiditySol > 0
     var maxSolSpend = typeof args.max_sol_spend === 'number' ? args.max_sol_spend : (hasLiquidity ? liquiditySol + 1.5 : 0.5)
+
+    // Fetch current network for confirmation dialog
+    var currentNetwork = 'mainnet-beta'
+    try {
+      var netResult = await ipc.invoke('wallet:getNetwork')
+      currentNetwork = (netResult.data && netResult.data.network) || netResult.network || 'mainnet-beta'
+    } catch (e) {}
+    var networkLabel = currentNetwork === 'devnet' ? 'Devnet' : 'Mainnet'
 
     // Security options (all default to true = revoked/immutable)
     var revokeMintAuthority = args.revoke_mint_authority !== false
@@ -1387,6 +1480,18 @@ var agentTools = {
     }
     if (!initialSupply || initialSupply === '0') {
       return { error: 'Initial supply is required and must be greater than 0' }
+    }
+    // Validate supply doesn't overflow u64 (max 18446744073709551615 base units)
+    try {
+      var supplyNum = BigInt(initialSupply.replace(/[,\s]/g, ''))
+      var baseUnits = supplyNum * BigInt(Math.pow(10, decimals))
+      var U64_MAX = BigInt('18446744073709551615')
+      if (baseUnits > U64_MAX) {
+        var maxSupply = (U64_MAX / BigInt(Math.pow(10, decimals))).toString()
+        return { error: 'Supply too large! ' + initialSupply + ' with ' + decimals + ' decimals overflows the Solana u64 limit. Maximum supply with ' + decimals + ' decimals is ' + maxSupply + '. Use a smaller supply or fewer decimals.' }
+      }
+    } catch (e) {
+      // Let backend handle if BigInt parsing fails
     }
     if (hasLiquidity && (lpPercent < 1 || lpPercent > 100)) {
       return { error: 'lp_percent must be between 1 and 100' }
@@ -1445,10 +1550,15 @@ var agentTools = {
     }
     console.log('[deploy_token] Final logoUrl:', logoUrl ? (logoUrl.length > 80 ? logoUrl.substring(0, 80) + '...' : logoUrl) : '(none)')
 
+    // Logo is mandatory — reject deployment without one
+    if (!logoUrl) {
+      return { error: 'A logo image is required to deploy a token. Please attach an image in the chat (use the 📎 button) or provide a logo_url parameter with a direct image URL.' }
+    }
+
     // Show confirmation dialog before deploying
     return new Promise(function (resolve) {
       var summary =
-        'Deploy Token on Devnet' + (hasLiquidity ? ' + Raydium Pool' : '') + '\n' +
+        'Deploy Token on ' + networkLabel + (hasLiquidity ? ' + Raydium Pool' : '') + '\n' +
         '━━━━━━━━━━━━━━━━━━━━━━━\n' +
         'Name: ' + name + '\n' +
         'Symbol: ' + symbol + '\n' +
@@ -1486,9 +1596,10 @@ var agentTools = {
 
       summary +=
         '━━━━━━━━━━━━━━━━━━━━━━━\n' +
-        'Network: Devnet\n' +
+        'Network: ' + networkLabel + '\n' +
         'Max SOL spend: ' + maxSolSpend + ' SOL\n' +
-        'Estimated cost: ~' + (hasLiquidity ? (liquiditySol + 0.5).toFixed(2) : '0.003') + ' SOL'
+        'Estimated cost: ~' + (hasLiquidity ? (liquiditySol + 0.5).toFixed(2) : '0.003') + ' SOL' +
+        (currentNetwork !== 'devnet' ? '\n\n⚠️ MAINNET — This uses REAL SOL and is irreversible!' : '')
 
       agentTools.pendingConfirmation = {
         action: 'deploy_token',
@@ -1519,22 +1630,119 @@ var agentTools = {
     })
   },
 
-  airdropDevnetSol: async function (amount) {
-    try {
-      var result = await ipc.invoke('wallet:requestAirdrop', { amount: amount || 1 })
-      if (result.success) {
-        return {
-          success: true,
-          message: 'Airdropped ' + result.data.amount + ' devnet SOL to ' + result.data.address,
-          signature: result.data.signature,
-          amount: result.data.amount,
-          explorer: 'https://explorer.solana.com/tx/' + result.data.signature + '?cluster=devnet'
-        }
-      }
-      return { error: result.error || 'Airdrop failed' }
-    } catch (e) {
-      return { error: e.message || 'Airdrop request failed' }
+
+  // --- Pump.fun deployment ---
+
+  deployPumpfunToken: async function (args) {
+    var name = (args.name || '').trim()
+    var symbol = (args.symbol || '').trim()
+
+    if (!name) return { error: 'Token name is required' }
+    if (!symbol) return { error: 'Token symbol is required' }
+
+    var description = args.description || ''
+    var devBuy = typeof args.dev_buy === 'number' ? args.dev_buy : 0
+    var slippage = typeof args.slippage === 'number' ? args.slippage : 10
+    var priorityFee = typeof args.priority_fee === 'number' ? args.priority_fee : 0.0005
+
+    // Resolve image — same logic as deploy_token
+    var imageSource = args.image || ''
+
+    if (imageSource && !imageSource.startsWith('http') && !imageSource.startsWith('data:') && !imageSource.startsWith('file://')) {
+      imageSource = ''
     }
+
+    if (!imageSource && agentTools.lastAttachedImage) {
+      if (agentTools.lastAttachedImage.dataUrl) {
+        imageSource = agentTools.lastAttachedImage.dataUrl
+      } else if (agentTools.lastAttachedImage.path) {
+        imageSource = 'file://' + agentTools.lastAttachedImage.path
+      }
+    }
+
+    if (!imageSource) {
+      try {
+        var history = agentCore.conversationHistory || []
+        for (var hi = history.length - 1; hi >= 0; hi--) {
+          var msg = history[hi]
+          if (msg.role === 'user' && msg.content) {
+            var attachMatch = msg.content.match(/\[ATTACHED IMAGE: .+ at path: (.+?) \(type:/)
+            if (attachMatch) {
+              imageSource = 'file://' + attachMatch[1]
+              break
+            }
+            var urlMatch = msg.content.match(/(https?:\/\/[^\s"']+\.(png|jpg|jpeg|gif|webp|svg))/i)
+            if (urlMatch) {
+              imageSource = urlMatch[1]
+              break
+            }
+          }
+        }
+      } catch (histErr) {
+        console.log('[deploy_pumpfun] Could not scan history: ' + histErr.message)
+      }
+    }
+
+    if (!imageSource) {
+      return { error: 'A logo image is required for pump.fun deployment. Please attach an image in the chat (use the 📎 button) or provide an image URL.' }
+    }
+
+    // Show confirmation dialog
+    return new Promise(function (resolve) {
+      var summary =
+        'Deploy Token on Pump.fun\n' +
+        '━━━━━━━━━━━━━━━━━━━━━━━\n' +
+        'Name: ' + name + '\n' +
+        'Symbol: ' + symbol + '\n' +
+        'Supply: 1,000,000,000 (fixed by pump.fun)\n' +
+        'Decimals: 6 (fixed by pump.fun)\n'
+
+      if (description) summary += 'Description: ' + description + '\n'
+      summary += 'Logo: ' + (imageSource.startsWith('data:') ? 'Attached image' : imageSource) + '\n'
+
+      if (devBuy > 0) {
+        summary += '━━━ Dev Buy ━━━\n'
+        summary += 'Dev buy amount: ' + devBuy + ' SOL\n'
+      }
+
+      if (args.twitter || args.telegram || args.website) {
+        summary += '━━━ Social Links ━━━\n'
+        if (args.website) summary += 'Website: ' + args.website + '\n'
+        if (args.twitter) summary += 'Twitter: ' + args.twitter + '\n'
+        if (args.telegram) summary += 'Telegram: ' + args.telegram + '\n'
+      }
+
+      summary +=
+        '━━━━━━━━━━━━━━━━━━━━━━━\n' +
+        'Slippage: ' + slippage + '%\n' +
+        'Priority fee: ' + priorityFee + ' SOL\n' +
+        'Est. cost: ~0.02 SOL (fees)' + (devBuy > 0 ? ' + ' + devBuy + ' SOL (dev buy)' : '') + '\n' +
+        '\n⚠️ This deploys on pump.fun (mainnet) using REAL SOL!'
+
+      agentTools.pendingConfirmation = {
+        action: 'deploy_pumpfun_token',
+        params: {
+          name: name,
+          symbol: symbol,
+          description: description,
+          image: imageSource,
+          devBuy: devBuy,
+          slippage: slippage,
+          priorityFee: priorityFee,
+          twitter: args.twitter || '',
+          telegram: args.telegram || '',
+          website: args.website || ''
+        },
+        resolve: resolve
+      }
+
+      if (agentTools.onConfirmationNeeded) {
+        agentTools.onConfirmationNeeded({
+          action: 'deploy_pumpfun_token',
+          message: summary
+        })
+      }
+    })
   },
 
   // --- Mixer tools ---
@@ -2185,6 +2393,50 @@ var agentTools = {
     })
   },
 
+  describeImage: async function (question) {
+    if (!agentTools.lastAttachedImage || !agentTools.lastAttachedImage.dataUrl) {
+      return { error: 'No image attached. Ask the user to attach an image using the 📎 button first.' }
+    }
+
+    var dataUrl = agentTools.lastAttachedImage.dataUrl
+    var prompt = question || 'Describe this image in detail.'
+
+    try {
+      var apiKey = await agentCore.getApiKey()
+      if (!apiKey) return { error: 'No API key configured.' }
+
+      var model = await agentCore.getModel()
+      var response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + apiKey
+        },
+        body: JSON.stringify({
+          model: model,
+          messages: [
+            {
+              role: 'user',
+              content: [
+                { type: 'text', text: prompt },
+                { type: 'image_url', image_url: { url: dataUrl, detail: 'high' } }
+              ]
+            }
+          ],
+          max_tokens: 500
+        })
+      })
+
+      var data = await response.json()
+      if (data.choices && data.choices[0] && data.choices[0].message) {
+        return { success: true, description: data.choices[0].message.content }
+      }
+      return { error: data.error ? data.error.message : 'Failed to analyze image' }
+    } catch (e) {
+      return { error: e.message || 'Image analysis failed' }
+    }
+  },
+
   getSolPrice: async function () {
     try {
       var result = await ipc.invoke('agent:scrapeUrl', { url: 'https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd&include_24hr_change=true' })
@@ -2235,6 +2487,25 @@ var agentTools = {
       return result
     } catch (e) {
       return { error: e.message || 'Failed to check token collision' }
+    }
+  },
+
+  fetchUserTweets: async function (username) {
+    if (!username) return { error: 'No username provided' }
+    try {
+      var result = await ipc.invoke('agent:fetchUserTweets', { username: username })
+      if (result.error) return { error: result.error }
+      return {
+        success: true,
+        username: result.username,
+        tweet_count: result.tweet_count,
+        top_tweets: result.top_tweets,
+        top_keywords: result.top_keywords,
+        fetched_at: result.fetched_at,
+        instruction: 'These are the latest tweets from @' + result.username + '. Analyze themes, tone, and recurring topics to derive token concepts or answer user questions about this account.'
+      }
+    } catch (e) {
+      return { error: e.message || 'Failed to fetch user tweets' }
     }
   }
 }
