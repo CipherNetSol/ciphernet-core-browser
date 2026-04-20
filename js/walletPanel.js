@@ -52,7 +52,15 @@ const walletPanel = {
       balanceRefreshBtn: document.getElementById('wallet-balance-refresh-btn'),
       networkSelect: document.getElementById('wallet-network-select'),
       exportBtn: document.getElementById('wallet-export-btn'),
+      importBtn: document.getElementById('wallet-import-btn'),
       refreshBtn: document.getElementById('wallet-refresh-btn'),
+
+      // Import modal
+      importModal: document.getElementById('wallet-import-modal'),
+      importKeyInput: document.getElementById('wallet-import-key-input'),
+      importConfirmBtn: document.getElementById('wallet-import-confirm'),
+      importCancelBtn: document.getElementById('wallet-import-cancel'),
+      importError: document.getElementById('wallet-import-error'),
 
       // Export warning
       exportWarning: document.getElementById('wallet-export-warning'),
@@ -156,6 +164,25 @@ const walletPanel = {
     // Export button
     if (this.elements.exportBtn) {
       this.elements.exportBtn.addEventListener('click', () => this.showExportWarning())
+    }
+
+    // Import button
+    if (this.elements.importBtn) {
+      this.elements.importBtn.addEventListener('click', () => this.showImportModal())
+    }
+    if (this.elements.importConfirmBtn) {
+      this.elements.importConfirmBtn.addEventListener('click', (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        this.confirmImport()
+      })
+    }
+    if (this.elements.importCancelBtn) {
+      this.elements.importCancelBtn.addEventListener('click', (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        this.hideImportModal()
+      })
     }
 
     // Refresh button (in actions section)
@@ -535,6 +562,55 @@ const walletPanel = {
       this.elements.exportWarning.classList.remove('active')
       this.isExportWarningVisible = false
     }
+  },
+
+  showImportModal: function () {
+    if (this.elements.importModal) {
+      if (this.elements.importKeyInput) this.elements.importKeyInput.value = ''
+      if (this.elements.importError) this.elements.importError.textContent = ''
+      this.elements.importModal.classList.add('active')
+    }
+  },
+
+  hideImportModal: function () {
+    if (this.elements.importModal) {
+      this.elements.importModal.classList.remove('active')
+    }
+    if (this.elements.importKeyInput) this.elements.importKeyInput.value = ''
+    if (this.elements.importError) this.elements.importError.textContent = ''
+  },
+
+  async confirmImport() {
+    var privateKey = this.elements.importKeyInput ? this.elements.importKeyInput.value.trim() : ''
+    if (!privateKey) {
+      if (this.elements.importError) this.elements.importError.textContent = 'Please paste your private key.'
+      return
+    }
+
+    if (this.elements.importConfirmBtn) this.elements.importConfirmBtn.textContent = 'Importing...'
+
+    try {
+      const result = await ipc.invoke('wallet:importWallet', privateKey)
+      if (result.success) {
+        this.hideImportModal()
+        // Update UI with new wallet
+        this.publicKey = result.data.publicKey
+        this.updateAddressDisplay()
+        this.generateQRCode()
+        await this.refreshBalance()
+        if (this.elements.tokensList) {
+          this.elements.tokensList.innerHTML = '<div class="wallet-tokens-empty">No tokens found</div>'
+        }
+        // Notify agent of wallet change
+        ipc.send('wallet:walletImported', { publicKey: result.data.publicKey })
+      } else {
+        if (this.elements.importError) this.elements.importError.textContent = result.error || 'Import failed.'
+      }
+    } catch (err) {
+      if (this.elements.importError) this.elements.importError.textContent = 'Error: ' + err.message
+    }
+
+    if (this.elements.importConfirmBtn) this.elements.importConfirmBtn.textContent = 'Import'
   },
 
   async confirmExport() {
