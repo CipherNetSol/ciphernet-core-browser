@@ -13,6 +13,7 @@ const modules = [
   'js/util/settings/settingsMain.js',
   'main/raydiumCpmm.js',
   'main/pumpfunDeploy.js',
+  'main/tokenBuy.js',
   'main/walletManager.js',
   'main/adblock/debug.js',
   'main/adblock/storage.js',
