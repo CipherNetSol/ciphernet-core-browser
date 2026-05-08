@@ -126,7 +126,20 @@ const walletPanel = {
       sendDoneBtn: document.getElementById('wallet-send-done-btn'),
       sendErrorState: document.getElementById('wallet-send-error'),
       sendErrorMessage: document.getElementById('wallet-send-error-message'),
-      sendRetryBtn: document.getElementById('wallet-send-retry-btn')
+      sendRetryBtn: document.getElementById('wallet-send-retry-btn'),
+
+      // Token info panel
+      tokenInfoPanel: document.getElementById('wallet-token-info-panel'),
+      wtiName: document.getElementById('wti-name'),
+      wtiSymbol: document.getElementById('wti-symbol'),
+      wtiNetwork: document.getElementById('wti-network'),
+      wtiMint: document.getElementById('wti-mint'),
+      wtiMintCopy: document.getElementById('wti-mint-copy'),
+      wtiPrice: document.getElementById('wti-price'),
+      wtiMarketCap: document.getElementById('wti-marketcap'),
+      wtiSupply: document.getElementById('wti-supply'),
+      wtiHolders: document.getElementById('wti-holders'),
+      wtiCreated: document.getElementById('wti-created')
     }
 
     // Set up event listeners
@@ -1126,6 +1139,67 @@ const walletPanel = {
 
     // Fetch fee estimate
     this.updateFeeEstimate()
+
+    // Show/hide token info panel and load data
+    if (this.elements.tokenInfoPanel) {
+      if (type === 'token' && tokenData && tokenData.mint) {
+        this.elements.tokenInfoPanel.style.display = 'block'
+        this.loadTokenInfo(tokenData.mint)
+      } else {
+        this.elements.tokenInfoPanel.style.display = 'none'
+      }
+    }
+  },
+
+  loadTokenInfo: async function (mintAddress) {
+    const el = this.elements
+    // Reset all to loading state
+    const fields = ['wtiName', 'wtiSymbol', 'wtiNetwork', 'wtiMint', 'wtiPrice', 'wtiMarketCap', 'wtiSupply', 'wtiHolders', 'wtiCreated']
+    fields.forEach(f => { if (el[f]) el[f].textContent = '...' })
+
+    // Show mint and network immediately (we already know these)
+    if (el.wtiMint) el.wtiMint.textContent = mintAddress.substring(0, 4) + '...' + mintAddress.slice(-4)
+    if (el.wtiNetwork) el.wtiNetwork.textContent = 'Solana'
+
+    // Wire copy button with full mint address
+    if (el.wtiMintCopy) {
+      el.wtiMintCopy.onclick = () => {
+        navigator.clipboard.writeText(mintAddress).then(() => {
+          const icon = el.wtiMintCopy.querySelector('.i')
+          if (icon) {
+            icon.className = 'i carbon:checkmark'
+            setTimeout(() => { icon.className = 'i carbon:copy' }, 1500)
+          }
+        })
+      }
+    }
+
+    try {
+      const netResult = await ipc.invoke('wallet:getNetwork')
+      const network = (netResult.data && netResult.data.network) || 'mainnet-beta'
+      const result = await ipc.invoke('wallet:getTokenInfo', { mintAddress, network })
+
+      if (!result.success) return
+
+      const info = result.data
+      if (el.wtiName) el.wtiName.textContent = info.name || '—'
+      if (el.wtiSymbol) el.wtiSymbol.textContent = info.symbol || '—'
+      if (el.wtiNetwork) el.wtiNetwork.textContent = network === 'devnet' ? 'Solana Devnet' : 'Solana'
+      if (el.wtiPrice) el.wtiPrice.textContent = info.price ? '$' + info.price.toFixed(info.price < 0.0001 ? 8 : info.price < 0.01 ? 6 : 4) : '—'
+      if (el.wtiMarketCap) el.wtiMarketCap.textContent = info.marketCap ? '$' + this.formatLargeNumber(info.marketCap) : '—'
+      if (el.wtiSupply) el.wtiSupply.textContent = info.totalSupply ? this.formatLargeNumber(parseFloat(info.totalSupply)) : '—'
+      if (el.wtiHolders) el.wtiHolders.textContent = info.topHolders ? info.topHolders + (info.topHolders === 20 ? '+' : '') : '—'
+      if (el.wtiCreated) el.wtiCreated.textContent = info.createdAt || '—'
+    } catch (e) {
+      fields.forEach(f => { if (el[f] && el[f].textContent === '...') el[f].textContent = '—' })
+    }
+  },
+
+  formatLargeNumber: function (n) {
+    if (n >= 1e9) return (n / 1e9).toFixed(2) + 'B'
+    if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M'
+    if (n >= 1e3) return (n / 1e3).toFixed(2) + 'K'
+    return n.toLocaleString(undefined, { maximumFractionDigits: 2 })
   },
 
   closeSendModal: function () {
