@@ -182,15 +182,19 @@ var agentPanel = {
     agentPanel.isOpen = true
     webviews.adjustMargin([0, agentPanel.panelWidth, 0, 0])
 
-    // Focus input
+    // Re-apply bot/agent mode so panel state is preserved after hide/show
+    if (typeof tradingBot !== 'undefined' && tradingBot.reapplyMode) {
+      tradingBot.reapplyMode()
+    } else {
+      agentPanel.updateSuggestionsVisibility()
+    }
+
+    // Focus input only in agent mode
     setTimeout(function () {
-      if (agentPanel.elements.chatInput) {
+      if (agentPanel.elements.chatInput && agentPanel.elements.chatInput.style.display !== 'none') {
         agentPanel.elements.chatInput.focus()
       }
     }, 200)
-
-    // Show suggestions if chat is empty
-    agentPanel.updateSuggestionsVisibility()
   },
 
   close: function () {
@@ -219,6 +223,12 @@ var agentPanel = {
 
   updateSuggestionsVisibility: function () {
     if (!agentPanel.elements.suggestions || !agentPanel.elements.chatMessages) return
+
+    // Never show agent suggestions when bot mode is active
+    if (typeof tradingBot !== 'undefined' && tradingBot.isBotMode && tradingBot.isBotMode()) {
+      agentPanel.elements.suggestions.style.display = 'none'
+      return
+    }
 
     var hasMessages = agentPanel.elements.chatMessages.children.length > 0
     agentPanel.elements.suggestions.style.display = hasMessages ? 'none' : 'flex'
