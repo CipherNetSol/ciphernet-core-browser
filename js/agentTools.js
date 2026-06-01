@@ -334,7 +334,7 @@ var agentTools = {
         type: 'function',
         function: {
           name: 'deploy_pumpfun_token',
-          description: 'Deploy a token on pump.fun (Solana bonding curve platform). Uploads metadata to IPFS, uses PumpDev API to build the transaction, signs locally, and sends. Pump.fun tokens have fixed 1B supply and 6 decimals. Optional dev buy lets you buy your own token at launch. Create + dev buy are combined into a single atomic transaction. REQUIRES USER CONFIRMATION. LOGO IS MANDATORY — user must attach an image in chat or provide an image URL. Only works on mainnet.',
+          description: 'Deploy a token on pump.fun (Solana bonding curve platform). Uploads metadata to IPFS, uses PumpDev API to build the transaction, signs locally, and sends. Pump.fun tokens have fixed 1B supply and 6 decimals. DEV BUY IS MANDATORY — always ask the user how much SOL they want to buy at launch before calling this tool. Create + dev buy are combined into a single atomic transaction. REQUIRES USER CONFIRMATION. LOGO IS MANDATORY — user must attach an image in chat or provide an image URL. Only works on mainnet.',
           parameters: {
             type: 'object',
             properties: {
@@ -342,14 +342,47 @@ var agentTools = {
               symbol: { type: 'string', description: 'Token ticker/symbol' },
               description: { type: 'string', description: 'Token description' },
               image: { type: 'string', description: 'Image URL or will auto-use the image attached in chat. REQUIRED.' },
-              dev_buy: { type: 'number', description: 'Amount of SOL for dev buy at launch (0 for no dev buy, e.g. 0.1 or 0.5)' },
+              dev_buy: { type: 'number', description: 'Amount of SOL for dev buy at launch. MANDATORY — always ask the user for this before deploying. Minimum 0.01 SOL.' },
               slippage: { type: 'number', description: 'Slippage tolerance percent (default 10)' },
               priority_fee: { type: 'number', description: 'Priority fee in SOL (default 0.0005)' },
               twitter: { type: 'string', description: 'Twitter/X handle (optional)' },
               telegram: { type: 'string', description: 'Telegram link (optional)' },
               website: { type: 'string', description: 'Website URL (optional)' }
             },
-            required: ['name', 'symbol']
+            required: ['name', 'symbol', 'dev_buy']
+          }
+        }
+      },
+      // Token Buy
+      {
+        type: 'function',
+        function: {
+          name: 'buy_token',
+          description: 'Buy a Solana token by spending SOL. Works on pump.fun (bonding curve), PumpSwap (graduated), and Raydium pools. On mainnet checks all three. On devnet checks Raydium only. Call get_network first. If user has not specified an amount, ask them before calling. REQUIRES USER CONFIRMATION.',
+          parameters: {
+            type: 'object',
+            properties: {
+              mint_address: { type: 'string', description: 'Token mint address to buy' },
+              amount_sol: { type: 'number', description: 'Amount of SOL to spend buying the token' }
+            },
+            required: ['mint_address', 'amount_sol']
+          }
+        }
+      },
+      // Token Sell
+      {
+        type: 'function',
+        function: {
+          name: 'sell_token',
+          description: 'Sell a Solana token you hold in exchange for SOL. Works on pump.fun (bonding curve), PumpSwap (graduated), and Raydium pools. You can specify either a raw token amount or a percentage of your holdings. If user has not specified an amount, ask them. REQUIRES USER CONFIRMATION.',
+          parameters: {
+            type: 'object',
+            properties: {
+              mint_address: { type: 'string', description: 'Token mint address to sell' },
+              amount: { type: 'number', description: 'Amount to sell — either raw token units or a percentage (1-100) if use_percent is true' },
+              use_percent: { type: 'boolean', description: 'If true, amount is treated as a percentage of your token balance (e.g. 50 = sell 50%). Default false.' }
+            },
+            required: ['mint_address', 'amount']
           }
         }
       },
@@ -727,6 +760,10 @@ var agentTools = {
         return agentTools.deployToken(args)
       case 'deploy_pumpfun_token':
         return agentTools.deployPumpfunToken(args)
+      case 'buy_token':
+        return agentTools.buyToken(args)
+      case 'sell_token':
+        return agentTools.sellToken(args)
       case 'check_website_safety':
         return agentTools.checkWebsiteSafety(args.url)
       case 'get_user_region':
@@ -1422,6 +1459,45 @@ var agentTools = {
         } else {
           pending.resolve({ error: pumpResult.error || 'Pump.fun deployment failed' })
         }
+      } else if (pending.action === 'buy_token') {
+        var buyResult = await ipc.invoke('wallet:buyToken', {
+          mintAddress: pending.params.mintAddress,
+          amountSol: pending.params.amountSol,
+          network: pending.params.network
+        })
+        if (buyResult.success) {
+          var b = buyResult.data
+          pending.resolve({
+            success: true,
+            message: 'Bought ' + b.mint + ' spending ' + b.amountSol + ' SOL via ' + b.source + '.',
+            signature: b.signature,
+            explorer_url: b.explorerUrl,
+            out_amount: b.outAmount || null,
+            source: b.source
+          })
+        } else {
+          pending.resolve({ error: buyResult.error || 'Buy failed' })
+        }
+      } else if (pending.action === 'sell_token') {
+        var sellResult = await ipc.invoke('wallet:sellToken', {
+          mintAddress: pending.params.mintAddress,
+          amountTokens: pending.params.amountTokens,
+          network: pending.params.network,
+          usePercent: pending.params.usePercent
+        })
+        if (sellResult.success) {
+          var s = sellResult.data
+          pending.resolve({
+            success: true,
+            message: 'Sold tokens from ' + s.mint + ', received ' + (s.outSol || '?') + ' SOL via ' + s.source + '.',
+            signature: s.signature,
+            explorer_url: s.explorerUrl,
+            out_sol: s.outSol || null,
+            source: s.source
+          })
+        } else {
+          pending.resolve({ error: sellResult.error || 'Sell failed' })
+        }
       } else {
         pending.resolve({ error: 'Unknown confirmation action' })
       }
@@ -1740,6 +1816,115 @@ var agentTools = {
         agentTools.onConfirmationNeeded({
           action: 'deploy_pumpfun_token',
           message: summary
+        })
+      }
+    })
+  },
+
+  // --- Token Buy/Sell tools ---
+
+  buyToken: async function (args) {
+    var mintAddress = (args.mint_address || '').trim()
+    var amountSol = typeof args.amount_sol === 'number' ? args.amount_sol : parseFloat(args.amount_sol)
+
+    if (!mintAddress) return { error: 'mint_address is required' }
+    if (!amountSol || amountSol <= 0) return { error: 'amount_sol must be a positive number' }
+
+    // Get current network
+    var network = 'mainnet-beta'
+    try {
+      var netResult = await ipc.invoke('wallet:getNetwork')
+      network = (netResult.data && netResult.data.network) || 'mainnet-beta'
+    } catch (e) {}
+
+    // Verify the token first
+    var verifyResult = await ipc.invoke('wallet:verifyToken', { mintAddress: mintAddress, network: network })
+    if (!verifyResult.success || !verifyResult.data || !verifyResult.data.valid) {
+      return { error: (verifyResult.data && verifyResult.data.error) || verifyResult.error || 'Token not found or invalid' }
+    }
+
+    var tokenInfo = verifyResult.data
+    var sourceLabel = { pumpfun: 'pump.fun', pumpswap: 'PumpSwap', raydium: 'Raydium', jupiter: 'Jupiter', devnet: 'Devnet', unknown: 'Unknown' }[tokenInfo.source] || tokenInfo.source
+
+    var balance = 0
+    try {
+      var balResult = await ipc.invoke('wallet:getBalance')
+      balance = (balResult.data && balResult.data.sol) || 0
+    } catch (e) {}
+
+    if (balance < amountSol + 0.01) {
+      return { error: 'Insufficient SOL balance. You have ' + balance.toFixed(4) + ' SOL, need ' + (amountSol + 0.01).toFixed(4) + ' SOL (including fees).' }
+    }
+
+    var networkLabel = network === 'devnet' ? 'Devnet' : 'Mainnet'
+
+    return new Promise(function (resolve) {
+      agentTools.pendingConfirmation = {
+        action: 'buy_token',
+        params: { mintAddress: mintAddress, amountSol: amountSol, network: network },
+        resolve: resolve
+      }
+      if (agentTools.onConfirmationNeeded) {
+        agentTools.onConfirmationNeeded({
+          action: 'buy_token',
+          message: 'Buy token on ' + networkLabel,
+          details: {
+            'Mint': mintAddress,
+            'Token': (tokenInfo.name || '?') + ' (' + (tokenInfo.symbol || '?') + ')',
+            'DEX': sourceLabel,
+            'Spend': amountSol + ' SOL',
+            'Network': networkLabel,
+            'Your Balance': balance.toFixed(4) + ' SOL'
+          }
+        })
+      }
+    })
+  },
+
+  sellToken: async function (args) {
+    var mintAddress = (args.mint_address || '').trim()
+    var amount = typeof args.amount === 'number' ? args.amount : parseFloat(args.amount)
+    var usePercent = args.use_percent === true
+
+    if (!mintAddress) return { error: 'mint_address is required' }
+    if (!amount || amount <= 0) return { error: 'amount must be a positive number' }
+    if (usePercent && (amount > 100)) return { error: 'Percentage must be between 1 and 100' }
+
+    // Get current network
+    var network = 'mainnet-beta'
+    try {
+      var netResult = await ipc.invoke('wallet:getNetwork')
+      network = (netResult.data && netResult.data.network) || 'mainnet-beta'
+    } catch (e) {}
+
+    // Verify the token
+    var verifyResult = await ipc.invoke('wallet:verifyToken', { mintAddress: mintAddress, network: network })
+    if (!verifyResult.success || !verifyResult.data || !verifyResult.data.valid) {
+      return { error: (verifyResult.data && verifyResult.data.error) || verifyResult.error || 'Token not found or invalid' }
+    }
+
+    var tokenInfo = verifyResult.data
+    var sourceLabel = { pumpfun: 'pump.fun', pumpswap: 'PumpSwap', raydium: 'Raydium', jupiter: 'Jupiter', devnet: 'Devnet', unknown: 'Unknown' }[tokenInfo.source] || tokenInfo.source
+    var networkLabel = network === 'devnet' ? 'Devnet' : 'Mainnet'
+    var amountLabel = usePercent ? amount + '% of holdings' : amount + ' tokens'
+
+    return new Promise(function (resolve) {
+      agentTools.pendingConfirmation = {
+        action: 'sell_token',
+        params: { mintAddress: mintAddress, amountTokens: amount, network: network, usePercent: usePercent },
+        resolve: resolve
+      }
+      if (agentTools.onConfirmationNeeded) {
+        agentTools.onConfirmationNeeded({
+          action: 'sell_token',
+          message: 'Sell token on ' + networkLabel,
+          details: {
+            'Mint': mintAddress,
+            'Token': (tokenInfo.name || '?') + ' (' + (tokenInfo.symbol || '?') + ')',
+            'DEX': sourceLabel,
+            'Amount': amountLabel,
+            'Network': networkLabel
+          }
         })
       }
     })
